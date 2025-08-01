@@ -1,0 +1,150 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_08-Ｃ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第８章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＬＯＯＰ</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+<B><H2>ＬＯＯＰの仕方</H2>
+
+<P>LOOPの仕方についてＲＰＧとＣを比較して見ましょう！
+
+<P>ＲＰＧでのＬＯＯＰにはどんな命令がありますか？思いつくものをあげてみましょう。
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1
+<FONT COLOR="#008000">     H*------------------------------------------------------------*
+     H* PROGRAM-ID    :    LOOP1R                                  *
+     H* REMARKS       :    ＲＰＧのＬＯＯＰ
+     H* AUTHOR        :    Y.IDE                                   *
+     H* DATE-WRITEN   :    98/08/31                                *
+     H* VERSION       :    01.00 ORIGINAL                          *
+     H*------------------------------------------------------------*</FONT>
+     C           1         <FONT COLOR="#FF0000">DO</FONT>   10        X       30
+     C                     ENDDO
+     <FONT COLOR="#008000">C*--------------------------------------*</FONT>
+     C                     Z-ADD0         X
+     C           X         <FONT COLOR="#FF0000">DOUGE</FONT>10
+     C                     ADD  1         X
+     C                     ENDDO
+     <FONT COLOR="#008000">C*--------------------------------------*</FONT>     
+     C                     Z-ADD0         X
+     C           X         <FONT COLOR="#FF0000">DOWLE</FONT>10
+     C                     ADD  1         X
+     C                     ENDDO
+     <FONT COLOR="#008000">C*--------------------------------------*</FONT>
+     C                     <FONT COLOR="#FF0000">DO   *HIVAL</FONT>
+     C                     LEAVE
+     C                     ENDDO
+     <FONT COLOR="#008000">C*--------------------------------------*</FONT>
+     C                     SETON                     LR
+     C                     RETRN
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ＲＰＧでは、DO,DOWxx,DOUxx,DO *HIVIL(永久ループ)などが利用できます。
+
+<P><FONT SIZE=+2 COLOR="#008080">Ｃではどうでしょうか？
+</FONT>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : LOOP1C                                         */
+/* REMARKS     :ループの仕方　　　　　　　　　　　　　
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/09/27                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  int x;
+
+  <FONT COLOR="#008000">/* 1 DO 10 Xに対応*/</FONT>
+  <FONT COLOR="#FF0000">for</FONT>(x=1; x <= 10; x++){
+    <FONT COLOR="#008000">/* なんにもしない*/</FONT>
+  }
+
+<FONT COLOR="#008000">  /* X DOUGE10に対応*/</FONT>
+  <FONT COLOR="#FF0000">do</FONT>{
+    x++; <FONT COLOR="#008000">/* ADD 1 Xと同じ*/</FONT>
+  } <FONT COLOR="#FF0000">while</FONT>(!(x >= 10));
+
+<FONT COLOR="#008000">  /* X DOWLE10に対応*/</FONT>
+  <FONT COLOR="#FF0000">while</FONT>(x <= 10){
+    x++; <FONT COLOR="#008000">/* ADD 1 Xと同じ*/</FONT>
+  }
+
+<FONT COLOR="#008000">  /* X DO *HIVALに対応*/</FONT>
+  <FONT COLOR="#FF0000">while(1)</FONT>{
+    break;
+  }
+
+  <FONT COLOR="#FF0000">for(;;)</FONT>{
+    break;
+  }
+
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ＲＰＧのＤＯＵｘｘ（ＤＯ　ＵＮＴＩＬ）は、ｌｏｏｐを実行してから式の評価を行います。<BR>
+これは、Ｃのｄｏ｛］ｗｈｉｌｅ（）に対応するのですが、条件が～までというのは表現できません<BR>
+そのため、上記では、while(!(x >= 10))の様に！をつけて～ではないあいだと言う評価をしています
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

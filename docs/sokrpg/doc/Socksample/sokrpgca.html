@@ -1,0 +1,106 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGCA</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>TCPクライアントプログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGCA                                   *
+     H* REMARKS       :    RPGソケットプログラム　　　　  　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/19                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKCAFM CF  E                    WORKSTN
+     I              '127.0.0.1      '     C         IPA
+     C*
+     C                     MOVE IPA       CIP
+     C                     MOVE '30031'   CPORT
+     C                     EXFMTSC01
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットオープン --------------------------------------*
+     C                     CALL 'SKOPEN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットコネクト --------------------------------------*
+     C                     CALL 'SKCONN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM CIP       IP     15
+     C                     PARM CPORT     PORT    5
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*
+     C           TAG#01    TAG
+     C                     WRITESC01
+     C                     EXFMTSC02
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVELFLD01     BUFOUT
+     C* ソケットデータ送信 ------------------------------------*
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* 終了判定
+     C                     MOVELFLD01     ENDSW   4
+     C           ENDSW     IFEQ 'EXIT'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットデータ受信 ------------------------------------*
+     C                     CALL 'SKREAD'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C           BUFLEN    OREQ '0   '
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*
+     C                     MOVELBUFIN     FLD02
+     C                     GOTO TAG#01
+     C* ソケットクローズ --------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+サーバーのIPアドレスとPORT番号を画面入力し接続を行う。<BR>
+接続成功後は、画面から入力したデータを送信し、サーバーからのデータ受信を繰り返す。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgca.gif" HEIGHT="500" WIDTH="648">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

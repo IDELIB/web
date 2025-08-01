@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<TITLE>SKSNDF</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKSNDF</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C* ファイル送信 --------------------------------------------*
+     C                     CALL 'SKSNDF'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           PFILE  10
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>パラメーターで渡されたファイルをオープンし、ファイルの全てのレコードをソケットに送信する<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PFILE</I></FONT>　(入力)</B>
+<DD><UL>送信するデータの入っているファイル名を左詰めに設定する。<P>
+ファイルはライブラリーリストに存在していること。
+</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+send()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

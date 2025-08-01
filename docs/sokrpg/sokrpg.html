@@ -1,0 +1,130 @@
+<HTML>
+<HEAD>
+<TITLE>IDELIB for AS/400 - Socket RPG </TITLE>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5207302210221522"
+     crossorigin="anonymous"></script>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000080" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5207302210221522"
+  crossorigin="anonymous"></script>
+<!-- SocketRPG -->
+<ins class="adsbygoogle"
+  style="display:inline-block;width:728px;height:90px"
+  data-ad-client="ca-pub-5207302210221522"
+  data-ad-slot="1779265710"></ins>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<CENTER><H1>Socket RPG V2</H1></CENTER><P>
+<HR>
+<CENTER>
+<FONT Size=2>掲載日: 1999/04/11, 更新日: 2000/10/02</FONT><BR>
+<HR>
+
+<FONT COLOR="#ff80ff">
+<H2>［お知らせ］</H2>
+</FONT>
+<H3>Socket RPGの新規バージョン (V2.00) を公開しました。
+<A HREF="http://www.vector.co.jp/soft/other/as400/se135496.html">Vector</A>さんよりダウンロード可能です。
+</H3>
+
+<H4>V2.00の主な変更点は以下になります。</H4>
+<UL>
+<LI>ライセンス・キーのロジックをはずします。(FreeSoftとします。）
+<LI>APIを追加します。（SKWAIT,SKSNDF,SKSNDL)など
+<LI>いつかの API に関してバグ修正やパフォーマンス改善しています。
+</UL>
+
+<H2>Socket RPGは、RPG で TCP/IP対応の通信プログラムの作成を可能とします。</H2>
+
+<H3>＜Socket RPGを使用したコーディング例＞</H3>
+<TABLE ALIGN=CENTER BORDER=1 WIDTH="500" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+
+<B>.....省略.......</B>
+
+  C*ソケットオープン--------------------------------------*
+  C                     CALL 'SKOPEN'
+  C                     PARM           SD      4
+  C                     PARM           RC      1
+  C*ソケットコネクト--------------------------------------*
+  C                     CALL 'SKCONN'
+  C                     PARM           SD      4
+  C                     PARM           RC      1
+  C                     PARM           IP
+  C                     PARM '30001'   PORT    5
+  C*ソケットデータ送信------------------------------------*
+  C                     CALL 'SKSEND'
+  C                     PARM           SD      4
+  C                     PARM           RC      1
+  C                     PARM '256'     BUFLEN  4
+  C                     PARM           BUFOUT256
+  C*ソケットデータ受信------------------------------------*
+  C                     CALL 'SKREAD'
+  C                     PARM           SD      4
+  C                     PARM           RC      1
+  C                     PARM '256'     BUFLEN  4
+  C                     PARM           BUFIN 256
+  C*------------------------------------------------------*
+<B>.....省略.......</B>
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+
+<BR>
+<TABLE ALIGN=CENTER WIDTH="500">
+<TR><TD><BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<B><UL>
+<LI>RPG 数行のコーディングで TCPIP 通信が利用可能
+<LI>TCP, UDP, 両タイプの通信をサポート
+<LI>文字コード変換も可能
+<LI>デーモンタイプのアプリケーションも構築可能
+</UL>
+</B>
+</TD></TR>
+</TABLE>
+
+<FONT COLOR="#ff0080"><H3>当パッケージは個人的に提供しているもので、<BR>
+IBM 社その他のサポートはありません。<BR>
+もちろん、メーカーの保証などはありません。<BR>
+個人の責任においてご使用下さい。
+</H3></FONT>
+
+<B>
+<P>サポート手段は、e-mailのみです。それ以外の手段を用意する予定はありませんのであらかじめご了承下さい。
+</B>
+
+<A HREF="./doc/index.html"><H2> ＜オンライン・マニュアル＞ </H2></A>
+
+<A HREF="http://www.vector.co.jp/soft/other/as400/se135496.html"><H2> ＜ダウンロードはこちら＞ </H2></A>
+
+</TD>
+</TR>
+</TABLE>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-5207302210221522";
+/* SocketRPG */
+google_ad_slot = "1779265710";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<HR WIDTH="95%">
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[IDELIB HOME]</A><BR>
+</CENTER>
+</BODY>
+</HTML>

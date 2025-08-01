@@ -1,0 +1,66 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SKGETH                                          */
+/* REMARKS     : ホスト名／ＩＰアドレスの検索                  */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/03/20                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/*                                                               */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+
+struct hostent *hostp;
+
+int CutB(char *,int);
+
+void main(int argc, char *argv[]){
+  unsigned long inaddr;
+  char hostnm[129];
+  char ipstr[16];
+  char ipaddr[5];
+
+  memcpy(hostnm,argv[1],128);
+  CutB(hostnm, 127);
+
+  hostp = gethostbyname(hostnm);
+
+  if (hostp == (struct hostent *)NULL){
+    inaddr = inet_addr(hostnm);
+    hostp  = gethostbyaddr((char *)&inaddr,4,AF_INET);
+      if (hostp == (struct hostent *)NULL){
+        *argv[2] = 'E';
+        exit(-1);
+      }
+  }
+
+  if (hostp != (struct hostent *)NULL){
+    memset(ipstr, '\x00', 16);
+    memcpy(ipaddr, *(hostp->h_addr_list), 4);
+    sprintf(ipstr,"%u.%u.%u.%u",
+            ipaddr[0],ipaddr[1],ipaddr[2],ipaddr[3]);
+    memcpy(argv[3],ipstr,15);
+  }
+  *argv[2] = ' ';
+}
+/*-----------------------------------------------------------------*/
+  int CutB(char *buf, int len){
+/*-----------------------------------------------------------------*/
+int i;
+
+    for(i=len;i > 0;i--){
+        if(buf[i] == 0x40){
+            buf[i] = 0;
+        } else {
+        break;
+        }
+    }
+}

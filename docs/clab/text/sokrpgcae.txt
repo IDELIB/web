@@ -1,0 +1,135 @@
+     H DATEDIT(*YMD/)
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGCAE                                  *
+     H* REMARKS       :    ILE-RPG ソケットプログラム                 *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/08/22                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKCAFM   CF   E             WORKSTN
+     D* アドレスファミリー
+     D AF_UNIX         C                   CONST(1)
+     D AF_INET         C                   CONST(2)
+     D AF_NS           C                   CONST(6)
+     D* ソケットタイプ
+     D SOCK_STREAM     C                   CONST(1)
+     D SOCK_DGRAM      C                   CONST(2)
+     D SOCK_RAW        C                   CONST(3)
+     D* ソケットオプション
+     D SO_BROADCAST    C                   CONST(5)
+     D SO_DEBUG        C                   CONST(10)
+     D SO_DONTROUTE    C                   CONST(15)
+     D SO_ERROR        C                   CONST(20)
+     D SO_KEEPALIVE    C                   CONST(25)
+     D*
+     D SO_LINGER       C                   CONST(30)
+     D SO_OOBINLINE    C                   CONST(35)
+     D*
+     D SO_RCVBUF       C                   CONST(40)
+     D SO_RCVLOWAT     C                   CONST(45)
+     D SO_RCVTIMEO     C                   CONST(50)
+     D SO_REUSEADDR    C                   CONST(55)
+     D SO_SNDBUF       C                   CONST(60)
+     D SO_SNDLOWAT     C                   CONST(65)
+     D SO_SNDTIMEO     C                   CONST(70)
+     D SO_TYPE         C                   CONST(75)
+     D SO_USELOOPBACK  C                   CONST(80)
+     D* ソケットアドレス
+     DSOCKADDR         DS
+     D SA_FAMILY                      5U 0
+     D SA_DATA                       14A
+     D* ソケットアドレス
+     DSOCKADDR_IN      DS
+     D SIN_FAMILY                     5I 0 INZ(AF_INET)
+     D SIN_PORT                       5U 0 INZ(30031)
+     D SIN_ADDR                      10U 0
+     D SIN_ZERO1                     10I 0 INZ(0)
+     D SIN_ZERO2                     10I 0 INZ(0)
+     D* プロトタイプ
+     DINET_ADDR        PR            10U 0 EXTPROC('inet_addr')
+     D                               15
+     DSOCKET           PR            10I 0 EXTPROC('socket')
+     D                               10I 0 VALUE
+     D                               10I 0 VALUE
+     D                               10I 0 VALUE
+     DCONNECT          PR            10I 0 EXTPROC('connect')
+     D                               10I 0 VALUE
+     D CSOCKADDR                           LIKE(SOCKADDR_IN)
+     D                               10I 0 VALUE
+     DSEND             PR            10I 0 EXTPROC('send')
+     D                               10I 0 VALUE
+     D                            32767
+     D                               10I 0 VALUE
+     D                               10I 0 VALUE
+     DRECV             PR            10I 0 EXTPROC('recv')
+     D                               10I 0 VALUE
+     D                            32767
+     D                               10I 0 VALUE
+     D                               10I 0 VALUE
+     DCLOSE            PR            10I 0 EXTPROC('close')
+     D                               10I 0 VALUE
+     D*
+     D IPA             C                   CONST('127.0.0.1      ')
+     D*
+     D SD              S             10I 0
+     D RC              S             10I 0
+     D BUFLEN          S             10I 0
+     D BUFIN           S          32767
+     D BUFOUT          S          32767
+     C                   MOVE      IPA           CIP
+     C                   MOVE      '30031'       CPORT
+     C                   EXFMT     SC01
+     C     *IN03         IFEQ      '1'
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C* ソケットオープン -------------------------------------------------*
+     C                   EVAL      SD = SOCKET(AF_INET : SOCK_STREAM : 0)
+     C*-------------------------------------------------------------------*
+     C     SD            IFLT      0
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C* ソケットコネクト -------------------------------------------------*
+     C                   EVAL      SIN_FAMILY = AF_INET
+     C                   MOVE      CPORT         SIN_PORT
+     C                   EVAL      SIN_ADDR = INET_ADDR(CIP)
+     C                   EVAL      RC = CONNECT(SD : SOCKADDR_IN : 16)
+     C*-------------------------------------------------------------------*
+     C     RC            IFLT      0
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C*
+     C     TAG#01        TAG
+     C                   WRITE     SC01
+     C                   EXFMT     SC02
+     C     *IN03         IFEQ      '1'
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C                   MOVEL     FLD01         BUFOUT
+     C* ソケットデータ送信 -----------------------------------------------*
+     C                   Z-ADD     256           BUFLEN
+     C                   EVAL      RC = SEND(SD : BUFOUT : BUFLEN : 0)
+     C*-------------------------------------------------------------------*
+     C     RC            IFLT      0
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C*終了判定
+     C                   MOVEL     FLD01         ENDSW             4
+     C     ENDSW         IFEQ      'EXIT'
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C* ソケットデータ受信 -----------------------------------------------*
+     C                   Z-ADD     256           BUFLEN
+     C                   EVAL      RC = RECV(SD : BUFIN : BUFLEN : 0)
+     C*-------------------------------------------------------------------*
+     C     RC            IFLE      0
+     C                   GOTO      TAG#E
+     C                   ENDIF
+     C*
+     C                   MOVEL     BUFIN         FLD02
+     C                   GOTO      TAG#01
+     C* ソケットクローズ -------------------------------------------------*
+     C     TAG#E         TAG
+     C                   EVAL      RC = CLOSE(SD)
+     C*-------------------------------------------------------------------*
+     C                   SETON                                        LR
+     C                   RETURN

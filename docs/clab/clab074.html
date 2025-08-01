@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_07-Ｉ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第７章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｉ仕様書－ＵＮＩＯＮ</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+ＲＰＧのデータストラクチャーは、フィールドを重ねて定義できます。
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    ISPEC5R                                    *
+     H* REMARKS       :    UNION                                      *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/9/12                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     I            DS
+     I                                        1   4 D1
+     I                                        1   2 D2
+     C*
+     C                     MOVE 'ABCD'    D1
+     C           D1        DSPLY
+     C           D2        DSPLY
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+     C*
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>この例だと、Ｄ１フィールドに’ＡＢＣＤ’をセットすると、Ｄ２フィールドは’ＡＢ’になります。
+
+<P>Ｃ言語のデータストラクチャーは、フィールドを重ねた定義はできません。
+<BR>フィールドを重ねて定義したい場合は、ＵＮＩＯＮを使用します。
+
+<CENTER>
+<H4>ｕｎｉｏｎを使ったＣプログラム</H4>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : ISPEC5                                          */
+/* REMARKS     : Ｉ仕様書ＤＳ＆ｕｎｉｏｎ                        */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/9/12                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+#include &LT;stdio.h&GT;
+#include &LT;unistd.h&GT;
+
+int main(void) {
+  union { char d1[4];
+          char d2[2];
+  } ds;
+
+  memcpy(ds.d1,"ABCD", 4);
+
+  printf("ds.d1 = %4.4s \n",ds.d1);
+  printf("ds.d2 = %2.2s \n",ds.d2);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>この例でも、ｄｓ．ｄ１フィールドに’ＡＢＣＤ’をセットすると、ｄｓ．ｄ２フィールドは’ＡＢ’になります。
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

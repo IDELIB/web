@@ -1,0 +1,419 @@
+<HTML>
+<HEAD>
+   <TITLE>CLAB 実行環境</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<HTML>
+<HEAD>
+<TITLE>CLab_??-????????</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第9章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　活動化グループ</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+<P>活動化グループを使用すると、同一ＪＯＢ内に複数のプログラム実行環境を作成することができます。
+
+<P>RPGを呼び出した場合に、SETON  LRをせずにRETURNすると、プログラムはそのまま常駐します。<BR>
+何度も同じＲＰＧを呼び出す場合に、意識的にLRを立てずにRETURNすることで、呼び出しに掛かる
+オーバーヘッドを策なくするテクニックは割と一般的に使用されてきたのではないでしょうか。
+
+<P>SETON LR しないで RETRUN するプログラム ACT1R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1
+     <FONT COLOR="#008000">H*------------------------------------------------------------*
+     H* PROGRAM-ID    :    ACT1R                                   *
+     H* REMARKS       :    SETON LRしないプログラム                *
+     H* AUTHOR        :    Y.IDE                                   *
+     H* DATE-WRITEN   :    98/08/31                                *
+     H* VERSION       :    01.00 ORIGINAL                          *
+     H*------------------------------------------------------------*</FONT>
+     FACT1FM  CF  E                    WORKSTN
+     FCLAB2P  IF  E                    DISK
+     C*
+     C           CNT       ADD  1         CNT     70
+     C                     READ CLAB2P                   99
+     C                     EXFMTSC01
+     C                     RETRN
+     C*
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>画面ファイル ACT1FM
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     A                                      DSPSIZ(24 80 *DS3)
+     A          R SC01
+     A                                  3  2'COUNT :'
+     A            CNT            7Y 0B  3 10
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<P>CALL ACT1R を実行してください。
+
+<P>もう一度、CALL ACT1R を実行してください。
+
+<P>カウントアップして行きます。これは、ＬＲを立てずにRETURNした為、ＰＧＭが常駐しており
+<BR>前回呼び出したＰＧＭの内容（ＦＩＬＥのオープン，変数の値）がそのまま残っているからです
+
+外部ＰＧＭがコールされると、初期設定ルーチンのなかで、ファイルオープン、変数の初期化などが行われ、
+ＰＧＭスタックに登録されます。
+ＰＧＭの終了時には、ファイルのクローズ，メモリーの開放など一連の終了処理が行われてプログラムスタック
+から除去されます。
+
+<P>ＩＬＥでは、ＰＧＭをモジュールに細かく分けて、１つのプログラムとしてバインドする方法が
+採用されました。
+<P>そのため、外部プログラムの呼び出し時に掛かるオーバーヘッドを極力少なくするような工夫が
+必要になりました。その中で登場したのが、活動化グループです。
+<P>活動化グループ単位で、ＰＧＭの実行環境を制御するので、活動化グループの中でＰＧＭを活動化し
+実行が終わっても活動化グループが存在する間は、ＰＧＭの状態が保持されます。
+<P>活動化グループを削除することで、活動化されたプログラムが占有しているメモリーなどを開放します
+
+<P>従来の環境と互換をとるため、＊ＤＦＴＡＣＴＧＲＰがあり、ＩＬＥ以外のＰＧＭはこの活動化
+グループに属します。
+
+<P>ＩＬＥのＰＧＭは、その作成時にａｃｔｇｒｐ　＊ＮＥＷ／＊ＣＡＬＬＥＲを選択します
+＊ＮＥＷは、実行時に新たにアクセスグループを作成し、実行が完了したら、そのアクセスグループを
+削除します。
+
+<P>＊ＣＡＬＬＥＲは、呼び出し元のＰＧＭと同じアクセスグループで活動します
+
+<P>この他に、ユーザーで固有の名前をつけてアクセスグループを作成することも可能です
+
+<P>１ＪＯＢでアクセスグループを複数保つことの利点は、何度も呼びたされるＰＧＭが、呼び出された時の
+オーバーヘッドを減らせることです。
+
+<P>下記のＣのコードを使用して、いくつかのパターンを検証してみましょう。
+
+<P>以下のコードをすべて、CRTCMODでモジュールとして作成してください
+
+<B><FONT COLOR="#FF00FF"><P>CRTCMOD ACT1C </FONT></B>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : ACT1C                  */  
+/* REMARKS     :活動化グループ　単体テスト
+/* AUTHOR      : Y.Ide                  */
+/* DATE-WRITEN : 98/08/31               */
+/* VERSION     : 01.00 ORIGINAL         */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+#pragma mapinc(&quot;REC&quot;,&quot;CLAB/CLAB2P(CLAB2R)&quot;,&quot;both&quot;,&quot;d z&quot;)
+#include &quot;REC&quot;
+
+#pragma mapinc(&quot;SC01&quot;,&quot;CLAB/ACT1FM(*ALL)&quot;,&quot;both&quot;,&quot; &quot;)
+#include &quot;SC01&quot;
+
+int main(void)
+{
+  _RFILE                            *fp0;
+  _RFILE                            *dspf;
+  _RIOFB_T                          *fb; <FONT COLOR="#008000">/*オープンフィードバック*/</FONT>
+  CLAB_CLAB2P_CLAB2R_both_t         rec;
+  CLAB_ACT1FM_SC01_both_t           sc01;
+  int cnt;
+
+    if (( fp0 = _Ropen(&quot;CLAB2P&quot;, &quot;ar&quot; )) == NULL )
+    {
+        printf ( &quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+
+    if (( dspf = _Ropen(&quot;ACT1FM&quot;, &quot;ar+&quot; )) == NULL )
+    {
+        printf (&quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*カウントアップと設定*/</FONT>
+    cnt = cnt + 1;   <FONT COLOR="#008000">/* 通常では++cntかcnt++と書きます */</FONT>
+    QXXITOZ(sc01.CNT, 7, 0, cnt);
+
+<FONT COLOR="#008000">/*レコード様式を設定する*/</FONT>
+    _Rformat(dspf,&quot;SC01&quot; );
+
+<FONT COLOR="#008000">/* EXFMTに同じ*/</FONT>
+    fb = _Rwriterd(dspf, &amp;sc01, sizeof(sc01) );
+
+  _Rclose (fp0);
+  _Rclose (dspf);
+
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : ACT3C                                          */
+/* REMARKS     :活動化グループ　バインド・テスト
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/08/31                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+<FONT COLOR="#FF00FF">int dspio1(void);
+int dspio2(void);</FONT>
+
+int main(void)
+{
+int rc;
+<FONT COLOR="#000000">rc = dspio1();
+rc = dspio2();</FONT>
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : ACT3SRV                                        */
+/* REMARKS     :活動化グループ　サービスプログラムその１
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/08/31                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+<p>#pragma mapinc(&quot;REC&quot;,&quot;CLAB/CLAB2P(CLAB2R)&quot;,&quot;both&quot;,&quot;d z&quot;)
+#include &quot;REC&quot;
+
+#pragma mapinc(&quot;SC01&quot;,&quot;CLAB/ACT1FM(*ALL)&quot;,&quot;both&quot;,&quot; &quot;)
+#include &quot;SC01&quot;
+
+<FONT COLOR="#FF00FF">int dspio1(void)</FONT>
+
+{
+  _RFILE                            *fp0;
+  _RFILE                            *dspf;
+  _RIOFB_T                          *fb; <FONT COLOR="#008000">/*オープンフィードバック*/</FONT>
+  CLAB_CLAB2P_CLAB2R_both_t         rec;
+  CLAB_ACT1FM_SC01_both_t           sc01;
+  int cnt;
+
+    if (( fp0 = _Ropen(&quot;CLAB2P&quot;, &quot;ar&quot; )) == NULL )
+    {
+        printf ( &quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+
+    if (( dspf = _Ropen(&quot;ACT1FM&quot;, &quot;ar+&quot; )) == NULL )
+    {
+        printf (&quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*カウントアップと設定*/</FONT>
+    cnt = cnt + 1;  <FONT COLOR="#008000"> /* 通常では++cnt,cnt++と書きます*/</FONT>
+    QXXITOZ(sc01.CNT, 7, 0, cnt);
+
+<FONT COLOR="#008000">/*レコード様式を設定する*/</FONT>
+    _Rformat(dspf,&quot;SC01&quot; );
+
+<FONT COLOR="#008000">/* EXFMTに同じ*/</FONT>
+    fb = _Rwriterd(dspf, &amp;sc01, sizeof(sc01) );
+
+  _Rclose (fp0);
+  _Rclose (dspf);
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<B><FONT COLOR="#FF00FF"><P>CRTCMOD ACT4SRV </FONT></B>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : ACT4SRV                                        */
+/* REMARKS     :活動化グループ　サービスプログラムその２
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/08/31                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+#pragma mapinc(&quot;REC&quot;,&quot;CLAB/CLAB2P(CLAB2R)&quot;,&quot;both&quot;,&quot;d z&quot;)
+#include &quot;REC&quot;
+
+#pragma mapinc(&quot;SC01&quot;,&quot;CLAB/ACT1FM(*ALL)&quot;,&quot;both&quot;,&quot; &quot;)
+#include &quot;SC01&quot;
+
+<FONT COLOR="#FF00FF">int dspio2(void)</FONT>
+{
+  _RFILE                            *fp0;
+  _RFILE                            *dspf;
+  _RIOFB_T                          *fb; <FONT COLOR="#008000">/*オープンフィードバック*/</FONT>
+  CLAB_CLAB2P_CLAB2R_both_t         rec;
+  CLAB_ACT1FM_SC01_both_t           sc01;
+  int cnt;
+
+    if (( fp0 = _Ropen(&quot;CLAB2P&quot;, &quot;ar&quot; )) == NULL )
+    {
+        printf ( &quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+
+    if (( dspf = _Ropen(&quot;ACT1FM&quot;, &quot;ar+&quot; )) == NULL )
+    {
+        printf (&quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*カウントアップと設定*/</FONT>
+    cnt = cnt + 1;  <FONT COLOR="#008000"> /* 通常では++cnt,cnt++と書きます*/</FONT>
+    QXXITOZ(sc01.CNT, 7, 0, cnt);
+
+/*レコード様式を設定する*/
+    _Rformat(dspf,&quot;SC01&quot; );
+
+<FONT COLOR="#008000">/* EXFMTに同じ*/</FONT>
+    fb = _Rwriterd(dspf, &amp;sc01, sizeof(sc01) );
+
+  _Rclose (fp0);
+  _Rclose (dspf);
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P ALIGN="LEFT">
+  <LI>ＡＣＴ１Ｃモジュールより作成
+    <UL>
+     <OL TYPE="1">
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ１ＣＡ　ＡＣＴ１Ｃ　＊ＣＡＬＬＥＲ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ１ＣＢ　ＡＣＴ１Ｃ　＊ＮＥＷ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ１ＣＣ　ＡＣＴ１Ｃ　ＡＣＴ１ＧＲＰ
+     </OL>
+   </UL> 
+  <LI>ＡＣＴ３ＳＲＶモジュールより作成
+    <UL>
+     <OL TYPE="1">
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ３ＳＲＶＡ　ＡＣＴ３ＳＲＶ　＊ＣＡＬＬＥＲ
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ３ＳＲＶＢ　ＡＣＴ３ＳＲＶ　＊ＮＥＷ
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ３ＳＲＶＣ　ＡＣＴ３ＳＲＶ　ＡＣＴ３ＧＲＰ
+     </OL>
+   </UL> 
+  <LI>ＡＣＴ４ＳＲＶモジュールより作成
+    <UL>
+     <OL TYPE="1">
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ４ＳＲＶＡ　ＡＣＴ４ＳＲＶ　＊ＣＡＬＬＥＲ
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ４ＳＲＶＢ　ＡＣＴ４ＳＲＶ　＊ＮＥＷ
+     <LI>ＣＲＴＳＲＶＰＧＭ　ＡＣＴ４ＳＲＶＣ　ＡＣＴ４ＳＲＶ　ＡＣＴ４ＧＲＰ
+     </OL>
+   </UL> 
+  <LI>ＡＣＴ３Ｃモジュールより作成
+    <UL>
+     <OL TYPE="1">
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ３ＣＡ　ＡＣＴ３ＳＲＶＡ　ＡＣＴ４ＳＲＶＡ　＊ＣＡＬＬＥＲ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ３ＣＢ　ＡＣＴ３ＳＲＶＢ　ＡＣＴ４ＳＲＶＢ　＊ＮＥＷ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ３ＣＣ　ＡＣＴ３ＳＲＶＣ　ＡＣＴ４ＳＲＶＣ　ＡＣＴ３ＧＲＰ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ４ＣＡ　ＡＣＴ３ＳＲＶＡ　ＡＣＴ４ＳＲＶＡ　＊ＣＡＬＬＥＲ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ４ＣＢ　ＡＣＴ３ＳＲＶＢ　ＡＣＴ４ＳＲＶＢ　＊ＮＥＷ
+     <LI>ＣＲＴＰＧＭ　ＡＣＴ４ＣＣ　ＡＣＴ３ＳＲＶＣ　ＡＣＴ４ＳＲＶＣ　ＡＣＴ３ＧＲＰ
+     </OL>
+   </UL> 
+
+<P>それぞれの実行結果をみていくと、その動作の違いに気がつくかと思います。
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

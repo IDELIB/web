@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+<TITLE>TCP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<CENTER><H2>UDP通信概要フロー</H2></CENTER><P>
+<HR>
+
+<TABLE ALIGN=CENTER BORDER=0>
+<TR ALIGN=CENTER>
+	<TD ><A HREF="./sokrpgudp.html">サーバーＲＰＧ</A></TD>
+	<TD WIDTH="200"> </TD>
+	<TD ><A HREF="./sokrpgcau.html">クライアントＲＰＧ</A></TD>
+</TR>
+<TR>
+	<TD><H4>１．SKUDPO</H4>
+<FONT SIZE=2>SKUDPOプログラムによりソケットをオープンします。SKUDPOでは、setsocketオプションで、
+SO_REUSEADDRをセットしています。</FONT>
+<P></P>
+	</TD>
+<TD></TD>
+	<TD><H4>１．SKUDPO</H4>
+<FONT SIZE=2>SKUDPOプログラムによりソケットをオープンします。SKUDPOでは、setsocketオプションで、
+SO_REUSEADDRをセットしています。</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>２．SKBIND</H4>
+<FONT SIZE=2>SKBINDプログラムによりソケットにＩＰアドレス／ポート番号を割り当てます。<BR>
+SKBINDでは、明示的なＩＰ割り当ての代わりにＡＮＹとしてどのインターフェースからの
+接続要求についても受けとれます。</FONT><P></P></TD>
+<TD></TD>
+<TD></TD>
+</TR>
+
+<TR>
+	<TD><H4>３．SKUDPR</H4>
+<FONT SIZE=2>SKUDPRプログラムにより、クライアントから送信された文字列を受信し、画面表示します。<BR>
+</FONT>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow2.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>３．SKUDPS</H4>
+<FONT SIZE=2>SKUDPSプログラムにより、画面から入力された文字列を送信します。<BR>
+</FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD><H4>４．SKUDPS</H4>
+<FONT SIZE=2>SKUDPSプログラムにより、３．で受信した文字列をそのまま受信元IPとPORTに送信します。<BR>
+（エコー処理）
+</FONT>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow1.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>４．SKUDPR</H4>
+<FONT SIZE=2>SKUDPRプログラムにより、サーバーから送信された文字列を受信し、画面表示します。<BR>
+（エコー処理）
+</FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD><H4>５．SKCLOS</H4>
+<FONT SIZE=2>文字列［EXIT]が送られてきた場合は、SKCLOSプログラムにより、ソケットのクローズを行います。
+</FONT>
+	</TD>
+<TD></TD>
+	<TD><H4>５．SKCLOS</H4>
+<FONT SIZE=2>画面からＦ３が押されるか、サーバープログラムが終了した場合は、SKCLOSプログラムにより、ソケットのクローズを行います。
+</FONT>
+	</TD>
+</TR>
+</TABLE>
+
+
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

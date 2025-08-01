@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-付録</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ILE-RPGから戻り値をもらう</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<H3>ＩＬＥ－ＲＰＧから戻り値をもらう場合の、サンプルコードです。</H3>
+
+<H4>ＩＬＥ－ＲＰＧでは、メインプロシージャでの戻り値は定義できません</H4>
+<H4>戻り値が使用出来るのは、サブプロシージャだけです</H4>
+
+<P>ＲＰＧを呼び出すＰＧＭ PROG7C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : PROG7C                                          */
+/* REMARKS     : RPG を呼びたす ＰＧＭ                           */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/11/07                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+
+#include&LT;stdio.h&GT;
+
+/* 関数プロトタイプ宣言 */
+int  PROG7P(int *, int *);
+
+int  main(int argc, char *argv[]){
+  int p1 = 11;
+  int p2 = 12;
+  int rc = 0;
+
+  rc = PROG7P(&p1,&p2);
+
+  printf("RC = %d",rc);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>Ｃから呼び出されるＰＧＭ PROG7R メインなし
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+　   *-------メインプロシージャなしを宣言---------*
+   H NOMAIN
+    *-----------プロシージャプロトタイプ----------*
+   D PROG7P          PR            10I 0
+   D   P1                          10I 0
+   D   P2                          10I 0
+    *-----------プロシージャ定義開始--------------*
+   P PROG7P          B                   EXPORT
+    *-----------インターフェース定義--------------*
+   D PROG7P          PI            10I 0
+   D   P1                          10I 0
+   D   P2                          10I 0
+    *---演算----*
+   C                   RETURN    P1 + P2
+   P PROG7P          E
+    *-----------プロシージャ定義の終わり----------*
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

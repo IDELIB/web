@@ -1,0 +1,136 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-付録</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＯＰＭ－ＲＰＧからＣを呼び出す</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<H3>ＯＰＭ－ＲＰＧからＣを呼び出す場合の、サンプルコードです。</H3>
+<P>Ｃを呼び出すＰＧＭ PROG1R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    PROG1R                                     *
+     H* REMARKS       :   Ｃを呼び出すＰＧＭ　　　　　　　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/8/15                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     I            DS
+     I                                        1   1 CHAR
+     I                                        2  11 STRING
+     I                                    B  12  130INT2
+     I                                    B  14  170INT4
+     C*
+     C                     MOVE 'A'       CHAR
+     C                     MOVEL'12345678'STRING
+     C                     Z-ADD123       INT2
+     C                     Z-ADD123       INT4
+     C                     Z-ADD123       PACK    70
+     C*
+     C                     CALL 'PROG1C'
+     C                     PARM           CHAR
+     C                     PARM           STRING
+     C                     PARM           INT2
+     C                     PARM           INT4
+     C                     PARM           PACK
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>RPGから呼び出されるＰＧＭ PROG1C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : PROG1C                                          */
+/* REMARKS     : RPGから呼び出されるＰＧＭ                       */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/8/15                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* ＲＰＧから呼ばれるプログラム　　　　　　　　                  */
+/* ＲＰＧからはポインター渡しでパラメーターを受け取る            */
+
+#include&LT;stdio.h&GT;
+#include&LT;stdlib.h&GT;
+#include&LT;string.h&GT;
+#include&LT;decimal.h&GT;
+
+void main(int argc, char *argv[])
+{
+/*パラメーター*/
+char            *p_char;
+char            *p_string;
+short int       *p_int2;
+int             *p_int4;
+decimal(7,0)    *p_pack;
+
+/*パラメーター取得*/
+p_char      = (char *)argv[1];
+p_string    = (char *)argv[2];
+p_int2      = (short *)argv[3];
+p_int4      = (int   *)argv[4];
+p_pack      = (decimal(7,0) *)argv[5];
+
+printf("CHAR    = %c \n",*p_char);
+printf("STRING  = %s \n",p_string);
+printf("INT2    = %d \n",*p_int2);
+printf("INT4    = %d \n",*p_int4);
+printf("PACK    = %D(7,0) \n" , *p_pack);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

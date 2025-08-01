@@ -1,0 +1,107 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SOCKSPAWND                                      */
+/* REMARKS     : ソケットサーバーデーモン SPAWN                  */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/10/26                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <spawn.h>
+
+int  main(int argc, char *argv[]){
+int        sd;
+int        nd;
+int        on = 1;
+int        rc;
+int        size;
+unsigned short  port = 30001;
+int        buflen = 1024;
+char       buf[1024] = {0};
+
+struct sockaddr_in saddr;
+struct sockaddr_in saddr2;
+
+int      child_pid;
+char     sd_str[10];
+struct   inheritance inherit;
+char     *spawn_argv[3];
+char     *spawn_envp[1];
+
+/* OPEN SOCKET */
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    perror("socket() failed");
+    exit(-1);
+  }
+      /* TCP_NODELAY  */
+      if ((rc = setsockopt(sd, IPPROTO_TCP,
+                           TCP_NODELAY,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() TCP_NODELAY failed");
+        exit(-1);
+      }
+      /* SO_REUSEADDR  */
+      if ((rc = setsockopt(sd, SOL_SOCKET,
+                           SO_REUSEADDR,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() SO_REUSEADDR failed");
+        exit(-1);
+      }
+  memset(&saddr, 0x00, sizeof(struct sockaddr_in));
+
+  saddr.sin_family        = AF_INET;
+  saddr.sin_port          = htons(port);
+
+  saddr.sin_addr.s_addr = INADDR_ANY;
+
+  if((rc = bind(sd,(struct sockaddr *)&saddr, sizeof(saddr))) < 0){
+    perror("bind() failed");
+    exit(-1);
+  }
+  if((rc = listen(sd, 10)) < 0 ) {
+    perror("listen() failed");
+  }
+
+  while(1){
+    memset(&saddr2, 0x00, sizeof(struct sockaddr_in));
+    size = sizeof(struct sockaddr_in);
+    if((nd = accept(sd,(struct sockaddr *)&saddr2, &size)) < 0){
+      perror("accept() failed");
+      exit(-1);
+    }
+
+  /* SETUP FOR SPAWN() CALL */
+    inherit.flags = 0;
+    inherit.pgroup = 0;
+    spawn_envp[0] = NULL;
+
+    spawn_argv[0] = "";
+    sprintf(sd_str,"%d",nd);
+    spawn_argv[1] = sd_str;
+    spawn_argv[2] = NULL;
+
+  /* Create child, inheriting file descriptors */
+
+    child_pid=spawn("/QSYS.LIB/CLAB.LIB/SOCKSPAWNP.PGM",
+                    0, NULL, &inherit,
+                    spawn_argv, spawn_envp);
+    if(child_pid<0){
+      perror("SPAWN() FAILED");
+      exit(-1);
+    }
+    close(nd);
+  }
+}

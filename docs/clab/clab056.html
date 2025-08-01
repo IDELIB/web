@@ -1,0 +1,201 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_05-Ｆ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第５章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ILE-RPG で統合ファイルシステムの利用例</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+<H3>ＩＬＥ－ＲＰＧから統合ファイルシステムを利用してみましょう！</H3>
+
+<P><FONT SIZE = +1 COLOR="#FF00FF">残念ながら、ＲＰＧでは統合ファイルシステム（ＩＦＳ）にアクセスできません。</FONT>
+
+<H3>ここでは、ＣのモジュールをＩＬＥ－ＲＰＧにバインドして統合ファイルシステムを利用します。</H3>
+
+<H2>Cのモジュール<BR>
+ＩＦＳ１Ｃ（ＩＦＳＲＥＡＤとＩＦＳＷＲＩＴＥを実装）</H2>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=3>
+<PRE>
+<FONT COLOR="#008000">
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : IFS1C                                           */
+/* REMARKS     : ＩＦＳファイルＩ／Ｏ　　                        */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/9/24                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* ＩＦＳ（統合ファイルシステム）のストリームファイルを          */
+/* バイナリーモードでオープンします。                            */
+/*  CRTCMOD SYSIFCOPT(IFSIO)でコンパイルしてください             */</FONT>
+
+#include &LT;stdio.h&GT;
+#include &LT;unistd.h&GT;
+#include &LT;string.h&GT;
+
+<FONT COLOR="#FF00FF">int  IFSREAD(char *filename, char *buf, int *buflen)</FONT> {
+  FILE *fp1;
+  char bin[32768] = {0};
+  int  rc = 0;
+  char *ptr;
+  int  blank = ' ';
+
+/* NULLターミネイト*/
+  ptr = strchr(filename,blank);
+  if (ptr != NULL) *ptr = 0;
+/*読み込み専用でファイルオープン*/
+  fp1 = fopen(filename,"rb");
+  if (fp1 == NULL){
+     perror(filename);
+     rc = -1;
+  }
+  fgets(bin, (*buflen)+1, fp1);
+  fclose(fp1);
+
+  memcpy(buf,bin,*buflen);
+  return rc;
+ }
+
+<FONT COLOR="#FF00FF">int  IFSWRITE(char *filename, char *buf, int *buflen)</FONT> {
+  FILE *fp1;
+  char bin[32768] = {0};
+  int  rc = 0;
+  char *ptr;
+  int  blank = ' ';
+
+/* NULLターミネイト*/
+  ptr = strchr(filename,blank);
+  if (ptr != NULL) *ptr = 0;
+  memcpy(bin,buf,*buflen);
+
+/*追記でファイルオープン*/
+  fp1 = fopen(filename,"ab");
+  if (fp1 == NULL){
+     perror(filename);
+     rc = -1;
+  }
+  fputs(bin,fp1);
+  fclose(fp1);
+
+  return rc;
+
+ }
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<H2>ILE-RPGのモジュール　ＩＦＳ１Ｒ（メインプログラム）</H2>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=3>
+<PRE>
+     H DATEDIT(*YMD/)
+<FONT COLOR="#008000">     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    IFC1R                                      *
+     H* REMARKS       :   IFSREADを呼び出すＰＧＭ 　      　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/9/24                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     H* IFS1C モジュールをバイントしてください。
+     H*---------------------------------------------------------------*</FONT>
+<FONT COLOR="#ff00ff">     DIFSWRITE         PR            10I 0 EXTPROC('IFSWRITE')
+     D                             1024
+     D                            32767
+     D                               10I 0
+     D*
+     DIFSREAD          PR            10I 0 EXTPROC('IFSREAD')
+     D                             1024
+     D                            32767
+     D                               10I 0
+</FONT>     D BUFDS           DS
+     D BUF                        32767    INZ(' ')
+     D BUFA                           1    OVERLAY(BUF) DIM(32767)
+     D*
+     D FILEN           S           1024    INZ(' ')
+     D BUFLEN          S             10I 0
+     D RC              S             10I 0 INZ(0)
+     C*
+     C                   MOVE      *LOVAL        FILEN
+     C                   EVAL      FILEN = '/HOME/FILE.EBC'
+     C*
+     C                   Z-ADD     12            BUFLEN
+     C                   MOVEL     'テストです'BUF
+     C                   EVAL      RC = IFSWRITE(FILEN : BUF : BUFLEN)
+     C*
+     C                   Z-ADD     12            BUFLEN
+     C                   MOVEL     'その２です'BUF
+     C                   EVAL      RC = IFSWRITE(FILEN : BUF : BUFLEN)
+     C*
+     C                   MOVE      *BLANK        BUF
+     C*
+     C                   Z-ADD     24            BUFLEN
+     C                   EVAL      RC = IFSREAD(FILEN : BUF : BUFLEN)
+     C*
+     C                   MOVEL     BUF           FLD52            52
+     C*
+     C     FLD52         DSPLY
+     C                   SETON                                        LR
+     C                   RETURN
+     C*
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<H2>作成方法は、</H2><B>
+<UL>
+<LI>CRTRPGMOD MODULE(CLAB/IFS1R) SRCFILE(CLAB/QRPGLESRC)
+<LI>CRTCMOD MODULE(CLAB/IFS1C) SRCFILE(CLAB/QCSRC) SYSIFCOPT(*IFSIO)
+<LI>CRTPGM PGM(CLAB/IFS1R) MODULE(CLAB/IFS1R CLAB/IFS1C) 
+</UL>
+
+<H2>WRKLNK OBJ('/HOME/*')</H2>
+
+を実行すると、<H2>FILE.EBC</H2>が作成されているはずです。
+
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

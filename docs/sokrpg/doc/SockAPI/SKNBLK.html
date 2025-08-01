@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>SKNBLK</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKNBLK</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*ノンブロックの設定------------------------------------*
+     C                     CALL 'SKNBLK'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '1'       FLG     1        1=ON 0=OFF
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ソケットのブロック／ノンブロックを切り替える。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>FLG</I></FONT>　(入力)</B>
+<DD><UL>'1'でノンブロックの設定オン、'0'でオフ、'1' '2' ともに文字タイプです。</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+ioctl()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

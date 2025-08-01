@@ -1,0 +1,162 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_08-Ｃ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+
+<TABLE BORDER=0 WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第８章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＩＦ ～　ＥＬＳＥ</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="CENTER">
+
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=3>
+
+<B><H2>ＩＦ文の使い方</H2>
+
+<P>ＩＦ文の使い方についてＲＰＧとＣを比較して見ましょう！
+
+<P>ＲＰＧでのＩＦの使用法は以下の通りです。<BR><BR>
+
+<UL><PRE>
+ XXXXX  IFEQ  ZZZZZ
+
+        ENDIF
+</UL></PRE>
+
+<P>ＩＦの条件には、ＥＱの他に、ＮＥ，ＧＴ，ＧＥ，ＬＴ，ＬＥがあります。
+
+<P>また、複合条件を指定したい場合は、ＯＲ，ＡＮＤで行を対します。<BR><BR>
+
+<UL><PRE>
+ XXXXX  IFEQ  ZZZZZ
+ XXXXX  OREQ  ZZZZZ
+ XXXXX  ANDEQ ZZZZZ
+
+        ENDIF
+</UL></PRE>
+
+<P>もちろん、ＥＬＳＥ文も使えます。<BR><BR>
+
+<UL><PRE>
+ XXXXX  IFEQ  ZZZZZ
+ XXXXX  OREQ  ZZZZZ
+ XXXXX  ANDEQ ZZZZZ
+
+        ELSE
+
+        ENDIF
+</UL></PRE>
+
+<P>比較する左側 XXXXXX と右側 ZZZZZZ は同じデータタイプであることが必要です。
+
+<P>ＣでのＩＦの使用法は以下の通りです。<BR><BR>
+
+<UL><PRE>
+ if (1) 単一の実行文;
+
+ if (1) {
+   実行ブロック;
+ }
+</UL></PRE>
+
+<P>実行する範囲は、一文の場合は続けて記述し、文の終わり ';' を付け、複数の文を実行する場合には、{ } で囲みます。
+
+<P>if の次に来る ( )の中に式をいれます。式の結果が 0 でない場合に実行されます。
+<P>上記のように、(1) とすると式の評価が必ず 0 でないので実行されます。逆に (0) なら実行されることはありません。
+
+<P>式に利用出来る演算子は、さまざまなものが用意されています。
+
+<H4>参照マニュアルILE C/400 プログラマー解説書</H4>
+<CENTER>
+<TABLE BGCOLOR="#80ffff" WIDTH="500" BORDER=1>
+<TR><TD>演算子名</TD><TD>結合度</TD><TD>演算子</TD></TR>
+<TR><TD>1次</TD><TD>左から右</TD><TD>()  [ ]  .  -></TD></TR>
+<TR><TD>単項</TD><TD>右から左</TD><TD>++  --  -  +  ! ～  &AMP;  * (型名)  sizeof digitsof, precisionof</TD></TR>
+<TR><TD>乗除</TD><TD>左から右</TD><TD>*  /  %</TD></TR>
+<TR><TD>加減</TD><TD>左から右</TD><TD>+  -</TD></TR>
+<TR><TD>ビット単位のシフト</TD><TD>左から右</TD><TD> &LT;&LT;  &GT;&GT; </TD></TR>
+<TR><TD>関係</TD><TD>左から右</TD><TD> &LT;  &GT;  &LT;=  &GT;= </TD></TR>
+<TR><TD>等値</TD><TD>左から右</TD><TD> ==  != </TD></TR>
+<TR><TD>ビット単位の論理AND</TD><TD>左から右</TD><TD> & </TD></TR>
+<TR><TD>ビット単位の排他OR</TD><TD>左から右</TD><TD> ^ </TD></TR>
+<TR><TD>ビット単位の包含OR</TD><TD>左から右</TD><TD> | </TD></TR>
+<TR><TD>論理AND</TD><TD>左から右</TD><TD> &AMP;&AMP; </TD></TR>
+<TR><TD>論理OR</TD><TD>左から右</TD><TD> || </TD></TR>
+<TR><TD>条件</TD><TD>右から左</TD><TD> ? : </TD></TR>
+<TR><TD>代入</TD><TD>右から左</TD><TD> =  +=  -=  *=  /=  &LT;&LT;=  &GT;&GT;=  %=  &AMP;=  ^=  = </TD></TR>
+<TR><TD>コンマ</TD><TD>左から右</TD><TD> , </TD></TR>
+</TABLE>
+</CENTER>
+
+<P>全て解説はできませんので、詳細はマニュアルなどを参照して下さい。
+
+<P>式には複数の条件をつづけて記述できます。そのため演算子の優先順位と評価順は大変重要になります。
+<P>上記の表は、優先度の高い演算子順に並んでいます。
+
+<P>例）
+<UL>
+<LI>XXXXX IFEQ ZZZZ に相当するのは if (XXXXX == ZZZZZ)<BR><BR>
+<LI>XXXXX IFNE ZZZZ に相当するのは if (XXXXX != ZZZZZ)<BR><BR>
+<LI>XXXXX IFEQ ZZZZ<BR>
+XXXXX ANDEQ YYYYY
+<BR> に相当するのは <BR>
+if (XXXXX == ZZZZ && XXXXX == YYYYY)
+<P> == は && に優先するので、上記の評価は、
+<BR>if ( (XXXXX == ZZZZZ) && (XXXXX == YYYYY) )となる<BR><BR>
+<LI>XXXXX IFEQ ZZZZ<BR>
+XXXXX OREQ YYYYY
+<BR> に相当するのは <BR>
+if (XXXXX == ZZZZ || XXXXX == YYYYY)
+</UL>
+
+<P>では、以下の if は実行されるでしょうか？(式の評価は、0 でしょうか？)　
+
+<P>x = 0, y = 1, z = 2 とします。
+
+<P> if ( z = x = y ) 
+<P> if ( x  || y ) 
+<P> if ( x  && y ) 
+<P> if ( x++ ) 
+<P> if ( ++x ) 
+<P> if ( !x ) 
+<P> if ( x += y ) 
+<P> if ( x *= y ) 
+<P> if ( (x > y) ? x : y; )
+
+<P>つづく．．．
+
+</B>
+<HR>
+
+</TD></TR>
+</TABLE>
+
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

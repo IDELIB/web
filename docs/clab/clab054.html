@@ -1,0 +1,509 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_05-Ｆ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第５章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＩＣＦＦも使えるの？</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+<P>ＲＰＧのプログラマーもＩＣＦを使ったコーディングは、苦手なかたも多いのではないでしょうか？
+<P>ＩＣＦＦは、ＡＰＰＣ，ＢＳＣ、非同期、などの異なるプロトコルでも、同じＰＧＭインターフェースで
+ＰＧＭの作成を可能にします。残念ながらＴＣＰＩＰのＳｏｃｋｅｔは無理ですが．．．
+
+<P>ＩＣＦＦの構造は、複数のレコード様式に、使用したい通信機能に対応したキーワードをセットして書き出す
+ことで、セッションの開始／終了、データの送受信、受信確認などが可能になります。
+
+<P>プログラミングのイメージは、画面のＰＧＭに非常によく似ており、実際Ｆ仕様書ではＷＯＲＫＳＴＮと
+定義します。
+
+<P>実際に通信環境を使ってＰＧＭを動かすのは大変だと思いますので、ここでは、ＡＳ／４００の
+<FONT COLOR="FF00FF">ＩＮＴＲＡ</FONT>って言う便利な機能を使って、通信のＰＧＭを動かしてみたいと思います。
+<P>ＩＮＴＲＡを使うと、起動ＰＧＭ／受動ＰＧＭが１台のＡＳ／４００の中で実行できるようになります。
+<P>ＡＳ／４００が、ＩＣＦを介して、実際の通信をシミュレートします。
+
+<B><P><FONT COLOR="#FF00FF">ＩＮＴＲＡの定義方法
+
+<P>CRTDEVINTR DEVD(INTRA) RMTLOCNAME(INTRA) TEXT('CALB SAMPLE Y.IDE') <BR>
+
+WRKCFGSTS *DEV INTRA 　+実行キー<BR>
+
+ＩＮＴＲＡ装置をオンに構成変更にしてください。<BR>
+</FONT></B>
+<P>これで定義は終わりです。以外と簡単でしょ！
+
+<P>それではまず、ＩＣＦファイルを作成してください
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     A                                      INDARA
+     A                                      RCVENDGRP(80)
+     A                                      RCVDETACH(81)
+     A          R INV                       INVITE
+     A          R IOREC
+     A            FLD01        128O
+     A          R EVOKE
+     A                                      SECURITY(2 &PASS 3 &USERID)
+     A                                      EVOKE(&LIB/&PGMID)
+     A            PASS           8A
+     A            USERID         8A
+     A            LIB            8A
+     A            PGMID          8A
+     A          R DETACH                    DETACH
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P ALIGN="LEFT">作成コマンドは以下の様になります。
+<P ALIGN="LEFT"><B><FONT COLOR="#0000FF"><UL>
+CRTICFF    FILE(CLAB/ICF1CF) SRCFILE(CLAB/QICFSRC) 
+                          MAXPGMDEV(256)
+<P ALIGN="LEFT">
+<FONT COLOR="#FF00FF">起動側プログラムが使用するＰＧＭＤＥＶの登録</FONT><BR>
+ADDICFDEVE FILE(CLAB/ICF1CF) PGMDEV(INTRA) 
+           RMTLOCNAME(INTRA) CMNTYPE(*INTRA)
+<P ALIGN="LEFT">
+<FONT COLOR="#FF00FF">受動側プログラムが使用するＰＧＭＤＥＶの登録</FONT><BR>
+ADDICFDEVE FILE(CLAB/ICF1CF) PGMDEV(INTRARCV) 
+           RMTLOCNAME(*REQUESTER) CMNTYPE(*INTRA)<BR>
+</FONT></UL>
+
+<P>次に、起動側ＲＰＧを作成してください</B>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1
+<FONT COLOR="#008000">     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    ICF1R
+     H* REMARKS       :    ICFソース側プログラム
+     H* AUTHOR        :    Y.IDE
+     H* DATE-WRITEN   :    98/09/27
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*</FONT>
+     FICF1CF  CF  E                    WORKSTN
+     F                                              KINFDS FEEDBK
+     F                                              KNUM        1
+     F                                              KID    PGMDEV
+     FICF1FM  CF  E                    WORKSTN
+     IFEEDBK      DS
+     I                                       38  45 FMTNM
+     I                                      273 282 PGMDEV
+     I                                      401 402 MAJCOD
+     I                                      403 404 MINCOD
+     C                     EXFMTSC01
+     C*-------*
+     C           'INTRA'   ACQ  ICF1CF
+     C                     MOVEL'INTRA'   PGMDEV 10
+     C*-------*
+     C                     MOVEL'CLABPW'  PASS
+     C                     MOVEL'CLABID'  USERID
+     C                     MOVEL'CLAB'    LIB
+     C                     MOVEL'ICF2CL'  PGMID
+     C                     WRITEEVOKE
+     C*-------*
+     C           1         DO   *HIVAL
+     C                     WRITEINV
+     C                     READ IOREC                    90
+     C*
+     C                     MOVELFLD01     FLD1
+     C*
+     C           *IN80     IFEQ *ON
+     C                     LEAVE
+     C                     ENDIF
+     C           *IN81     IFEQ *ON
+     C                     LEAVE
+     C                     ENDIF
+     C*
+     C                     EXFMTSC02
+     C                     ENDDO
+     C*
+     C                     EXFMTSC03
+     C                     SETON                     LR
+     C                     RETRN
+     C*
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ICF1FM
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     A                                      CF03(03)
+     A          R SC01
+     A                                  6  3'通信開始します'
+     A          R SC02
+     A                                  6  2'受信データ'
+     A            FLD1          80O  O  7  2
+     A          R SC03
+     A                                  6  3'通信終了しました'
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>［プログラムの解説］</B>
+<P>ＤＳＰＦに<B>通信を開始します</B>と表示します。実行キーを押されると、次のステップにすすみます
+
+<P>
+<B>'INTRA'   ACQ  ICF1CF</B><UL>
+ＩＣＦファイルに登録してあるＩＮＴＲＡというＤＥＶを獲得します<BR>
+ADDICFDEVE FILE(CLAB/ICF1CF) <FONT COLOR="#FF00FF">PGMDEV(INTRA)</FONT>
+のＰＧＭＤＥＶの名前に対応します。 
+</UL>
+
+<B>MOVEL'INTRA'   PGMDEV 10</B><UL>
+ＩＮＴＲＡのＤＥＶを省略時のデバイスとして設定します。
+２つ以上のＤＥＶをＡＣＱで獲得した場合は、ＰＧＭＤＥＶを切り替えてそれぞれ通信が出来ます。
+</UL>
+<B>
+MOVEL'CLABPW'  PASS........パスワード<BR>
+MOVEL'CLABID'  USERID......ユーザーＩＤ<BR>
+MOVEL'CLAB'    LIB...............ライブラリー<BR>
+MOVEL'ICF2CL'  PGMID.......呼び出すＰＧＭ<BR>
+WRITEEVOKE
+</B><UL>
+ユーザーＩＤ／パスワード／呼び出すＰＧＭ／ライブラリーをセットして、ＥＶＯＫＥ命令を実行することで通信が開始します。この段階で、サブシステムＱＣＭＮ等に、呼び出したＰＧＭのＪＯＢが乗ってきます。
+</UL>
+
+<B>
+WRITEINV<BR>
+READ IOREC
+</B><UL>
+INVITEキーワードを指定したＩＮＶレコード様式をwriteします。INVITEは送信勧誘を表し、相手からデータを送ることを要求します。INVレコード様式には、フィールドがありませんので、空のレコードで送信勧誘のみが送られます。<BR>
+送信勧誘とＲＥＡＤを永久ＬＯＯＰし、標識８０ｏｒ８１がオンになるとプログラムが終了します。<BR>
+<P>８０がオンになる条件はRCVENDGRP(80)．．．．通信グループの終了
+<P>８１がオンなる条件はRCVDETACH(81)．．．．．通信の切断
+<P>通信相手からのDEATCHを受けるまで、ループは続きます。
+<P>受信したデータは、順次画面に表示します。実行キーを押すことで、次のｒｅａｄを行います</UL>
+
+<P><B>受動側ＣＬとＲＰＧを作成してください</B>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/* PROGRAM-ID : ICF2CL  */</FONT>
+             PGM
+             ADDLIBLE   LIB(CLAB)
+             CALL       PGM(ICF2R)
+             ENDPGM
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><FONT COLOR="#0000FF">
+直接ＲＰＧを呼びたしてももちろん構わないのですが、今回は、ライブラリーリストにＣＬＡＢを入れるためだけに
+ＣＬを経由してＲＰＧをＣＡＬＬしています。そのままＲＰＧをＣＡＬＬするとＩＣＦＦが見つからないためＲＰＧが
+異常終了します。
+</FONT>
+
+<P>ICF2R
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1
+<FONT COLOR="#008000">     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    ICF2R
+     H* REMARKS       :    ICFターゲット側プログラム
+     H* AUTHOR        :    Y.IDE
+     H* DATE-WRITEN   :    98/09/27
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*</FONT>
+     FICF1CF  CF  E                    WORKSTN
+     F                                              KINFDS FEEDBK
+     F                                              KNUM        1
+     F                                              KID    PGMDEV
+     IFEEDBK      DS
+     I                                       38  45 FMTNM
+     I                                      273 282 PGMDEV
+     I                                      401 402 MAJCOD
+     I                                      403 404 MINCOD
+     C*-------*
+     C           'INTRARCV'ACQ  ICF1CF
+     C                     MOVEL'INTRARCV'PGMDEV 10
+     C*-------*
+     C                     READ IOREC                  9999
+     C*-------*
+     C           1         DO   5         X       30
+     C                     MOVE *BLANK    FLD01
+     C                     MOVEL'    件'FLD01
+     C                     MOVELX         FLD01
+     C                     WRITEIOREC
+     C*
+     C           *IN80     IFEQ *ON
+     C                     LEAVE
+     C                     ENDIF
+     C           *IN81     IFEQ *ON
+     C                     LEAVE
+     C                     ENDIF
+     C                     ENDDO
+     C*
+     C                     WRITEDETACH
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+     C*
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>［プログラムの解説］
+<P>
+'INTRARCV'ACQ  ICF1CF</B><UL>
+ＩＣＦファイルに登録してあるＩＮＴＲＡＲＣＶというＤＥＶを獲得します<BR>
+ADDICFDEVE FILE(CLAB/ICF1CF) <FONT COLOR="#FF00FF">PGMDEV(INTRARCV)</FONT>
+           <FONT COLOR="#FF00FF">RMTLOCNAME(*REQUESTER)</FONT> CMNTYPE(*INTRA)<BR>
+＊ＲＥＱＵＥＳＴＥＲは呼びだしもとのロケーションを受け入れます。
+</UL>
+<P><B>
+READ IOREC</B><UL>
+呼びたしもとからのＥＶＯＫＥを受け入れます
+</UL>
+<P><B>
+WRITE IOREC</B><UL>
+５回データを送信します
+</UL>
+<P><B>
+WRITE DETACH</B><UL>
+通信の終了を行います
+</UL>
+
+
+<P><B>起動側ＲＰＧをＣ言語で書いて見ましょう。</B>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : ICF1C                                          */
+/* REMARKS     :ＩＣＦファイルＩ／Ｏ                            */
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/10/04                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;QSYSINC/H/QSNAPI&gt;
+
+#pragma mapinc("icf","CLAB/ICF1CF(*ALL)","both","d","icf","FM")
+#include "icf"
+#pragma mapinc("ind","CLAB/ICF1CF(*ALL)","indicators","")
+#include "ind"
+
+_RFILE        *icff;
+
+  void ioCheck(char *majorRc){
+    if ( memcmp(majorRc, "00", 2) != 0 ){
+      printf("0308はDETACH受信\n");
+      printf("majorRc = %s \n",majorRc);
+      _Rclose(icff);
+      exit(0);
+    }
+  }
+
+int main(void)
+{
+  _RIOFB_T           *fb; <FONT COLOR="#008000">/*オープンフィードバック*/</FONT>
+  Qsn_Ssn_T          ssn;
+  FM_EVOKE_both_t    evoke;
+  char               fld01[129];
+  int                rc,i;
+  _SYSindara         ind_area;
+
+  ssn = _C_Get_Ssn_Handle();
+  rc  = QsnClrScl(ssn,'0',NULL);
+
+  printf("AS/400 CLAB ICF SAMPLE \n");
+
+<FONT COLOR="#008000">/* ICFのオープン*/</FONT>
+    if (( icff = _Ropen("ICF1CF", "ar+,indicators=Y" )) == NULL )
+    {
+        printf ("OPEN ERROR\n" );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*装置獲得*/</FONT>
+   if ( (_Racquire(icff, "INTRA   ")) == 0){
+     printf("ACQ DEV ERROR\n");
+   }
+<FONT COLOR="#008000">/*省略時のPGMDEV SET */</FONT>
+   if ( (_Rpgmdev(icff, "INTRA   ")) == 0){
+     printf("PGMDEV SET ERROR\n");
+   }
+
+<FONT COLOR="#008000">/*フィールド設定*/</FONT>
+    memcpy(evoke.PASS,  "CLABPW  ", 8);
+    memcpy(evoke.USERID,"CLABID  ", 8);
+    memcpy(evoke.LIB,   "CLAB    ", 8);
+    memcpy(evoke.PGMID, "ICF2CL  ", 8);
+
+<FONT COLOR="#008000">/*個別標識を設定する*/</FONT>
+    _Rindara (icff,ind_area);
+<FONT COLOR="#008000">/*レコード様式を設定する*/</FONT>
+    _Rformat(icff,"EVOKE" );
+    fb = _Rwrite(icff, &evoke, 32);
+    ioCheck(fb->sysparm->_Maj_Min.major_rc);
+
+    while(1){
+      _Rformat(icff, "INV");
+      fb = _Rwrite ( icff, "", 0 );
+      _Rformat(icff, "IOREC");
+      fb = _Rreadn(icff, fld01, 128, __DFT);
+      ioCheck(fb->sysparm->_Maj_Min.major_rc);
+
+      printf("%s\n",fld01);
+    }
+
+    _Rclose (icff);
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>［プログラムの解説］</B>
+<B><P>
+#pragma mapinc("icf","CLAB/ICF1CF(*ALL)","both","d","icf","FM")<BR>
+#include "icf"<BR>
+#pragma mapinc("ind","CLAB/ICF1CF(*ALL)","indicators","")<BR>
+#include "ind"<BR>
+</B><UL>
+外部記述レコードを利用して、Ｃの構造体を作成し、インクルードします。
+内容を参照するには、*SHOWSURを指定してコンパイルしてください。
+indicatorsは標識のエリアです。ＩＣＦにＩＮＤＡＲＡキーワードを指定すると、
+標識が独立したエリアに取られます。指定しない場合は、各レコード様式内に含まれます。
+</UL>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+void ioCheck(char *majorRc){
+  if ( memcmp(majorRc, "00", 2) != 0 ){
+    printf("0308はDETACH受信\n");
+    printf("majorRc = %s \n",majorRc);
+    _Rclose(icff);
+    exit(0);
+  }
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<UL>
+通信のリターンコード（メジャー／マイナー）をチェックする関数（サブルーチン）です。<BR>
+’００’以外の場合は、ＩＣＦをクローズします。
+</UL>
+<B>
+ssn = _C_Get_Ssn_Handle();<BR>
+rc  = QsnClrScl(ssn,'0',NULL);<BR>
+</B><UL>
+DSM（ダイナミック・スクリーン・マネージャー)画面をクリアします
+</UL>
+<B>
+_Racquire(icff, "INTRA   ")
+</B><UL>
+ＲＰＧのＡＣＱ命令に同じ
+</UL>
+<B>
+_Rpgmdev(icff, "INTRA   ")
+</B><UL>
+ＲＰＧのＰＧＭＤＥＶに同じ
+</UL>
+
+<B>
+fb = _Rwrite(icff, &evoke, 32);<BR>
+<FONT COLOR="#FF00FF">ioCheck</FONT>(fb->sysparm->_Maj_Min.major_rc);<BR>
+_Rformat(icff, "INV");<BR>
+fb = _Rwrite ( icff, "", 0 );<BR>
+_Rformat(icff, "IOREC");<BR>
+fb = _Rreadn(icff, fld01, 128, __DFT);<BR>
+<FONT COLOR="#FF00FF">ioCheck</FONT>(fb->sysparm->_Maj_Min.major_rc);<BR>
+</B><UL>
+通信のＲＥＡＤ／ＷＲＩＴＥ毎にｉｏＣｈｅｃｋ（）関数（サブルーチン）を呼び、リターンコードのチェックを行う
+</UL>
+
+<B>
+printf("%s\n",fld01);
+</B><UL>
+受信したデータの表示を行う。ＲＰＧではＤＳＰＦを使用したが、Ｃでは標準出力を利用する、
+</UL>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

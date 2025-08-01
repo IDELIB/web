@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>CLab_99-付録</title>
+</head>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ヘッダーファイルがみつからない？</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<BR>
+
+<H4>ＡＳ／４００は、通常ライブラリー／ファイル／メンバーと言うファイル管理をしています。</H4>
+
+<P>このため #include するときの検索パスやファイル名の命名規則を知らないと、あれっ！？ってことになります。
+
+<CENTER>
+<H4>ここでは、#includeの際の指定方法について簡単に説明します。</H4>
+
+<TABLE BGCOLOR="#E0FFDF" BORDER=1>
+<TR><TD NOWRAP>#include&LT;MBR&GT;</TD><TD>QCSRCからMBRを探す</TD></TR>
+<TR><TD NOWRAP>#include&QUOT;MBR&QUOT;</TD><TD>CRTBNDC,CRTCMODのSRCFILEからMBRを探す</TD></TR>
+<TR><TD NOWRAP>#include&LT;FILE/MBR&GT;</TD>
+	<TD ROWSPAN=2>*LIBLからFILE/MBRを探す</TD></TR>
+<TR><TD NOWRAP>#include&LT;MBR.FILE&GT;</TD></TR>
+
+<TR><TD NOWRAP>#include&QUOT;FILE/MBR&QUOT;</TD>
+	<TD ROWSPAN=2>*USRLIBL部分を探索し、見つからなければ、*LIBLからFILE/MBRを探す</TD></TR>
+<TR><TD NOWRAP>#include&QUOT;MBR.FILE&QUOT;</TD></TR>
+
+<TR><TD NOWRAP>#include&LT;LIB/FILE/MBR&GT;</TD>
+	<TD ROWSPAN=2>lib/file/mbr だけを探索する</TD></TR>
+<TR><TD NOWRAP>#include&LT;LIB/FILE(MBR)&GT;</TD></TR>
+
+<TR><TD NOWRAP>#include&QUOT;LIB/FILE/MBR&QUOT;</TD>
+	<TD ROWSPAN=2>lib/file/mbr を探索し、見つからなければ、与えられたファイル名を使用して、
+ライブラリー・リストのユーザー部分を探索する</TD></TR>
+<TR><TD NOWRAP>#include&QUOT;LIB/FILE(MBR)&QUOT;</TD></TR>
+
+</TABLE>
+
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

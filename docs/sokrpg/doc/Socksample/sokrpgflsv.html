@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGFLSV</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>TCPファイル転送サーバープログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+クライアントからの接続をまち、接続後は、画面に接続相手の情報を表示したのち、
+接続要求まちのソケットをクローズしてから、データの送受信を行う。
+<P>クライアントからの接続要求がこないとタイムアウトして終了する。
+<P>接続完了後に、クライアントからデータが送信されてこないと、TIMEOUTメッセージを画面表示しLOOPする。
+<P>クライアントから転送するファイル名を取得し、そのファイルを一括送信する。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgsvr.gif" HEIGHT="500" WIDTH="648">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

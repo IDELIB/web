@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_10-ÉgÉâÉìÉUÉNÉVÉáÉìèàóù</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>ëÊ10èÕ</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>Å@ñÑÇﬂçûÇ›SQL </B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGÉvÉçÉOÉâÉ}Å[ÇÃà◊ÇÃÇbåæåÍçuç¿</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+
+<H3>ÅyÇrÇpÇkÇPÇbÅzñÑÇﬂÇ±Ç›ÇrÇpÇkó· </H3>
+<A HREF="text/SQL1R.txt">RPG î≈ÇÕÇ±ÇøÇÁ</A>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SQL1C                                           */
+/* REMARKS     : ñÑÇﬂÇ±Ç›ÇrÇpÇkÅ@ Å@                             */
+/* AUTHOR      : Y.IDE                                           */
+/* DATE-WRITEN : 1999/9/26                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+
+#include &LT;stdio.h&GT;
+#include &LT;stdlib.h&GT;
+#include &LT;recio.h&GT;
+
+#pragma mapinc ("cmt","CLAB/CMTPF(*ALL)","both")
+#include "cmt"
+
+  CLAB_CMTPF_CMTR_both_t  cmtpf;
+
+  EXEC SQL INCLUDE SQLCA;
+
+int main(void){
+
+  EXEC SQL
+       declare c1 cursor for
+          SELECT  KEY
+                  FROM  CMTPF;
+  EXEC SQL
+       open c1;
+  do {
+  EXEC SQL WHENEVER NOT FOUND GO TO tag#1;
+  EXEC SQL
+       fetch c1 into :cmtpf.KEY;
+
+  printf("%c „n",cmtpf.KEY);
+  } while(SQLCODE==0);
+tag#1:
+  EXEC SQL
+       close c1;
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

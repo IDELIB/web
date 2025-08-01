@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_11-CLAB sokcet</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第11章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＩＬＥ－ＲＰＧならソケット通信可能なはず？</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=3>
+
+<H2>ＡＳ／４００では、ソケットをサポートする言語は、Ｃ言語となっています。</H2>
+<FONT SIZE="2">Ｃ言語でソケットをサポートする以前(V3.05)は、パスカル言語でのみサポートしてましたが、
+ソケットＡＰＩは独自の仕様となってました。</FONT>
+
+<P>ＯＳ／４００バージョン３.１以降サポートされた、Ｃ－ＳＯＫＣＥＴは、BSD sokcet 互換として実装されました。
+<BR>内容は、一部の関数のパラメーターの解釈の差異ぐらいで、主な sokcet 関数については、違いを意識することはほとんどないほど
+同じです。
+<BR>BSD UNIX 互換なので当然、Ｃ言語をベースとしての実装です。ＲＰＧなどの従来の言語などの考慮はなされていません。（たぶん）
+
+<H3>RPGもその後の ILE-RPG として非常に大きく機能拡張されています。</H3>
+
+<H3><FONT COLOR="#ff0080">現在のＩＬＥ－ＲＰＧなら、ソケット関数を利用して通信可能なはずです。</FONT></H3>
+
+<H3><FONT COLOR="#0080ff">ここでは、システムで提供されている、C-SOCKET関数をILE-RPGから呼び出すのにトライしてみましょう。</FONT></H3>
+
+<TABLE ALIGN="center" BGCOLOR="#ffff80" BORDER="2" CELLPADDING="3">
+<TR><TD>
+<H4><FONT SIZE="2" COLOR="#ff0080">（注）もちろん、メーカーのサポート対象外の内容になります。<BR><BR>
+メーカーサポートなどに問合わせた場合は、当然、Ｃ言語のみ利用可能という答えが帰ってくるでしょう。
+だって、マニュアルには、そう書いてあるんだら......それが正しい回答でよね。
+</FONT></H4>
+</TD></TR>
+</TABLE>
+
+<P>問題は、Ｃの場合は、ｓｏｃｋｅｔ．ｈというヘッダーファイルに関数のプロトタイプや構造体など
+の定義があらかじめなされていますが、ＩＬＥ－ＲＰＧには、ｓｏｃｋｅｔ．ｈに相当するものがありません。
+ということは、ｓｏｃｋｅｔ．ｈを見ながら、ＩＬＥ－ＲＰＧ用に定義を作成する必要があります。
+
+<H3>今回は取りあえず、<A HREF="../sokrpg/sokrpg.html">Sockst RPG</A>の時に作成した、ＳＯＫＲＰＧＣＡプログラムを元に、
+ＩＬＥ－ＲＰＧで作成し直してみました。
+</H3>
+<P>この <FONT COLOR="#ff00ff">SOKRPGCA</FONT> は、TCP接続のクライアント側のサンプルプログラムです。
+対となるサーバー側のプログラムは、<FONT COLOR="#ff00ff">SOKRPGSVR</FONT> です。
+今回は、SOKRPGSVR は、SOKRPGの物をそのまま利用しました。
+
+<P>SOKRPGCAで使用していたソケットプログラム、 
+<CENTER>
+<BR><I>SKOPEN,SKCONN,SKSEND,SKREAD,SKCLOS</I> を、それぞれ 
+<BR><I>SOCKET,CONNET,SEND,RECV,CLOSE</I> に置き換えました。<P>
+
+<TABLE ALIGN="center" BGCOLOR="#ffff00" BORDER="1">
+<TR><TD>画面ファイル</TD>
+<TD><A HREF="./text/sokcafm.txt">SOKCAFM</A></TD></TR>
+<TR><TD>ＩＬＥ－ＲＰＧ</TD>
+<TD><A HREF="./text/sokrpgcae.txt">SOKRPGCAE</A></TD></TR>
+<TR><TD>ＯＰＭ－ＲＰＧ</TD>
+<TD><A HREF="./text/sokrpgca.txt">SOKRPGCA</A></TD></TR>
+<TR><TD>ＩＬＥ－Ｃ</TD>
+<TD><A HREF="./text/sokrpgcac.txt">SOKRPGCAC</A></TD></TR>
+</TABLE>
+
+<P><H5>注）CRTBNDRPGするときは、DFTACTGRP は *NO にして下さい。</H5>
+
+<FONT SIZE="4" COLOR="#0000a0">
+<P>まだ、エラー処理とか、他のパターンなど改良の必要はあるものの、取りあえず問題なく動作しました。
+<P>今後、さらに時間をかければ、ＩＬＥ－ＲＰＧ用の　＜ＳＯＣＫＥＴ．Ｈ＞　も作成可能でしょう！</FONT>
+
+<P>そうしておけば、／ＣＯＰＹを使用して、ＩＬＥ-ＲＰＧでもソケットが簡単に利用出来るようになりますね。
+
+<HR SIZE=3 NOSHADE>
+
+</CENTER>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<A HREF="./clab.html">[CLab MAIN PAGE]</A><BR>
+
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

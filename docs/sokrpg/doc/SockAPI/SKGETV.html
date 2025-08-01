@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<TITLE>SKGETV</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKGETV</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*サービス名検索----------------------------------------*
+     C                     CALL 'SKGETV'
+     C                     PARM           SERVNM 32
+     C                     PARM           PROTNM 32
+     C                     PARM           RC      1
+     C                     PARM           PORT    5
+     C                     PARM           SERV   32
+     C                     PARM           PROT   32
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>サービス名を検索します<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SERVNM</I></FONT>　(入力)</B>
+<DD><UL>検索するサービス名、または、PORT番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PROTNM</I></FONT>　(入力)</B>
+<DD><UL>検索するプロトコル名(UDP,TCPなど) 省略可能</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PORT</I></FONT>　(出力)</B>
+<DD><UL>検索されたPORT番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>SERV</I></FONT>　(出力)</B>
+<DD><UL>検索されたサービス名</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PROT</I></FONT>　(出力)</B>
+<DD><UL>検索されたプロトコル名</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+getservbyname()<BR>
+getservbyport()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

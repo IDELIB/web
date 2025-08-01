@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGPN</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>PORT番号／サービス名検索プログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGPN                                   *
+     H* REMARKS       :    RPGサービス名検索                          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/20                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKPNFM CF  E                    WORKSTN
+     C           TAG#01    TAG
+     C                     EXFMTSC01
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVE *BLANK    FLD03
+     C                     MOVE *BLANK    FLD04
+     C                     MOVE *BLANK    FLD05
+     C                     MOVELFLD01     SERVNM
+     C                     MOVELFLD02     PORTNM
+     C*サービス名検索----------------------------------------*
+     C                     CALL 'SKGETV'
+     C                     PARM           SERVNM 32
+     C                     PARM           PORTNM 32
+     C                     PARM           RC      1
+     C                     PARM           PORT    5
+     C                     PARM           SERV   32
+     C                     PARM           PROT   32
+     C*--------------------------------------------------------*
+     C*
+     C           RC        IFEQ 'E'
+     C                     MOVEL'ERROR   'FLD03
+     C                     GOTO TAG#01
+     C                     ENDIF
+     C*
+     C                     MOVELPORT      FLD03
+     C                     MOVELSERV      FLD04
+     C                     MOVELPROT      FLD05
+     C                     GOTO TAG#01
+     C           TAG#E     TAG
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+PORT番号ｏｒサービス名をパラメーターとして渡すと、PORT番号とサービス名／プロトコル名を戻す。<P>
+PORT番号ｏｒサービス名のいずれでも検索に失敗した場合は、RCに'E'が設定される。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgpn.gif" HEIGHT="400" WIDTH="568">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

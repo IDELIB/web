@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+<TITLE>SKGIVE</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKGIVE</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C* 他のＪＯＢにソケットをあたえる ----------------------*    
+     C                     CALL 'SKGIVE'                            
+     C                     PARM           SD      4                 
+     C                     PARM           RC      1                 
+     C                     PARM 'SOKBCH  'APLID   8
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>SKTAKEを利用してソケットディスクリプター獲得を待機しているＪＯＢに、ソケットを渡します<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>渡そうとするソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合に'E'に設定される。</UL>
+<DD><UL>SKTAKEで待機しているJOBがいなかった場合に、'N'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>APLID</I></FONT>　(入力)</B>
+<DD><UL>ソケットディスクリプターの受渡しの可能な複数JOBを識別するために付ける任意の文字列</UL>
+
+<P><DT><B>実行される関数：</B>
+<DD>
+givedescriptor()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

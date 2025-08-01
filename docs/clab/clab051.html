@@ -1,0 +1,645 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_05-Ｆ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第５章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　内部／外部記述</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<P>ＲＰＧのＩ／Ｏ環境に一番近い、ＩＬＥ－Ｃの拡張関数を使用した場合を見てみましょう
+
+<P><FONT COLOR="#008040"><B>他のプラットフォームでＣをばりばり書いていた方も、以外とつまずくところではないでしょうか？</B></FONT>
+
+
+<P>例によってまずＲＰＧから見てみましょう。
+<P>最初のＲＰＧは、内部記述のＦＩＬＥに１レコード出力する物です。
+<P>ＤＤＳ定義は省略して、ソースファイルを使用します。
+<P><FONT COLOR="FF00FF">CRTSRCPF FILE(CLAB/CLAB1P) MBR(CLAB1P) IGCDTA(*YES)</FONT>を実行してください。
+ 
+<P>内部記述ファイルＩ／Ｏ FILE1R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+     H            Y/                                    1             
+<FONT COLOR="#008000">     H*------------------------------------------------------------*  
+     H* PROGRAM-ID    :    FILE1R                                  *  
+     H* REMARKS       :    内部記述ファイルＩ／Ｏ　　　　　        *  
+     H* AUTHOR        :    Y.IDE                                   *  
+     H* DATE-WRITEN   :    98/08/22                                *  
+     H* VERSION       :    01.00 ORIGINAL                          *  
+     H*------------------------------------------------------------*</FONT>
+     FCLAB1P  O   F      92            DISK                      A    
+     C*                                                               
+     C                     MOVE '000100'  ASEQ    6                   
+     C                     MOVE '999999'  ADAT    6                   
+     C                     MOVE *ALL'A'   ASTR   80                   
+     C                     EXCPTE#OUT                                 
+     C                     SETON                     LR               
+     C                     RETRN                                      
+     O*------------------------------------------------------------*
+     OCLAB1P  EADD             E#OUT                                 
+     O                         ASEQ       6                          
+     O                         ADAT      12                          
+     O                         ASTR      92
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<P>特に説明は不要だとは思いますが、Ｆ仕様書には
+<B><BR>出力専用にオープンし、ＦＩＬＥは内部記述でレコード長は９２のＤＩＳＫファイルにレコードを追加する</B>
+<BR>と定義してます
+
+<P>さっそく、Ｃで書いて見ましょう！
+<P> ファイルＩ／Ｏ FILE1C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/   
+/* PROGRAM-ID  : FILE1C                                          */   
+/* REMARKS     : ファイルＩ／Ｏ　　                              */   
+/* AUTHOR      : Y.Ide                                           */   
+/* DATE-WRITEN : 98/08/22                                        */   
+/* VERSION     : 01.00 ORIGINAL                                  */   
+/*---------------------------------------------------------------*/
+/*  標準のＣでは、ファイルはストリームファイルとして             */   
+/*  扱われます。                                                 */   
+/*  ＡＳ／４００のＩＬＥ－Ｃでは、ファイルをレコードとして扱う   */   
+/*  ための言語拡張がなされています。                             */</FONT>   
+                                                                      
+#include &lt;stdio.h&gt;                                                    
+#include &lt;stdlib.h&gt;                                                   
+#include &lt;recio.h&gt;                                                    
+                                                                      
+typedef struct {                                                      
+   char srcseq[6];                                                    
+   char srcdat[6];                                                    
+   char srcdta[80];
+ } SRC;                                                       
+                                                              
+ int main(void)                                               
+ {                                                            
+   _RFILE      *fp;                                           
+   SRC         src;                                           
+                                                              
+     if (( fp = <FONT COLOR="FF00FF">_Ropen</FONT> ( "CLAB/CLAB1P", "ar" )) == NULL )     
+     {                                                        
+         printf ( "OPEN ERROR\n" );                           
+         exit ( 1 );                                          
+     }                                                        
+                                                              
+      memcpy(src.srcseq,"000100",6);                          
+      memcpy(src.srcdat,"999999",6);                          
+      memset(src.srcdta,'A',80);                              
+                                                              
+      <FONT COLOR="FF00FF">_Rwrite</FONT>(fp, &src, 92);                                  
+                                                              
+     <FONT COLOR="FF00FF">_Rclose</FONT> ( fp );
+
+     return(0); 
+ }                                                            
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><FONT COLOR="008000">_Ropen("CLAB/CLAB1P", "ar")でファイルを出力用にオープンします。</FONT>
+<UL><P>ＲＰＧではプログラム起動時の初期設定の中で、ファイルのオープンも行います。
+<P>マニュアル／メッセージなどでは、「暗黙のオープン」などと書かれています。
+<P>「暗黙のオープン」なんてなんだかすごい用語ですが、
+要はＦ仕様書に定義してあるファイルは、デフォルトで初期設定時にオープンしますよってことです。
+</UL>
+
+<P>次のＲＰＧは、外部記述のＦＩＬＥに１レコード出力する物です。
+
+
+<P>外部記述ファイルＩ／Ｏ FILE2R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+     H            Y/                                    1              
+<FONT COLOR="#008000">     H*------------------------------------------------------------*   
+     H* PROGRAM-ID    :    FILE2R                                  *   
+     H* REMARKS       :    外部記述ファイルＩ／Ｏ　　　　　        *   
+     H* AUTHOR        :    Y.IDE                                   *   
+     H* DATE-WRITEN   :    98/08/22                                *   
+     H* VERSION       :    01.00 ORIGINAL                          *   
+     H*------------------------------------------------------------*</FONT>
+     FCLAB1P  O   <FONT COLOR="FF00FF">E</FONT>                    DISK                      A
+     F            CLAB1P                            KRENAMECLAB1R      
+     C*                                                                
+     C                     MOVE '000100'  SRCSEQ                       
+     C                     MOVE '999999'  SRCDAT                       
+     C                     MOVE *ALL'A'   SRCDTA                       
+     C                     WRITECLAB1R                                 
+     C                     SETON                     LR                
+     C                     RETRN                                       
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>外部定義なので、Ｆ仕様書の定義内容は、ＦからＥに変わり、レコード長の指定もありません。
+<P>外部記述なので、Ｏ仕様書でフィールド定義する必要もありません。
+
+<P>外部記述した場合は、コンパイラーがＦＩＬＥのＤＤＳから、フィールド定義情報を取り出し、
+<P>ＲＰＧのソースコードに展開します。
+<P>コンパイルリストを参照すれば、展開された内容を見ることができます。
+
+<P>上記のＰＧＭのコンパイルリストは以下の様になるでしょう
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+......
+  800  H*--------------------------------------------------------*  
+  900  FCLAB1P  O   E                    DISK                      A    
+ 1000  F            CLAB1P                            KRENAMECLAB1R     
+ 1100  C*                                                               
+<FONT COLOR="FF00FF">           レコード様式 :   ライブラリー CLAB ファイル CLAB1P
+                  外部様式 CLAB1P RPG 名 CLAB1R</FONT>
+ 1200  C                     MOVE '000100'  SRCSEQ
+ 1300  C                     MOVE '999999'  SRCDAT
+ 1400  C                     MOVE *ALL'A'   SRCDTA
+ 1500  C                     WRITECLAB1R
+ 1600  C                     SETON                     LR
+ 1700  C                     RETRN
+<FONT SIZE=2 COLOR="FF00FF">A000000   OUTPUT  レコード CLAB1R ファイル CLAB1P 様式 CLAB1P のフィールド
+A000001                            SRCSEQ     6  ZONE  6,2
+A000002                            SRCDAT    12  ZONE  6,0
+A000003                            SRCDTA    92  CHAR   80  </FONT>
+           * * * * *      原　始　の　終　り       * * * * *
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>出力フィールドがＰＧＭ内に展開されています
+
+<P>Ｃでは、外部記述に対応するため、コンパイラーが、以下のような方法を使用します。
+<P>コンパイラーは、コンパイルのプリプロセス（事前準備）のステップで、ＤＤＳからフィールド
+定義情報を取り出し、Ｃの構造体として展開し、展開後のソースをインクルードしてプログラムで
+使用できるようにします。
+
+<P>ファイルＩ／Ｏ FILE2C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000"> /*---------------------------------------------------------------*/  
+ /* PROGRAM-ID  : FILE2C                                          */  
+ /* REMARKS     : ファイルＩ／Ｏ　　                              */  
+ /* AUTHOR      : Y.Ide                                           */  
+ /* DATE-WRITEN : 98/08/22                                        */  
+ /* VERSION     : 01.00 ORIGINAL                                  */  
+ /*---------------------------------------------------------------*/
+ /*  ＤＤＳ定義のフィールド情報をｉｎｃｌｕｄｅして使用できます   */</FONT>
+
+ #include &lt;stdio.h&gt;                                                   
+ #include &lt;stdlib.h&gt;                                                  
+ #include &lt;recio.h&gt;                                                   
+
+ <FONT COLOR="FF00FF">#pragma mapinc("SRC","CLAB1P(*all)","both","z")                      
+ #include "SRC"  </FONT>                                                     
+
+ int main(void)
+ {                 
+   _RFILE                            *fp;                             
+   CLAB_CLAB1P_CLAB1P_both_t         src;                             
+                                                         
+    if (( fp = _Ropen ( "CLAB/CLAB1P", "ar" )) == NULL ) 
+    {                                                    
+        printf ( "OPEN ERROR\n" );                       
+        exit ( 1 );                                      
+    }                                                    
+                                                         
+     memcpy(src.SRCSEQ,"000100",6);                      
+     memcpy(src.SRCDAT,"999999",6);                      
+     memset(src.SRCDTA,'A',80);                          
+                                                         
+     _Rwrite(fp, &src, 92);                              
+                                                         
+    _Rclose ( fp );                                      
+                                                         
+     return(0);                                          
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ＣＲＴＢＮＤＣコマンドに、＊ＳＨＯＷＵＳＲオプションで、コンパイルしてください
+<P>コンパイルリストは以下の様になるでしょう
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+   *...+....1....+....2....+....3....+....4....+....5....+....6....+....
+  |/*---------------------------------------------------------------*/  
+  |/* PROGRAM-ID  : FILE1C                                          */  
+  |/* REMARKS     : ファイルＩ／Ｏ　　                              */  
+  |/* AUTHOR      : Y.Ide                                           */  
+  |/* DATE-WRITEN : 98/08/22                                        */  
+  |/* VERSION     : 01.00 ORIGINAL                                  */  
+  |/*---------------------------------------------------------------*/  
+  |/*  ＤＤＳ定義のフィールド情報をｉｎｃｌｕｄｅして使用できます   */  
+  |                                                                     
+  |#include &lt;stdio.h&gt;                                                   
+  |#include &lt;stdlib.h&gt;                                                  
+  |#include &lt;recio.h&gt;                                                   
+  |                                                                     
+ <FONT COLOR="FF00FF"> |#pragma mapinc("SRC","CLAB1P(*all)","both","z") 
+  |#include "SRC" 
+  |/* ----------------------------------------------
+  |/* PHYSICAL FILE: CLAB/CLAB1P                    
+  |/* FILE CREATION DATE: 98/08/22                   
+  |/* RECORD FORMAT: CLAB1P                            
+  |/* FORMAT LEVEL IDENTIFIER: 1EF087AE71485
+  |/* ----------------------------------------------
+  |typedef struct {
+  |   char SRCSEQ[6];      /*  ZONED SPECIFIED IN DDS
+  |                                     /*  REPLACED BY CHARACTER TYPE
+  |   char SRCDAT[6];       /*  ZONED SPECIFIED IN DDS
+  |                                     /*  REPLACED BY CHARACTER TYPE
+  |   char SRCDTA[80];
+  |}CLAB_CLAB1P_CLAB1P_both_t;  </FONT>
+  |
+  |int main(void)．．．．．
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ＤＤＳ定義情報が、対応するＣのデータ型に変更され、構造体にまとめられてます。
+
+<P>ＤＤＳ定義とＣのデータ型の対応を調べる為、すべてのフィールドタイプを定義した、
+下記の物理ファイルを作成しましょう。
+
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+CLAB2P
+        *****************  データの始め  ******************************
+0001.00      A          R CLAB2R                                       
+0002.00      A            KEY            1A         COLHDG('A FLD')    
+0003.00      A            P01           10P 2       COLHDG('P FILD')   
+0004.00      A            S01           10S 0       COLHDG('S FLD')    
+0005.00      A            B01            9B 0       COLHDG('B FLD')    
+0006.00      A            B02            4B 0       COLHDG('B FLD')    
+0007.00      A            F01            9F         COLHDG('F FLD')    
+0008.00      A            L01             L         COLHDG('L FLD')    
+0009.00      A            T01             T         COLHDG('T FLD')    
+0010.00      A            Z01             Z         COLHDG('Z FLD')    
+0011.00      A            A01           10A         COLHDG('A FLD')    
+0012.00      A            H01           10H         COLHDG('H FLD')    
+0013.00      A            J01           20J         COLHDG('J FLD')    
+0014.00      A            E01           20E         COLHDG('E FLD')    
+0015.00      A            O01           20O         COLHDG('O FLD')    
+0016.00      A            G01           20G         COLHDG('G FLD')    
+        *****************  データの終り  **********************************
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>CLAB2PをインクルードするＣのプログラム FILE3C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/  
+/* PROGRAM-ID  : FILE3C                                         */  
+/* REMARKS     : いろんなフィールドタイプをインクルード         */  
+/* AUTHOR      : Y.Ide                                          */  
+/* DATE-WRITEN : 98/08/22                                       */  
+/* VERSION     : 01.00 ORIGINAL                                 */  
+/*--------------------------------------------------------------*/  
+/* CRTBNDC PGM(FILE3C) OUTPUT(*PRINT) OPTION(*SHOWUSR)  で      */  
+/*  コンパイルしてください                                      */ </FONT>
+
+ #include &lt;stdio.h&gt;                                                  
+ #include &lt;stdlib.h&gt;                                                 
+ #include &lt;recio.h&gt;                                                  
+
+ #include &lt;decimal.h&gt;  
+/*PACKのデータ型の定義に必要*/
+/*定義し忘れると、原因に気がつきにくいコンパイルエラーになります。*/
+                                                                     
+ <FONT COLOR="FF00FF">#pragma mapinc(&quot;REC&quot;,&quot;CLAB/CLAB2P(CLAB2R)&quot;,&quot;both&quot;,&quot;d z&quot;)
+ #include &quot;REC&quot;    </FONT>                                           
+                                                                     
+ int main(void)                                                      
+ {                                                                   
+   _RFILE                            *fp;              
+   CLAB_CLAB2P_CLAB2R_both_t         rec;              
+                                                       
+     if (( fp = _Ropen ( &quot;CLAB2P&quot;, &quot;ar&quot; )) == NULL )   
+     {                                                 
+         printf ( &quot;OPEN ERRORn&quot; );                    
+         exit ( 1 );                                   
+     }                                                 
+                                                       
+     _Rclose ( fp );                                   
+                                                       
+      return(0);                                       
+ }
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>CRTCBND FILE3C *PRINT *SHOWUSRでコンパイルして、コンパイルリストで確認して見てください。
+<BR>コンパイルリストは以下の様になるでしょう
+
+
+<P>コンパイルリスト(関連部分の抜粋）
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+ ..+....2....+....3....+....4....+....5....+....6....+....7....+....8....+..  
+ |#pragma mapinc("REC","CLAB/CLAB2P(CLAB2R)","both","d z")                    
+ |#include "REC"                                                              
+ |/* -----------------------------------------------------------------------  
+ |/* PHYSICAL FILE: CLAB/CLAB2P                                               
+ |/* FILE CREATION DATE: 98/08/22                                             
+ |/* RECORD FORMAT: CLAB2R                                                    
+ |/* FORMAT LEVEL IDENTIFIER: 2F9E57F385921                                   
+ |/* -----------------------------------------------------------------------  
+ |typedef struct {                                                            
+ |   char KEY[1];                         /*  A FLD                           
+ |   decimal(10, 2) P01;                  /*  P FILD                          
+ |                                        /*  PACKED SPECIFIED IN DDS         
+ |   char S01[10];                        /*  S FLD                           
+ |                                        /*  ZONED SPECIFIED IN DDS          
+ |                                        /*  REPLACED BY CHARACTER TYPE      
+ |   int B01;                             /*  B FLD                     
+ |   short int B02;                       /*  B FLD            
+ |   float F01;                           /*  F FLD            
+ |   char L01[10];                        /*  L FLD            
+ |                                        /*  DATE FIELD       
+ |                                        /*  DATFMT(*ISO)     
+ |   char T01[8];                         /*  T FLD            
+ |                                        /*  TIME FIELD       
+ |                                        /*  TIMFMT(*ISO)     
+ |   char Z01[26];                        /*  Z FLD            
+ |                                        /*  TIMESTAMP FIELD  
+ |   char A01[10];                        /*  A FLD            
+ |   char H01[10];                        /*  H FLD            
+ |   char J01[20];                        /*  J FLD            
+ |   char E01[20];                        /*  E FLD            
+ |   char O01[20];                        /*  O FLD            
+ |   wchar_t G01[20];                     /*  G FLD
+ |                                        /*  DDS - G DATA TYPE        
+ |                                        /*  MAPS TO WIDE CHARACTER   
+ |}CLAB_CLAB2P_CLAB2R_both_t;                                          
+ |                                                                          
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ＤＤＳ定義とＣのデータ型の対応表
+<TABLE Width=560 BORDER CELLSPACING=0 >
+<TR>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF"><CENTER>
+	ＤＤＳ
+	</CENTER></TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF"><CENTER>
+	Ｃ構造体
+	</CENTER></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	ゾーン十進数 Ｚ
+	<BR>文字フィールド Ａ Ｏ Ｊ Ｅ
+	<BR>潜在フィールド Ｈ
+	<BR>日時関連 Ｌ Ｔ Ｚ
+	</TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	文字配列 char xxx[9];
+	</TD>
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	パック十進数 Ｐ
+	</TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	パックデータ型 decimal(9, 9)XXX  
+	</TD>
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	バイナリー Ｂ
+	</TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	int xxx, short int xxx 
+	</TD>
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	浮動小数 Ｆ
+	</TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	float xxx
+	</TD>
+</TR>
+<TR>
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	グラフィックデータタイプ Ｇ
+	</TD>
+
+	<TD ALIGN=LEFT Width=50% VALIGN=TOP BGCOLOR="#E0FFDF">
+	ワイドデータ型 wchar_t xxx[9]
+	</TD>
+</TR>
+
+</TABLE>
+
+<P>ＲＰＧとＣのファイルオープンモードの対応表
+
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF">
+
+<TR>
+
+	<TD ALIGN=LEFT Width=35% VALIGN=TOP BGCOLOR="#E0FFDF"><CENTER>
+	ＲＰＧ
+	</CENTER></TD>
+
+	<TD ALIGN=LEFT Width=35% VALIGN=TOP BGCOLOR="#E0FFDF"><CENTER>
+	Ｃ
+	</CENTER></TD>
+
+	<TD ALIGN=LEFT Width=30% VALIGN=TOP BGCOLOR="#E0FFDF"><CENTER>
+	説明
+	</CENTER></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	FCLAB1P  <FONT COLOR="FF00FF">I</FONT>F DISK
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"rr"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	レコードの読取り専用	
+	</B></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	<FONT COLOR="FF00FF">CLRPFM</FONT>した上で、
+	<BR>FCLAB1P  <FONT COLOR="FF00FF">O</FONT> DISK <FONT COLOR="FF00FF">A</FONT>    
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"wr"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	レコードの書込み専用
+	<BR>ファイルにデータがある場合には消去されます。
+	</B></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	FCLAB1P  <FONT COLOR="FF00FF">O</FONT> DISK <FONT COLOR="FF00FF">A</FONT>    
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"ar"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	ファイルの終りへのレコードの書込み (追加)
+	</B></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	FCLAB1P  <FONT COLOR="FF00FF">U</FONT> DISK <FONT COLOR="FF00FF">A</FONT>
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"rr+"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	レコードの読取り、書込み、更新
+	</B></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	<FONT COLOR="FF00FF">CLRPFM</FONT>した上で、
+	<BR>FCLAB1P  <FONT COLOR="FF00FF">U</FONT> DISK <FONT COLOR="FF00FF">A</FONT>
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"wr+"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	レコードの読取り、書込み、更新
+	<BR>ファイルにデータがある場合には消去されます。
+	</B></TD>
+
+</TR>
+<TR>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	FCLAB1P  <FONT COLOR="FF00FF">I</FONT> DISK <FONT COLOR="FF00FF">A</FONT>    
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	_Ropen("CLAB1P",<FONT COLOR="FF00FF">"ar+"</FONT>)
+	</B></TD>
+
+	<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B>
+	レコードの読取りおよび書込み
+	<BR>すべてのデータはファイルの終りに書き込まれます。
+	</B></TD>
+
+</TR>
+
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

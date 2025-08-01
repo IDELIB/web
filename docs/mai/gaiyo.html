@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+<TITLE>IDELIB for AS/400 - MAI/400</TITLE>
+</HEAD>
+
+<BODY TEXT="#004080" BGCOLOR="#DBEDFF" LINK="#0000FF" VLINK="#FF0000" ALINK="#FF00FF">
+
+<CENTER>
+
+<TABLE BORDER=0 WIDTH="680">
+
+<TR>
+<TD ALIGN="CENTER">
+<H2><FONT COLOR="#800040">[ MAI/400の概要 ]</H2>
+<HR>
+<TABLE WIDTH="95%">
+<TR BGCOLOR="#ffff80">
+<TD>
+<FONT COLOR="#ff0080">メール送信機能</FONT>
+</TD>
+</TR>
+<TR>
+<TD>
+<FONT SIZE=3 COLOR="#004080"><B>SRCTOMAIL</B></FONT>
+<UL>
+<LI>ソースファイルをメール本文に変換し送信する。
+<LI>データベース・"ファイルをメール本文に変換し送信する。
+<LI>IFS上のファイルをメールの添付ファイルとして送信する。<P>
+</UL>
+<FONT SIZE=3 COLOR="#004080"><B>DBTOMAIL</B></FONT>
+<UL>
+<LI>データベース・ファイルをCSV形式に変換し、メールの添付ファイルとして送信する。
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>SPLTOMAIL</B></FONT>
+<UL>
+<LI>印刷スプール・ファイルをメール本文に変換し送信する。
+<LI>印刷スプール・ファイルをテキストファイルに変換しメールの添付ファイルとして送信する。
+</UL>
+</TD>
+</TR>
+
+<TR BGCOLOR="#ffff80">
+<TD>
+<FONT COLOR="#ff0080">メール受信機能</FONT>
+</TD>
+</TR>
+
+<TR>
+<TD>
+<FONT SIZE=3 COLOR="#004080"><B>POPTOSRC</B></FONT>
+<UL>
+<LI>メールを受信し、コード変換し、ソースファイルに出力する。（テキストのみ）
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>POPCHK</B></FONT>
+<UL>
+<LI>メールを受信し、内容をデータベースに出力する。
+<LI>受信時にデータベースの内容と比較し、新着分のみ受信を行う。（無変換）
+<LI>新着メール受信時に、指定のアクションを行う（MSG送信、画面表示，転送，任意のコマンド実行）
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>POPSCN</B></FONT>
+<UL>
+<LI>POPCHKで受信済みのデータベースより、受信メール一覧を画面に表示する。
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>POPSHW</B></FONT>
+<UL>
+<LI>POPCHKで受信済みのデータベースより、受信メールの内容を画面に表示する。
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>POPCPY</B></FONT>
+<UL>
+<LI>POPCHKで受信済みのデータベースより、受信メールの内容をデータベース・ファイルに出力する。
+<LI>コード変換、添付ファイルの変換が可能。
+</UL>
+
+<FONT SIZE=3 COLOR="#004080"><B>POPFWD</B></FONT>
+<UL>
+<LI>POPCHKで受信済みのデータベースより、受信メールの内容を他の宛先に転送する。
+</UL>
+</TD>
+</TR>
+
+<TR BGCOLOR="#ffff80">
+<TD>
+<FONT COLOR="#ff0080">プログラミング・サポートＡＰＩ</FONT>
+</TD>
+</TR>
+
+<TR>
+<TD>
+<FONT SIZE=3 COLOR="#004080"><B>SMTPSRV</B></FONT>
+<UL>
+<LI>SMTPのメール送信に必要な機能を提供するサービス・プログラム
+<LI>SMTPヘッダーの作成、コード変換，添付ファイルの作成、tcpip通信などをサポート
+</UL>
+<FONT SIZE=3 COLOR="#004080"><B>MAISRV</B></FONT>
+<UL>
+<LI>tcpip通信などをサポート
+</UL>
+<FONT SIZE=3 COLOR="#004080"><B>MAICNV</B></FONT>
+<UL>
+<LI>コード変換、添付ファイル変換をサポート
+</UL>
+</TD>
+</TR>
+</TABLE>
+
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<HR>
+<A HREF="index.html">[MAI/400 HOME]</A>
+</TD>
+</TR>
+</TABLE>
+
+</CENTER>
+</BODY>
+</HTML>

@@ -1,0 +1,221 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_07-Ｉ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第７章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｉ仕様書－データストラクチャー</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<P>データストラクチャーの違いについてみて行きましょう。
+<P>下記のＲＰＧでは、データストラクチャーＤＡＴＡＳを定義しています。
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    ISPEC2R                                    *
+     H* REMARKS       :    データストラクチャー　　　 　　　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/8/15                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     IDATAS       DS
+     I                                    B   1   40B1
+     I                                    B   5   60B2
+     I                                    B   7  100B3
+     I                                       11  11 C1
+     I                                       12  12 C2
+     I                                       13  22 STR
+     C*
+     C                     Z-ADD1         B1
+     C                     Z-ADD2         B2
+     C                     Z-ADD3         B3
+     C                     MOVE 'A'       C1
+     C                     MOVE 'B'       C2
+     C                     MOVEL'STRING  'STR
+     C*
+     C                     CALL 'ISPEC2'
+     C                     PARM           DATAS
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+     C*
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>このデータストラクチャーは、
+
+<H3>4byte＋2byte＋4byte＋1byte＋1byte＋10byte＝22byte</H3>
+
+<P>のデータストラクチャーです<BR>
+
+<P>そして、このデータストラクチャーＤＡＴＡＳをパメーターとして、Ｃを呼び出しています。
+<BR>
+
+<P>下記のＣでは、データストラクチャーＯＮＥとＴＷＯを定義しています。それぞれのサブフィールドは同じにしてあります。
+
+<P>ＯＮＥとＴＷＯの違いは、ＴＷＯの方には<FONT COLOR="#ff0080">_Packed</FONT>を定義してあり、ＯＮＥにはありません。
+<BR><BR>
+
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : ISPEC2                                          */
+/* REMARKS     : Ｉ仕様書データストラクチャー                    */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/8/15                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* データストラクチャー                                          */
+/* RPG C のデータストラクチャーの受渡し                          */
+/* バウンダリーについて理解すること                              */
+/* ＡＳ／４００の場合は 4 バイトの境界合わせとなる               */
+
+#include&LT;stdio.h&GT;
+
+typedef struct Data_Struct_One
+    {
+       int  b1;            /* 4 byte */
+       short int  b2;      /* 2 byte */
+       int  b3;            /* 4 byte */
+       char c1;            /* 1 byte */
+       char c2;            /* 1 byte */
+       char str[10];       /* 10 byte */
+    } Data_Struct_One_t;
+
+typedef <FONT COLOR="#ff0080">_Packed</FONT> struct Data_Struct_Two
+    {
+       int  b1;            /* 4 byte */
+       short int  b2;      /* 2 byte */
+       int  b3;            /* 4 byte */
+       char c1;            /* 1 byte */
+       char c2;            /* 1 byte */
+       char str[10];       /* 10 byte */
+    } Data_Struct_Two_t;
+
+void main(int argc, char *argv[]){
+  Data_Struct_One_t *ONE;
+  Data_Struct_Two_t *TWO;
+
+  /*パラメーター取得*/
+  ONE = (Data_Struct_One_t *)argv[1];
+  TWO = (Data_Struct_Two_t *)argv[1];
+
+  printf("******** Packedしてないデータストラクト********\n");
+  printf("B1 = %d \n",ONE->b1);
+  printf("B2 = %d \n",ONE->b2);
+  printf("B3 = %d \n",ONE->b3);
+  printf("B3 HEX = %x \n",ONE->b3);
+  printf("C1 = %c \n",ONE->c1);
+  printf("C2 = %c \n",ONE->c2);
+  printf("STR = %s \n",ONE->str);
+
+  printf("******** Packedしたデータストラクト********\n");
+  printf("B1 = %d \n",TWO->b1);
+  printf("B2 = %d \n",TWO->b2);
+  printf("B3 = %d \n",TWO->b3);
+  printf("C1 = %c \n",TWO->c1);
+  printf("C2 = %c \n",TWO->c2);
+  printf("STR = %s \n",TWO->str);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>この結果、ＯＮＥは正常に表示できず、Ｂ３フィールド移行がずれてしまいます。
+
+<TABLE ALIGN="center" BGCOLOR="#000000" HEIGHT="400" WIDTH="560" BORDER="8" CELLSPACING="5">
+<TR><TD><PRE><FONT SIZE="3" COLOR="#ffffff">
+ ******** Packed してないデータストラクト ********               
+ B1 = 1                                                          
+ B2 = 2                                                          
+ B3 = 246210                                                     
+ B3 HEX = 3c1c2                                                  
+ C1 = S                                                          
+ C2 = T                                                          
+ STR = RING                                                      
+ ******** Packed したデータストラクト ********                   
+ B1 = 1                                                          
+ B2 = 2                                                          
+ B3 = 3                                                          
+ C1 = A                                                          
+ C2 = B                                                          
+ STR = STRING
+</FONT></PRE></TD></TR>
+</TABLE>
+
+<FONT COLOR="#0000ff"><H3>［つまりどうゆうこと？］</H3></FONT>
+
+<P>Ｃのデータストラクチャーは、＿Ｐａｃｋｅｄを指定しないと、プログラムがアクセスしやすいバイトごとに、
+サブフィールドを割り当てます。ＡＳ／４００の場合４バイトの境界合わせがおこなわれます。
+
+<P>４バイト＋２バイト＋４バイト＝１０バイトの定義が実際は、
+<P>４バイト＋２バイト＋（使用されない２バイト）＋４バイト＝１２バイトとなります。
+<P>これに伴なって以降のサブフィールドのデータがずれてしまいます。
+
+<P>上記の場合、データは
+
+<H3>00 00 00 01 00 02 00 00 00 03 c1(A) c2(B) .....  と並んでいます。</H3>
+
+データストラクチャーＯＮＥでは、
+
+<H3>00 00 00 01 = B1<BR>
+00 02 = B2<BR>
+00 00 境界合わせのために使用されない２バイト<BR>
+00 03 c1(A) c2(B) = B3(x03c1c2=246210) となっていまいます。</H3>
+
+<P>ＲＰＧには境界合わせというものがありませんし、コーディングするときに、初めの位置と終わりの位置を定義するので
+この様なことはありません。
+
+<P>一般的に、境界合わせした方が、処理自体は高速に処理できますので、ＲＰＧなどとデータストラクチャーのやり取りなど
+を行うのでなければ、_Packedを使用する必要はありません。
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

@@ -1,0 +1,125 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-付録</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　動的に関数呼出しする？</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<H3>以下のコードは、決してお薦めするものではありません。</H3>
+
+<H4>バインドしていない関数のアドレスを取得して、動的に実行するコードです</H4>
+
+<P>ＭＩを使用して、サービスプログラムの活動化し、そのなかにある関数のアドレスを取得し、呼出しをかけています。
+<P>ＯＳ／４００のバージョンなどによっては正常に動作しないかもしれません。
+
+<H3>まちがっても、こんなやり方で、アプリケーションは作成しないで下さいね。</H3>
+
+<P>あくまで、自分自身の理解を深める（本来のハッキング）としてください。
+<BR>当然、何かあっても、メーカーサポートなどは受けれません。念の為
+
+<P>活動化され、実行されるテスト用のサービスプログラム
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+#include &LT;stdio.h&GT;
+int plus(){
+printf("I am PLUSSRV PGM\n");
+return(0);
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>動的に関数呼出しするプログラム
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+#include &LT;QSYSINC/MIH/RSLVSP&GT;
+#include &LT;QSYSINC/MIH/MATPTR&GT;
+#include &LT;QSYSINC/H/QLEAWI&GT;
+#include &LT;stdio.h&GT;
+#include &LT;stdlib.h&GT;
+
+_SYSPTR        srvpgm_ptr;
+Qle_ABP_Info_t  *actinfo;
+Qus_EC_t        *err_code;
+
+int expid=1,explen,expex;
+char *expname = "plus";
+void *expptr, *rc_expptr;
+int rc,*actmark,*len, rc_actmark;
+
+int (*pl)();
+
+int main(void) {
+srvpgm_ptr = rslvsp(WLI_SRVPGM,"PLUSSRV","*LIBL", _AUTH_OBJ_MGMT);
+
+rc_actmark = QleActBndPgm (&srvpgm_ptr,
+                   actmark,    /* Activation mark            */
+                   actinfo,    /* Activation information     */
+                   len,        /* Length of Activation Info. */
+                    err_code); /* Error code                 */
+explen = 5;
+expptr = malloc(128);
+rc_expptr = QleGetExp (&rc_actmark,
+                 &expid,
+                 &explen,          /* Export name length           */
+                 expname,          /* Export name                  */
+                 &expptr,          /* Pointer to Pointer to export */
+                 &expex,           /* type, see QLE_EX_* defn's    */
+                 err_code);        /* Error code                   */
+
+printf("PLUSACT : plus ptr = %p\n",rc_expptr);
+pl = rc_expptr;
+rc = (*pl)();
+printf("PLUSACT : END PGM");
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

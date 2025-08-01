@@ -1,0 +1,31 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CA03(03)
+     A          R SC01
+     A                                  2 26'ソケットFTPクライアント'
+     A                                  5  5'SERVER IP   ='
+     A            CIP           15O  B  5 21
+     A                                  7  5'SERVER PORT ='
+     A            CPORT          5O  B  7 21
+     A                                  9  5'USER        ='
+     A            CUSER         10A  B  9 21CHECK(LC)
+     A                                 11  5'PASSWORD    ='
+     A            CPASS         10A  B 11 21CHECK(LC)
+     A                                      DSPATR(ND)
+     A                                 23  6'F3 =終了'
+     A          R SC02
+     A                                  2 26'ソケットFTPクライアント'
+     A                                  5  5'宛先FILE名:'
+     A            CFILE         60A  B  5 21CHECK(LC)
+     A                                 23  6'F3 =終了'
+     A          R SC03
+     A                                  2 26'ソケットFTPクライアント'
+     A                                  5  4'入力データ'
+     A            FLD01        128O  B  6  5CHECK(LC)
+     A                                 10  5'LENGTH='
+     A            FLD02          4A  B 10 13
+     A                                 23  6'F3 =終了'
+     A          R SC99
+     A                                  2 26'ソケットFTPクライアント'
+     A                                  5  4'エラー・メッセージ'
+     A            FLD01        128O  O  6  5DSPATR(HI)
+     A                                      DSPATR(RI)

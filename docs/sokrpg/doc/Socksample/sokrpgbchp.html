@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGBCHP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>RPGソケットバッチ処理プログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGBCHP                                 *
+     H* REMARKS       :    RPG ソケットバッチ処理プログラム           *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/10/05                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     C*
+     C*--------------------------------------------------------*
+     C                     DO   *HIVAL
+<FONT COLOR="#ff0080">     C*ソケット獲得を待つ------------------------------------*
+     C                     CALL 'SKTAKE'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM 'SOKBCH  'APLID   8
+</FONT>     C           RC        IFEQ 'E'
+     C                     LEAVE
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     DO   *HIVAL
+     C*--------------------------------------------------------*
+     C*ソケットデータ受信------------------------------------*
+     C                     CALL 'SKREAD'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C           RC        IFEQ 'E'
+     C           BUFLEN    OREQ '0   '
+     C                     LEAVE
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     MOVELBUFIN     ENDSW   4
+     C                     MOVELBUFIN     BUFOUT
+     C           ENDSW     IFEQ 'EXIT'
+     C                     LEAVE
+     C                     ENDIF
+     C           ENDSW     IFEQ 'END '
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットデータ送信（もらったデータの折り返し）--------*
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     LEAVE
+     C                     ENDIF
+     C*
+     C*--------------------------------------------------------*
+     C                     ENDDO
+     C*ソケットクローズ--------------------------------------*
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     ENDDO
+     C*--------------------------------------------------------*
+     C           TAG#E     TAG
+     C*ソケットクローズ--------------------------------------*
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+他のＪＯＢからSKGIVEで渡されたソケットディスクリプターを使用して、データの送受信を行う。<P>
+クライアントから QUIT が送られた場合は、接続をクローズして、次のディスクリプター獲得をまち、
+END が渡された場合は、プログラム終了する。
+
+<H4>【実行結果】</H4>
+下記のコマンドを実行
+<OL>
+<LI>SBMJOB CMD(CALL PGM(SOKRPG/SOKRPGBCHP)) JOB(SOKRPGBCHP)
+<LI>SBMJOB CMD(CALL PGM(SOKRPG/SOKRPGBCHP)) JOB(SOKRPGBCHP)
+<LI>SBMJOB CMD(CALL PGM(SOKRPG/SOKRPGBCHP)) JOB(SOKRPGBCHP)
+<LI>CALL PGM(SOKRPG/SOKRPGBCHD)
+</OL>
+<IMG SRC="../img/sokbchd.gif" HEIGHT="176" WIDTH="800">
+
+<P>３個の BATCH ジョブの SOKRPGBCHP が常駐しているので、同時に３クライアントのまでは処理できます。
+<P>それ以上のクライアントを処理したい場合は、さらに SOKRPGBCHP のサブミットが必要になります。
+
+<P>CALL PGM(SOKRPG/SOKRPGBCHD)だけ、対話ジョブで実行していますが、もちろん SBMJOB することも可能です。
+<P><FONT COLOR="#ff0080">注）</FONT>ユーザー登録されていない環境では確認画面が表示されるため、
+バッチ実行の際に画面 I/O エラーが発生し異常終了してしまいます。
+
+<BR>
+<BR>
+<BR>
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

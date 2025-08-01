@@ -1,0 +1,307 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_10-トランザクション処理</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第10章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Commit/Rollback </B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+<P>文章だとなかなか解りにくいので、実際にテストプログラムで検証しましょう
+
+<P>まず、テストで使用するファイルとジャーナルを準備しましょう。
+
+<H3>【ＣＭＴＰＦ】テスト用の物理ファイル</H3>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+ A                                      UNIQUE
+ A          R CMTR
+ A            KEY            1A         COLHDG('A FLD')
+ A            P01           10P 0       COLHDG('P FILD')
+ A            S01           10S 0       COLHDG('S FLD')
+ A            O01           20O         COLHDG('O FLD')
+ A          K KEY
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<H3>【ＣＭＴＣＬ】テスト用の物理ファイルセットアップＣＬ</H3>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+  PGM
+  CRTPF      FILE(CMTPF)
+  CRTJRNRCV  JRNRCV(CLAB/CMTJRN) THRESHOLD(5000)
+  CRTJRN     JRN(CLAB/CMTJRN) JRNRCV(CLAB/CMTJRN) +
+             MNGRCV(*SYSTEM)
+  STRJRNPF   FILE(CLAB/CMTPF) JRN(CLAB/CMTJRN) IMAGES(*BOTH)
+  ENDPGM
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>[プログラムの解説］</B>
+<UL>
+物理ファイルをコンパイルし、ジャーナルレシーバーを作成（最少の5000レコード）し、<BR>
+ジャーナルを作成（レシーバーの切り替えはＯＳまかせ）し、物理ファイルにジャーナルを<BR>
+開始します。
+<P>もちろん、ＣＬプログラムにせず、上記コマンドを順番に実行しても構いません。<BR>
+
+<H2><FONT SIZE="3" COLOR="#ff00ff">これで、ファイルの準備はできました。次にプログラムを準備しましょう</FONT></H2>
+
+<P>プログラムは、WIRTE/UPDATE/READ/DELETE毎に１本ずつになっています。
+<BR>すべてのプログラムは、ディスプレイ命令でＰＧＭを中断し、「COMMIT/ROLLBACK/何もしない」の指示が対話式に
+出来るようになっています。
+<BR><BR>
+</UL>
+
+<TABLE ALIGN="CENTER" BORDER="3"' CELLPADDING="10" BGCOLOR="#ffff80">
+<TR><TD><B><FONT SIZE="2" COLOR="#8080ff">
+<BR>ＡＳ／４００のＩＬＥ－Ｃは、ＲＰＧと同じ方法でコミットメントの利用が可能です。
+<P><A HREF="clab05.html">第５章　Ｆ仕様書</A> で出て来たＩＬＥ－Ｃの拡張関数を使用して、
+<BR>コミットメント制御を行う事がですます。
+
+<P>各関数は_Rxxxx ではじまる名前になっており、recio.h で定義されています。
+<PRE>_Racquire           _Rclose            <FONT COLOR="#ff00ff">_Rcommit</FONT>          _Rdelete
+_Rdevatr            _Rfeod             _Rfeov            _Rformat
+_Rindara            _Riofbk            _Rlocate          _Ropen
+_Ropnfbk            _Rpgmdev           _Rreadd           _Rreadf
+_Rreadindv          _Rreadk            _Rreadl           _Rreadn
+_Rreadnc            _Rreadp            _Rreads           _Rrelease
+_Rrlslck            <FONT COLOR="#ff00ff">_Rrollbck</FONT>          _Rupdate          _Rupfb
+_Rwrite             _Rwrited           _Rwriterd         _Rwrread
+</PRE> 
+
+</FONT>
+</B></TD></TR>
+</TABLE>
+
+<H3>【ＣＭＴ０１】レコード追加プログラム </H3>
+<A HREF="text/CMT01C.txt">Ｃ言語版はこちら</A>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+  FCMTPF   O   E                    DISK                  A
+  F                                              KCOMIT
+  E                    TEXT    1   1 50
+  C*
+  C                     MOVE 'A'       KEY
+  C                     WRITECMTR
+  C                     MOVE 'B'       KEY
+  C                     WRITECMTR
+  C*
+  C           TEXT,1    DSPLY          SWTCH   1       
+  C*
+  C           SWTCH     IFEQ 'C'
+  C                     COMIT
+  C                     ENDIF
+  C           SWTCH     IFEQ 'R'
+  C                     ROLBK
+  C                     ENDIF
+  C*
+  C                     SETON                     LR
+  C                     RETRN
+**
+WRITE ? (C=COMMIT R=ROOLBACK)
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<H3>【ＣＭＴ０２】レコード更新プログラム</H3>
+<A HREF="text/CMT02C.txt">Ｃ言語版はこちら</A>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+  FCMTPF   UF  E           K        DISK
+  F                                              KCOMIT
+  E                    TEXT    1   1 50
+  C*
+  C                     READ CMTR                     99
+  C                     ADD  1         S01
+  C                     UPDATCMTR
+  C                     READ CMTR                     99
+  C                     ADD  1         S01
+  C                     UPDATCMTR
+  C           TEXT,1    DSPLY          SWTCH   1    
+  C*
+  C           SWTCH     IFEQ 'C'
+  C                     COMIT
+  C                     ENDIF
+  C           SWTCH     IFEQ 'R'
+  C                     ROLBK
+  C                     ENDIF
+  C*
+  C                     SETON                     LR
+  C                     RETRN
+**
+UPDATE ? (C=COMMIT R=ROOLBACK)
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<H3>【ＣＭＴ０３】レコード読み取りプログラム</H3>
+<A HREF="text/CMT03C.txt">Ｃ言語版はこちら</A>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+  FCMTPF   IF  E           K        DISK
+  F                                              KCOMIT
+  E                    TEXT    1   2 50
+  C*
+  C           'A'       SETLLCMTPF
+  C                     READ CMTR                     99
+  C           TEXT,1    DSPLY
+  C                     READ CMTR                     99
+  C           TEXT,2    DSPLY          SWTCH   1
+  C*
+  C           SWTCH     IFEQ 'C'
+  C                     COMIT
+  C                     ENDIF
+  C           SWTCH     IFEQ 'R'
+  C                     ROLBK
+  C                     ENDIF
+  C*
+  C                     SETON                     LR
+  C                     RETRN
+**
+１レコードＲＥＡＤしました。
+READ  ? (C=COMMIT R=ROOLBACK)
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+<H3>【ＣＭＴ０４】レコード削除プログラム</H3>
+<A HREF="text/CMT04C.txt">Ｃ言語版はこちら</A>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF">
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+  FCMTPF   UF  E           K        DISK
+  F                                              KCOMIT
+  E                    TEXT    1   1 50
+  C*
+  C                     READ CMTR                     99
+  C                     DELETCMTR
+  C                     READ CMTR                     99
+  C                     DELETCMTR
+  C           TEXT,1    DSPLY          SWTCH   1   
+  C*
+  C           SWTCH     IFEQ 'C'
+  C                     COMIT
+  C                     ENDIF
+  C           SWTCH     IFEQ 'R'
+  C                     ROLBK
+  C                     ENDIF
+  C*
+  C                     SETON                     LR
+  C                     RETRN
+**
+DELETE ? (C=COMMIT R=ROOLBACK)
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<UL>
+<H3><B><FONT SIZE="3" COLOR="#ff00ff">これで、テストの準備はできました。</FONT></H3>
+
+<B><P>２台の端末でプログラムを実行し、COMMIT/ROLLBACKの動きを検証します。
+<BR>実行する順番は、「端末１」，「端末２」の順で実行するものとします。
+</UL>
+
+<P><FONT COLOR="#8000ff">端末１：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*CHG</FONT>)／端末２：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*CHG</FONT>)のケース</FONT>
+<UL>端末１：CALL CMT01(COMMITもROLLBOACKもせずに終了）
+<BR>端末２：
+<UL>
+<LI>CALL CMT01(WIRTE)<UL>重複キーレコードの書き出しエラー発生</UL>
+<LI>CALL CMT02(UPDATE)<UL>ロックウェイト</UL>
+<LI>CALL CMT03(READ)<UL>正常終了（２レコード読み込み）</UL>
+<LI>CALL CMT04(DELETE)<UL>ロックウェイト</UL>
+</UL>
+</UL>
+
+<P><FONT COLOR="#8000ff">端末１：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*CS</FONT>)／端末２：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*CS</FONT>)のケース</FONT>
+<UL>端末１：CALL CMT01(COMMITもROLLBOACKもせずに終了）
+<BR>端末２：
+<UL>
+<LI>CALL CMT01(WIRTE)<UL>重複キーレコードの書き出しエラー発生</UL>
+<LI>CALL CMT02(UPDATE)<UL>ロックウェイト</UL>
+<LI>CALL CMT03(READ)<UL>正常終了（２レコード読み込み）</UL>
+<LI>CALL CMT04(DELETE)<UL>ロックウェイト</UL>
+</UL>
+</UL>
+
+<P><FONT COLOR="#8000ff">端末１：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*ALL</FONT>)／端末２：STRCMTCTL COMMIT(<FONT COLOR="#ff00ff">*ALL</FONT>)のケース</FONT>
+<UL>端末１：CALL CMT01(COMMITもROLLBOACKもせずに終了）
+<BR>端末２：
+<UL>
+<LI>CALL CMT01(WIRTE)<UL>重複キーレコードの書き出しエラー発生</UL>
+<LI>CALL CMT02(UPDATE)<UL>ロックウェイト</UL>
+<LI>CALL CMT03(READ)<UL><FONT COLOR="#ff0080">ロックウェイト</FONT></UL>
+<LI>CALL CMT04(DELETE)<UL>ロックウェイト</UL>
+</UL>
+</UL>
+
+<FONT SIZE="1" COLOR="#ff0080">注）Ｃ言語版を使用する場合は、ACTGRPに注意して下さい。</FONT>
+
+<P><FONT COLOR="#8000ff">
+残念ながら、ここではすべてのケースの結果を掲載出来ませんので、他のケースについては、ご自身の環境で実行してご検証下さい。
+
+<P>WRKJOBコマンドでコミットメント状況や、ロックの内容について確認でき、
+<BR>DSPJRNコマンドで、コミットメント制御／コミットメントサイクルなどのジャーナル項目が確認できます。
+
+<P>内容を確認してみると、実際の動作が理解できることと思います。</FRON>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

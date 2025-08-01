@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<TITLE>SKCONN</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKCONN</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*ソケットコネクト--------------------------------------*
+     C                     CALL 'SKCONN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           IP     15
+     C                     PARM           PORT    5
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>相手先ソケットに接続する。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>IP</I></FONT>　(入力)</B>
+<DD><UL>接続先のIPアドレス、文字形式でxxx.xxx.xxx.xxxと指定する</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PORT</I></FONT>　(入力)</B>
+<DD><UL>接続先のPORT番号、文字形式で指定する。右づめでも左づめでも可</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+connect()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

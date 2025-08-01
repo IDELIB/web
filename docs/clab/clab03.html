@@ -1,0 +1,806 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-第３章　ポインター</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第３章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　スペースポインター</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<P>　Ｃ言語の最初の壁、ポインターです。これは、ＲＰＧ言語仕様にないものですから特に理解が難しいと思います。まずは、ポインターとはこんなものかっていう感覚をつかむようにしてください。
+
+<P>ポインターの説明に入る前に、以下のＲＰＧをみてください。
+
+<P>ＲＰＧプログラム POINT1R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+	E　　　　　　　　　　　　　　　　　　　 PTRA     5    5　 1
+	E　　　　　　　　　　　　　　　　　　　 PTRB          5　 1
+	I　　　　　　　　　　　 DS
+	I　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　1　　 5 PTRA
+	I　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　1　　 5 PTRB
+	C*
+	C　　　　　　　　　　　　　　　　　　　MOVE 'X'　　　　　　 PTRB,1
+**
+ABCD
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+１バイトの文字を5個持てる配列、ＰＴＲＡ、ＰＴＲＢを定義し、それをデータストラクチャーの同じ桁のところに定義しています。
+
+<P>ここでは、PTRA,1の値が"A"ならばPTRB,1も"A"ですよね。
+
+<P>PTRB,1を"X"に変更するとPTRA,1も"X"に変わります。
+
+<P>なぜかっていうと、PTRAとPTRBは同じエリアを<FONT COLOR="#FF00FF">さしている</FONT>からです
+
+<P>ポインターとは、何かを<FONT COLOR="#FF00FF">さしている</FONT>物です
+
+<P>それでは、以下のＣのプログラムを作成してください。
+
+<P>（ソースコードは、CCSID(65535)で作成し、コンパイルオプションは＊ＰＲＩＮＴとDEBUG
+*ALLを指定して作成してください）
+
+<P>ポインターを使ったＰＧＭ POINT1
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID　 : POINT1　　　　　　　　　　　　　　　　　　     */
+/* REMARKS　　　: ポインターを使ったＰＧＭ　　　　　　　　       */
+/* AUTHOR　　　 : Y.Ide　　　　　　　　　　　　　　　　　　　　  */
+/* DATE-WRITEN  : 98/04/28　　　　　　　　　　 　　　　　　　　　*/
+/* VERSION　　　: 01.00 ORIGINAL　　　　　　   　　　　　　　　　*/
+/*---------------------------------------------------------------*/
+/* Ｃ言語の最初の壁はポインターです。　　　　　　　　　　　　　　*/
+/* これを使いこなせばマスターへの道はすぐそこです　　　　　　　　*/
+/*　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 */
+#include&lt;stdio.h>
+void main()
+ {
+/*ポインターの定義*/
+  char *ptr_a = "ABCD";
+
+　printf("ptr_a =　 %s \n",ptr_a);
+
+  }
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+作成したら実行して見てください、エラー無く作成できたでしょうか？
+
+<P><FONT COLOR="#008000">char *ptr_a = "ABCD";</FONT>この部分がポインターの定義です。
+
+<P><FONT COLOR="#FF00FF">＊は間接演算子です。＊をつけて定義するとポインターになります。</FONT>
+
+<P>ここでは、ポインターを定義すると同時にそのポインターが、"ABCD"という文字列をさすように定義しています。
+
+<P>こう少し詳しく見てみましょう。
+
+<P>STRDBG　POINT1を実行してください。
+
+<P>ソースコードが表示されますね。
+
+<P>Ｆ１０のステップ実行を押してください。
+
+<P>デバッグの準備ができましたので、ＰＧＭ　ＰＯＩＮＴ１を実行してください
+
+<P>ＣＡＬＬ　ＰＯＩＮＴ１
+
+<P>最初のステップで実行が止まりました。
+
+<P>POINT1実行結果イメージ<BR>
+<CENTER>
+<IMG SRC="./gif/point1.gif" WIDTH="567" HEIGHT="406" ALT="POINT1実行結果" BORDER="1">
+</CENTER>
+
+<P>以下のデバッグコマンドを実行してください。
+<P><B><FONT COLOR="#008000">［コマンド］EVAL ptr_a</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］ptr_a = SPP:FB76AE82AF001008</FONT></B>
+
+<P>SPP:はスペースポインターであることを表します。
+
+<P>FB76AE82AF001008は、このポインターがさしている先のアドレスです。
+
+<P><I>（<FONT SIZE=-1>注：ＯＳ／４００ではポインターを何種類かに分けて管理しています。スペースポインターは、自分のＪＯＢ／ＰＧＭで有効なメモリーエリアに対するポインターです。プログラムからのアクセスはポインターアドレスを使って自由にアクセスが可能ですが、他のＪＯＢからは同じポインター値を指定してもアクセスすることはできません。何故かと言うと、スペースポインターとして使用できるエリアは、ＪＯＢごとに割り振られるからです（ＱＴＥＭＰもＪＯＢごとで同じＱＴＥＭＰでもＪＯＢごと内容は違いますよね）ＡＳ／４００のスペースポインターは、ユーザーから見えない部分に隠し情報を持っていて、ＪＯＢごとに管理されています。　他のプラットフォームとの実装の違いが一番でるのがこの部分で、ＵＮＩＸなどからの移植で問題になりやすい部分です。この点については他の機会に詳しく解説したいと思います。）</FONT></I>
+
+<P>次に、以下のコマンドを実行してください
+
+<P><B><FONT COLOR="#008000">［コマンド］EVAL &amp;ptr_a</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］&amp;ptr_a = SPP:D3E8C9B064000320</FONT></B>
+
+<P>＆はアドレス演算子と言います。＆をつけると変数自身のアドレスを帰します
+
+<P>＆ｐｔｒ＿ａはｐｔｒ＿ａ自身のアドレスを表します。
+
+<P>ｐｔｒ＿ａはFB76AE82AF001008
+
+<P>＆ｐｔｒ＿ａはD3E8C9B064000320　です
+
+<P>次に以下のコマンドを実行してください
+
+<P><B><FONT COLOR="#008000">［コマンド］EVAL *ptr_a</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］*ptr_a = 'A'</FONT></B>
+
+<P>＊は間接演算子でしたね、＊とアドレスで、そのアドレスの値を戻します。
+
+<P>＊ｐｔｒ＿ａは（＊FB76AE82AF001008）でそこには'A'の文字が格納されています
+<PRE>ポインターには、文字列”ＡＢＣＤ”の最初の'A'のアドレスしか格納してません。</PRE>
+Ｂにアクセスするにはどうすれば良いのでしょう？
+
+<P>ＢはＡのアドレスの次にあるので以下のようにできます
+
+<P><B><FONT COLOR="#008000">［コマンド］ EVAL *(ptr_a + 1)</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］*(ptr_a + 1) = 'B'</FONT></B>
+
+<P>このように、<FONT COLOR="#0000FF">Ｃ言語では文字列の先頭のアドレスしか持っていません。</FONT>
+
+<P>文字列の終わりはＮＵＬＬが現れるまでという約束になっています。
+
+<P><B><FONT COLOR="#0000FF"><FONT SIZE=+0>ＰＧＭで文字列を使用するには、ＮＵＬＬで終端されているか、文字数を明示的に指定して処理することが必要です。</FONT></FONT></B>
+
+<P>'A'以下のＢＣＤを表示するには、以下のコマンドを実行してください
+
+<P><B><FONT COLOR="#008000">［コマンド］EVAL *ptr_a:f</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］*ptr_a:f = ABCD</FONT></B>
+
+<P><FONT COLOR="#FF0000">：ｆ</FONT>は先頭のアドレスからＮＵＬＬまでを表示します。文字列の最後にＮＵＬＬが必要です。
+
+<P><B><FONT COLOR="#008000">［コマンド］EVAL *ptr_a:s</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］*ptr_a:s = "ABCD"</FONT></B>
+
+<P><FONT COLOR="#FF0000">：ｓ</FONT>は、先頭のアドレスからＮＵＬＬが現れるか，２０文字（省略値）まで表示する。
+
+<P>２０文字以上表示したいときには”<FONT COLOR="#FF0000">：ｓ　文字数</FONT>”と記述します。
+
+<P><B><FONT COLOR="#008000">［コマンド］EVAL *ptr_a:x 5</FONT></B>
+<BR><B><FONT COLOR="#008000">［結　果　］00000 C1C2C3C4 00000000 00000000
+00000000 - ABCD............</FONT></B>
+
+<P>：ｘは１６進表示の指定です、指定された５文字分を１６進で表示しています。
+
+<P>この状態のメモリーは以下のようになっています。
+<BR>　
+
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+
+<UL>
+<UL>
+<PRE><B>メモリーアドレス　　　　　　　　　　　　　　 値</B></PRE>
+</UL>
+</UL>
+
+<PRE><B>　&amp;ptr_a　　　　　　　 D3E8C9B064000320　　　　　　 <FONT COLOR="#FF0000">FB76AE82AF001008</FONT></B></PRE>
+
+<PRE><B>　*ptr_a　　　　　　　 <FONT COLOR="#FF0000">FB76AE82AF001008</FONT>　　　　　　 'A'</B></PRE>
+
+<PRE><B>　*(ptr_a + 1)　　 FB76AE82AF001009　　　　　　　 'B'</B></PRE>
+
+<PRE><B>　*(ptr_a + 2)　　 FB76AE82AF001010　　　　　　　 'C'</B></PRE>
+
+<PRE><B>　*(ptr_a + 3)　　 FB76AE82AF001011　　　　　　　 'D'</B></PRE>
+
+<PRE><B>　*(ptr_a + 4)　　 FB76AE82AF001012　　　　　　　 00(NULL)</B></PRE>
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+
+<P>ポインターに関しては以下のことを覚えてください。
+<UL>
+<LI>
+<B><FONT COLOR="#FF00FF"><FONT SIZE=+1>変数に＊をつけて定義したらポインターになる</FONT></FONT></B></LI>
+
+<LI>
+<B><FONT COLOR="#FF00FF"><FONT SIZE=+1>変数に＆をつけたらアドレスを戻す</FONT></FONT></B></LI>
+
+<LI>
+<B><FONT COLOR="#FF00FF"><FONT SIZE=+1>＊とポインター変数で、ポインターがさしている先の値を表す</FONT></FONT></B></LI>
+</UL>
+ところで、ポインターは何かを差していなければなりません。
+<BR>何も差していないポインターを使うとどうなるでしょうか？
+
+<P>ポインターを使ったＰＧＭ POINT2
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+/*-----------------------------------------------------------*/
+/* PROGRAM-ID : POINT2 */　
+/* REMARKS : ポインターを使ったＰＧＭ */
+/* AUTHOR : Y.Ide */　
+/* DATE-WRITEN : 98/04/30 */　
+/* VERSION : 01.00 ORIGINAL */　
+/*-----------------------------------------------------------*/
+/* ｍａｌｌｏｃ */　
+/* ポインターにメモリーを割り当てる */
+
+#include&lt;stdio.h>
+#include&lt;stdlib.h> /* malloc使用のため*/
+
+void main(){
+
+/*ポインターの定義*/
+char *ptr_a;
+char *ptr_b;
+
+/*ポインターＡにメモリーを割り当てる　*/
+	ptr_a = malloc(5);
+	printf("ptr_a = %s \n",ptr_a);
+
+/*メモリーが割り当てられていないポインターを使うとどうなるか？*/
+
+	printf("ptr_b = %s \n",ptr_b);
+
+}
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+上記のptr_aには、関数malloc(5)を使用して５バイトのメモリーを割り当てていますが、ptr_bには特になにも割り当てていません。この状態のポインターは何も差していない（ポインター値はNULL）です。
+<BR>ＮＵＬＬポインターまたは不正なポインターをプログラムで使用するとどうなるでしょう
+<BR>おそらく、printf("ptr_b = %s \n",ptr_b);のところで終了するはずです。
+<BR>ＪＯＢＬＯＧをみてエラーメッセージなど確認してみてください。
+<BR>ＡＳ／４００のメッセージの出方は独特なので、ピンと来ないかもしれませんが、ＯＳのエラーが起こったときに見た事があるようなメッセージじゃないですか？
+
+<P>次のプログラムを見てください
+
+<P>ポインターを使ったＰＧＭもどき POINT3
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+/*----------------------------------------------*/
+/* PROGRAM-ID　 : POINT3			*/
+/* REMARKS　　  : ポインターを使ったＰＧＭ  	*/
+/* AUTHOR　　　　　 : Y.Ide			*/
+/* DATE-WRITEN : 98/04/30			*/
+/* VERSION　　　　 : 01.00 ORIGINAL		*/
+/*----------------------------------------------*/
+/* ＆はアドレス演算子です。			*/
+/* 変数のメモリーアドレスをかえします　　	*/
+/*						*/
+
+#include&lt;stdio.h>
+#include&lt;stdlib.h>
+#include&lt;string.h>
+
+void main(){
+/*ポインターの定義*/
+	char *ptr_a;
+/*配列の定義*/
+	char DATA[5] = "ABCD";
+
+/*配列DATAのメモリーアドレスをポインターに代入*/
+	ptr_a = &amp;DATA[0];
+
+	printf("ptr_a = %s \n",ptr_a);
+
+	printf("DATA　 = %s \n",DATA);
+
+/*配列の値を変更*/
+DATA[0] = 'X';
+DATA[1] = 'Y';
+DATA[2] = 'Z';
+DATA[3] = '?';
+
+	printf("ptr_a = %s \n",ptr_a);
+　	printf("DATA　 = %s \n",DATA);
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>今度は、配列ＤＡＴＡ［４］を定義して、そのアドレスをポインターに代入しています
+<P>［注］Ｃの配列の添字は、０から始まります
+
+<P>配列ＤＡＴＡの値を変更すると、当然それを差しているポインターの内容も変わります
+<BR>同じところを参照しているのだからです
+
+<P>ＤＡＴＡの内容を変更して、*ptr_aを表示すると、ＤＡＴＡと同じ出あることがわかると思います
+
+<P>ＲＰＧで書くとどうなるでしょう。ＲＰＧにはポインターがないので完全に同じにはもちろんできませがこんな感じでしょうか　
+
+<P>ポインターを使ったＰＧＭもどき POINT3R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+　　 H　　　　　　　　　　　 Y/　　　　　　　　　　　　1
+<FONT COLOR="#008000">　　 H*---------------------------------------------------------------*
+　　 H* PROGRAM-ID　　　 :　　　 POINT3R　　　　　　　　　　　　　　　*
+　　 H* REMARKS　　　　　　 :　　 ポインターを使ったＰＧＭもどき　　　*
+　　 H* AUTHOR　　　　　　　 :　　　 Y.IDE　　　　　　　　　　　　　　*
+　　 H* DATE-WRITEN　　 :　　　 98/04/30　　　　　　　　　　　　　　　*
+　　 H* VERSION　　　　　　 :　　　 01.00 ORIGINAL　　　　　　　　　　*
+　　 H*---------------------------------------------------------------*</FONT>
+　　 E　　　　　　　　　　　　　 DATA　　　1　　 5　 1　
+　　 I　　　　　　　　DS
+　　 I　　　　　　　　　　　　　　　　　　　　        1　　 5 PTR#A
+　　 I　　　　　　　　　　　　　　　　　　　　　　　　1　　 5 DATA
+　　 C*
+　　 C　　　　　　　DSPLY　　　　　　　PTR#A
+　　 C*　　
+　　 C　　　　　　　MOVE 'X'　　　　　 DATA,1
+　　 C　　　　　　　MOVE 'Y'　　　　　 DATA,2
+　　 C　　　　　　　MOVE 'Z'　　    　 DATA,3
+　　 C　　　　　　　MOVE '?'　　　　　 DATA,4
+　　 C*
+　　 C　　　　　　　DSPLY　　　 　　　 PTR#A
+　　 C*
+　　 C　　　　　　　SETON　　　　　　　　　　　　　　 LR
+　　 C　　　　　　　RETRN
+　　 C*
+ **　　
+ A　　
+ B　　
+ C　　 
+ D
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+&nbsp;
+<UL>
+<LI>
+ＤＡＴＡは１バイトのテーブルで５個の要素をもち、初期値を”ＡＢＣＤ”として持ってます。</LI>
+
+<LI>
+ＰＴＲ＃Ａという文字フィールドをＤＳで同じ場所に定義しています。これで、ＰＴＲ＃ＡとＤＡＴＡとは同じメモリーアドレスを<FONT COLOR="#FF0000">さしている</FONT>はずです。</LI>
+
+<LI>
+ＤＡＴＡ，１の内容を変更すると、ＰＴＲ＃Ａの値も変わります。同じところを参照しているからですね</LI>
+</UL>
+　<B><FONT SIZE=-1>［注］ＲＰＧの配列の添字は、１から始まります</FONT></B>
+
+<P>同じような例ですが
+
+<P>ポインターを使ったＰＧＭ POINT4
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/
+/* PROGRAM-ID　 : POINT4　　　　　　　　　　　　　　　　　　　　 */
+/* REMARKS　　　　 : ポインターを使ったＰＧＭ　　　　　　　　　　*/
+/* AUTHOR　　　　　 : Y.Ide　　　　　　　　　　　　　　　　　　　*/
+/* DATE-WRITEN : 98/04/30　　　　　　　　　　　　　　　　　　　　*/
+/* VERSION　　　　 : 01.00 ORIGINAL　　　　　　　　　　　　　　　*/
+/*---------------------------------------------------------------*/
+/* ポインターとポインター　　　　　　　　　　　　　　　　　　　　*/
+/*　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 */</FONT>
+
+#include&lt;stdio.h>
+#include&lt;stdlib.h>
+#include&lt;string.h>
+
+void main(){
+/*ポインターの定義*/
+	char *ptr_a;
+	char *ptr_b = "ABCD";
+
+/*ポインターＢの内容をポインターＡに代入　*/
+
+	ptr_a = ptr_b;
+
+/* STRDBGでこの上の行で停止しptr_a,prt_bの値を見て下さい*/
+
+　	printf("ptr_a %s \n",ptr_a);
+　	printf("ptr_b %s \n",ptr_b);
+
+/*ポインターＡの内容のみ変更*/
+	ptr_a??(0??) = 'X';
+	ptr_a??(1??) = 'Y';
+	ptr_a??(2??) = 'Z';　　
+	ptr_a??(3??) = '!';　
+
+	printf("ptr_a %s \n",ptr_a);
+	printf("ptr_b %s \n",ptr_b);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+&nbsp;
+<UL>
+<LI>
+ptr_aとptr_bは同じアドレスを指しますので、同じ値を持っています</LI>
+
+<LI>
+&amp;ptr_aと&amp;ptr_bはそれぞれ自分自身のアドレスを示します。持っているアドレスは同じでも格納している場所は別々です。</LI>
+</UL>
+　また、ＲＰＧで書いてみましょう？
+
+<P>ポインターを使ったＰＧＭもどき POINT4R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+　　 H　　　　　　　　　　　 Y/　　　　　　　1
+　　 H*--------------------------------------------------------*
+　　 H* PROGRAM-ID　　:　　 POINT4R　　　　　　　　　　　　
+　　 H* REMARKS　　　 :　　 ポインターを使ったＰＧＭもどき
+　　 H* AUTHOR　　 　 :　　 Y.IDE　　　　　　　　　　　　
+     H* DATE-WRITEN　 :　　 98/04/30　　　　　　　　　　
+　　 H* VERSION　　　 :　　　 01.00 ORIGINAL　　　　　　
+　　 H*--------------------------------------------------------*
+　　 E　　    　　　　　　　　　PTRA      5     5　 1　
+　　 E　　    　　　　　　　　　PTRB            5　 1
+　　 I　　　　 DS　　
+　　 I                                                   1　　 5 PTRA
+　　 I                                                   1　　 5 PTRB
+　　 C*
+　　 C                    MOVE 'X'　  　 PTRA,1
+　　 C                    MOVE 'Y'　　　 PTRA,2
+　　 C                    MOVE 'Z'　　　 PTRA,3
+　　 C                    MOVE '?'　　　 PTRA,4
+　　 C*
+　　 C                    DSPLY　 　　　 PTRB,1
+　　 C                    DSPLY　 　　　 PTRB,2
+　　 C                    DSPLY　 　　　 PTRB,3
+　　 C                    DSPLY　　　　  PTRB,4
+　　 C*
+　　 C                    SETON　　　　　　　　　　　　 LR
+　　 C                    RETRN
+　　 C*
+ **
+ ABCD
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+
+残念ながらこのへんで限界のようですね、
+<UL>
+<LI>
+ＲＰＧでは、Ｃ仕様書でｐｔｒ_a = ptr_bのように他の変数と同じエリアを参照させる命令がありません</LI>
+
+<LI>
+ＲＰＧでは、moveコマンドを用いて値をコピーするしかありません。この場合はもちろん同じ値を別々のエリアに格納することになるので、片方変更したからといって、もう一方にはなんの影響もありません。</LI>
+
+<LI>
+ＲＰＧでは、変数自身がもつアドレスを参照したり設定したりってことはできません。でも内部ではもちろん使用しています。プログラマーからは完全に見えなくしているだけです。</LI>
+</UL>
+それでは、ＲＰＧからＣのプログラムを呼び出してパラメーターを渡してみましょう。<B><FONT SIZE=-1></FONT></B>
+
+<P><B><FONT SIZE=-1>［注］原則Ｃではパラメーターは値渡しです、ＲＰＧでは参照渡しです。</FONT></B>
+<BR>
+
+<P>ポインターを使ったＰＧＭ POINT5
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+/*---------------------------------------------------------*/
+/* PROGRAM-ID　 : POINT5　　　　　　　　　　　　　　　　　 */
+/* REMARKS　　　　 : ポインターを使ったＰＧＭ　　　　　　　*/
+/* AUTHOR　　　　　 : Y.Ide　　　　　　　　　　　　　　　　*/
+/* DATE-WRITEN : 98/04/30　　　　　　　　　　　　　　　　　*/
+/* VERSION　　　　 : 01.00 ORIGINAL　　　　　　　　　　　　*/
+/*---------------------------------------------------------*/
+/* ＲＰＧから呼ばれるプログラム　　　　　　　　　　　　　　*/
+/* ＲＰＧとＣはポインター渡しでパラメーターを受け取る　　　*/
+
+#include&lt;stdio.h>
+#include&lt;stdlib.h>
+#include&lt;string.h>
+
+void main(int argc, char *argv[])
+{
+/*ポインターの定義*/
+char *ptr_a;
+
+/*パラメーター取得*/
+ptr_a = argv[1];
+
+	printf("PRAM = %s \n",ptr_a);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<UL>
+<LI>
+main(int argc, char *argv[])の部分が、パラメータ受取のための定義になります、ＲＰＧだと*ENTRY
+PLISTに相当します</LI>
+
+<LI>
+ａｒｇｃに受け取ったパラメーターの個数が入ります</LI>
+
+<LI>
+＊ａｒｇｖ［］はポインターを格納する配列となります。</LI>
+</UL>
+＊ａｒｇｖ［］の構造は、以下のようになります
+
+<P>パラメーター１　”ＡＡＡ”　　メモリーアドレス　１００－１０３
+<BR>パラメーター２　”ＢＢＢ”　　メモリーアドレス　　２００－２０３
+<BR>パラメーター３　”ＣＣＣ”　　メモリーアドレス　３００－３０３
+<BR>ａｒｇｖのアドレスが００１だとすると
+<BR>&nbsp;
+<TABLE BORDER COLS=3 WIDTH="493" BGCOLOR="#E0FFDF" >
+<TR>
+<TD WIDTH="50" BGCOLOR="#E0FFDF"><B><FONT SIZE=-1>アドレス</FONT></B></TD>
+
+<TD WIDTH="200"><B><FONT SIZE=-1>値</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>変数</FONT></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>００１</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>１００</FONT></B></TD>
+
+<TD><B>argv[1]</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>００２</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>２００</FONT></B></TD>
+
+<TD><B>argv[2]</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>００３</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>３００</FONT></B></TD>
+
+<TD><B>argv[3]</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>００４</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>ＮＵＬＬまたは不定（何が入っているかは解らない</FONT></B></TD>
+
+<TD><B>argv[4]</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>１００</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ａ”</FONT></B></TD>
+
+<TD><B>parm1</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>１０１</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ａ”</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>１０２</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ａ”</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>１０３</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>ＮＵＬＬまたは不定</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>２００</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ｂ”</FONT></B></TD>
+
+<TD><B>parm2</B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>２０１</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ｂ”</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>２０２</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>”Ｂ”</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>２０３</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>ＮＵＬＬまたは不定</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1></FONT></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>３００</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>"C"</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>ｐａｒｍ３</FONT></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>３０１</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>"C"</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1></FONT></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>３０２</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>"C"</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1></FONT></B></TD>
+</TR>
+
+<TR>
+<TD><B><FONT SIZE=-1>３０３</FONT></B></TD>
+
+<TD><B><FONT SIZE=-1>ＮＵＬＬまたは不定</FONT></B></TD>
+
+<TD><B></B></TD>
+</TR>
+</TABLE>
+
+
+<P><B><FONT SIZE=-1>[注１］アドレスは解りやすくするために実際のアドレスよりも桁数が少なくなっています</FONT></B>
+[注２］ａｒｇｖ［０］には、プログラム名が入ります</FONT></B>
+
+<P呼び出す側のＲＰＧプログラム POINT6R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=2>
+<PRE>
+     H　　　　　　　　　　　 Y/　　　　　　　1
+<FONT COLOR="#008000">　　 H*-----------------------------------------------------*
+　　 H* PROGRAM-ID　　 :　 POINT6R　　　　　　　　　
+　　 H* REMARKS　　 　 :　 Ｃを呼び出すＰＧＭ　　　　　　　　　　　　　　　　
+　　 H* AUTHOR　　　　 :　 Y.IDE
+　　 H* DATE-WRITEN　  :　 98/04/30
+　　 H* VERSION　　　　:　 01.00 ORIGINAL
+　　 H*-----------------------------------------------------*</FONT>
+　　 E　　　　　　　　　　　　　　 PTRA　　　5　　 5　 1
+　　 E　　　　　　　　　　　　　　 PTRB　　　5　　 5　 1
+　　 I　　　　　　 DS
+　　 I　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　1 　 5 PTRA　　
+　　 I　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　6　 10 PTRB　　
+　　 I　　　　　　　　　　　　　 　　　　　　　　　　　　　　　　　11　 15 DATA1　　
+　　 I　　　　　　　　　　　　　 　　　　　　　　　　　　　　　　　16　 20 DATA2　　
+　　 I　　　　　　　　　　　　　　 　　　　　　　　　　　　　　　　21　 21 NULL　　
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　MOVE *LOVAL　　  NULL　
+　　 C　　　　　　　　　　　　　　　　　　　　MOVE 'DATA1'　　 DATA1　
+　　 C　　　　　　　　　　　　　　　　　　　　MOVE 'DATA2'　　 DATA2
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　CALL 'POINT5'　　
+　　 C　　　　　　　　　　　　　　　　　　　　PARM　　　　　　　　　　 PTRA　
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　CALL 'POINT5'　
+　　 C　　　　　　　　　　　　　　　　　　　　PARM　　　　　　　　　　 PTRB　　
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　CALL 'POINT5'
+　　 C　　　　　　　　　　　　　　　　　　　　PARM　　　　　　　　　　 DATA1　
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　CALL 'POINT5'　　
+　　 C　　　　　　　　　　　　　　　　　　　　PARM　　　　　　　　　　 DATA2　　
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　CALL 'POINT5'　　
+　　 C　　　　　　　　　　　　　　　　　　　　PARM　　　　　　　　　　 PTRA
+　　 C*
+　　 C　　　　　　　　　　　　　　　　　　　　SETON　　　　　　　　　　　　　　　　　　　　 LR
+　　 C　　　　　　　　　　　　　　　　　　　　RETRN
+　　 C*
+**
+PTRA
+**
+PTRB
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<UL>
+<LI>
+ＲＰＧは参照渡しなので、自分のもつ変数のアドレスをパラメーターとして渡します。</LI>
+
+<LI>
+Ｃでは、パラメータをポインターとして扱い、ポインターからＮＵＬＬまでを表示しています</LI>
+
+<LI>
+ＲＰＧから渡しいてるパラメーターは一つだけですが、ＤＳの定義のためにフィールドが連続しています。そのため、各先頭のフィールドをＲＰＧから渡すと、それ以降のフィールドの値もＣで読めています。</LI>
+</UL>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

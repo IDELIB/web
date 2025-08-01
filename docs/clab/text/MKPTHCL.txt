@@ -1,0 +1,30 @@
+             PGM
+             ENDSBS     SBS(SOCKET) OPTION(*IMMED)
+             DLTSBSD    SBSD(*CURLIB/SOCKET)
+             DLTJOBD    JOBD(*CURLIB/PTHREAD)
+             DLTCLS     CLS(*CURLIB/PTY15)
+
+/* 専用のサブシステムを作成 */
+             CRTSBSD    SBSD(SOCKET) POOLS((1 *BASE))
+
+/* ＪＯＢ記述でスレッド可能の設定を行う。 */
+             CRTJOBD    JOBD(PTHREAD) USER(IDE) RQSDTA('CALL +
+                          PGM(CLAB/SOCKPTHNAV)') ALWMLTTHD(*YES)
+
+             CRTCLS     CLS(PTY15) RUNPTY(15) PURGE(*NO)
+
+             ADDRTGE    SBSD(*CURLIB/SOCKET) SEQNBR(1) CMPVAL(*ANY) +
+                          PGM(QSYS/QCMD) CLS(*CURLIB/PTY15)
+/* 自動開始ＪＯＢとして登録  */
+/*           ADDAJE     SBSD(*CURLIB/SOCKET) JOB(SOCKSVR) +
+                          JOBD(*CURLIB/PTHREAD)                  */
+/* 事前開始ＪＯＢとして登録 */
+             ADDPJE     SBSD(*CURLIB/SOCKET) PGM(CLAB/SOCKPTHNAV) +
+                          USER(IDE) INLJOBS(1) THRESHOLD(1) +
+                          ADLJOBS(0) JOBD(*CURLIB/PTHREAD) +
+                          MAXUSE(1) CLS(*CURLIB/PTY15)
+
+             ENDTCPCNN  PROTOCOL(*TCP) LCLINTNETA(*) LCLPORT(30001) +
+                          RMTINTNETA(*) RMTPORT(*)
+             STRSBS     SBSD(*CURLIB/SOCKET)
+             ENDPGM

@@ -1,0 +1,421 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-第４章　Ｈ仕様書とロケール</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第４章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｈ仕様書とロケール</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<P>ＲＰＧプログラマーの方も、Ｈ仕様書についてはふだん、あまり気に留めていないのではないでしょうか？
+<BR>と言うことで、まずＲＰＧのＨ仕様書について再度、確認しましょう！
+
+<P>Ｈ仕様書とは何でしょう
+<P><FONT COLOR="#008000">Ｈ仕様書はプログラムの生成や実行を制御します。</FONT>
+
+<P>これだけでは、何のことかいまいち分からないですね
+<BR>もう少し詳しく見てみましょう
+
+<P>Ｈ仕様書の主な項目は以下のようになります。
+<FONT COLOR="#008000"> 
+<P>１５桁目　デバッグ
+<BR>１８桁目　通貨記号
+<BR>１９桁目　日付形式
+<BR>２０桁目　日付の編集
+<BR>２１桁目　小数点の表記法
+<BR>２６桁目　代替照合順序
+<BR>４０桁目　符号処理
+<BR>４１桁目　用紙の位置合わせ
+<BR>４３桁目　ファイル変換
+<BR>５７桁目　透過性検査
+<BR>75 ～ 80桁目　プログラム識別コード
+</FONT>
+<P>ところで、上記の通貨記号、日付形式、日付編集、小数点の表記方法などは、国が違うと
+表記方法が変わる場合があるのは、皆さんもご存じだと思います。
+
+<P>たとえば、
+<table WIDTH="580" border=1 bgcolor="#E0FFDF" cellspacing=0 cellpadding=5>
+	<tr>
+		<td width=109 align=left valign=top><p align=left></td>
+		<td width=109 align=left valign=top><p align=left><font size=3>通貨記号</font></td>
+		<td width=109 align=left valign=top><p align=left><font size=3>日付形式</font></td>
+		<td width=109 align=left valign=top><p align=left><font size=3>日付編集</font></td>
+		<td width=116 align=left valign=top><p align=left><font size=3>小数点の表記</font></td></tr>
+
+	<tr>
+		<td  align=left valign=top><p align=left><font size=3>日本</font></td>
+		<td  align=left valign=top><p align=left><font size=3>￥</font></td>
+		<td  align=left valign=top><p align=left><font size=3>ＹＭＤ</font></td>
+		<td  align=left valign=top><p align=left><font size=3>／</font></td>
+		<td  align=left valign=top><p align=left><font size=3>．（ピリオド）</font></td></tr>
+
+	<tr>
+		<td  align=left valign=top><p align=left><font size=3>ＵＳ</font></td>
+		<td  align=left valign=top><p align=left><font size=3>＄</font></td>
+		<td  align=left valign=top><p align=left><font size=3>ＭＤＹ</font></td>
+		<td  align=left valign=top><p align=left><font size=3>／</font></td>
+		<td  align=left valign=top><p align=left><font size=3>．（ピリオド）</font></td></tr>
+
+</table>
+<P>その他に、フランスでは、小数点がカンマ'，'になります。
+<P>照合順序についても、
+<P>ＡａＢｂＣｃ順
+<BR>アイウエオ順
+<BR>ほげほげ順
+<P>と、これも各国によって順序が違います。
+
+<P><FONT COLOR="#008000">ＲＰＧでは、これらの制御をＨ仕様書を変更することで、
+ＰＧＭのロジックから切り離し、共通のＰＧＭで国別サポートを可能にしようとしています。</FONT>
+
+<P>それでも、いちいち、全ＰＧＭのＨ仕様書を書き換えてコンパイルするのは、大変ですね、<BR>
+ですから、ＲＰＧでは、Ｈ仕様書を省略することが出来ます。
+<P>Ｈ仕様書を省略すると、<FONT COLOR="#FF00FF">ＱＲＰＧ／ＤＦＴＨＳＰＥＣ</FONT>というデータエリアの内容を
+コンパイラーは参照します。ユーザーごとに設定したいのであれば、<FONT COLOR="#FF00FF">ＲＰＧＨＳＰＥＣ</FONT>という
+データエリアを自分で作成してください。＊ＬＩＢＬに<FONT COLOR="#FF00FF">ＲＰＧＨＳＰＥＣ</FONT>があれば、
+こちらが優先です。
+
+<P>このデータエリアは長さが８０桁で形式は、そのレイアウトはソースファイルにＨ仕様書を
+記述する形式と同じです。
+
+<P>これにより、ＲＰＧは、上記データエリアの内容を変更して、プログラムをコンパイルする
+だけで一応、その国対応のＰＧＭになることになっています。
+<P><FONT COLOR="#008000">まぁ、今で言うところの国際化対応ってことになるのでしょうか？？？</font>
+
+<P>しかし、実際のアプリケーションは、もっと複雑な条件が存在するため、この機能だけで
+国際化対応されているなんてとてもいえませんが、ただ、少なくても、<font  color="#FF00FF">限定された項目に</FONT>
+ついての国別対応は可能といっていいでしょう。
+
+<P>前置きがかなり長くなりましたが、ｌｏｃａｌｅの話題に入りましょう。
+
+<P>まず発音ですが、<font  color="#FF00FF">ロケール</font>とか<font  color="#FF00FF">ローコル</font>とかばれることが多いようです。
+
+<P><FONT COLOR="#008000">ロケールとは、ひとことで言うと、国際化ＰＧＭを作成するためのサポート機能</FONT>
+<P>って感じでしょうか？
+
+<P>もちろん、プログラマーが、プログラム作成時にロケールを十分意識して作成することは必須です。
+
+<P>たとえば、ある文字<FONT COLOR="#FF00FF">Ｘ</FONT>が数字（０～９）かどうかを判断する場合に
+<P><FONT  COLOR="#008000">０ｘＦ０以上，０ｘＦ９以下</FONT>
+<P>なんて条件で判別していたら、ＡＳ／４００以外にもっていったときに正常に動く保証はありません。
+<P><FONT  COLOR="#FF00FF">ＡＳＣＩＩでは数字は０ｘ３０以上，０ｘ３９以下</FONT>
+ですし、他の１６進をもつプラっトフォームもあるかもしれません。
+
+<P><FONT  COLOR="#FF00FF">isdigit関数</FONT>を使用していれば、どのプラットフォームで実行しようと、正常に動くでしょう
+
+<TABLE WIDTH="350" BORDER CELLSPACING=0 >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP WIDTH="350" BGCOLOR="#E0FFDF"><B><PRE>
+
+	if (isdigit(x)){
+		xは数字です
+	}
+
+</B></PRE></TD>
+</TR>
+</TABLE>
+
+<P>ここまでひどくなくても、以下の場合はどうでしょう。
+
+<P>ある文字<FONT COLOR="#FF00FF">Ｘ</FONT>がアルファベットのＡ－Ｚかどうかを判断するのにＰＣでは
+
+<TABLE WIDTH="550" BORDER CELLSPACING=0 >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP  BGCOLOR="#E0FFDF"><B><PRE>
+
+	if (('A' &lt;= X &amp;&amp; X &lt;= 'Z') || ('a' &lt;= X &amp;&amp; X &lt;= 'z')){
+		Xはアルファベットです
+	}
+
+</B></PRE></TD>
+</TR>
+</TABLE>
+
+<P>が成り立ちます。これは、<font  color="#FF00FF">ＰＣの文字体系がＡ－Ｚ，ａ－ｚに連続した１６進数</font>
+を割り当てているからです。
+<P>でも、このＰＧＭをＡＳ／４００で実行すると、正常にうごきません。
+<P>なぜなら、<font  color="#FF00FF">ＡＳ／４００はＥＢＣＤＩＣ文字体系を使用しており、ＥＢＣＤＩＣでは
+Ａ－Ｚ，ａ－ｚに連続した１６進を割り当てていない</font>からです。
+<P>もっと言えば、ＡＳ／４００は、ＣＣＳＩＤをもっており、コードページが違うと、
+同じＥＢＣＤＩＣの文字でも異なる１６進数が割り当てられる場合があります。
+<P>文字’ａ’の値がいつも０ｘ８１とはかぎりません。
+
+<P>これも、<FONT COLOR="#FF00FF">isalpha関数</FONT>を使用していれば、正しく稼働します。
+
+<TABLE WIDTH="400" BORDER CELLSPACING=0 >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP BGCOLOR="#E0FFDF"><B><PRE>
+
+	if (isalpha(x)){
+		Xはアルファベットです。
+	}
+
+</B></PRE></TD>
+</TR>
+</TABLE>
+
+<P>日付／通貨についてはどうでしょう。
+<P>以下のプログラムを作成し実行してみてください
+
+<P>最初のプログラム LIST1
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : LOCAL1                                          */
+/* REMARKS     :ロケールって何？　                               */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 98/04/30                                        */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* ロケールって何でしょう                                        */
+/* 日付や時刻、通貨記号の表現って国によってちがいますよね        */
+/* ＲＰＧだとＨ仕様書で                                          */
+/*   通貨記号（￥，＄．．）                                      */
+/*   日付形式（ＹＭＤ，ＭＤＹ，ＤＭＹ）                          */
+/*   日付編集（／，）　　　　　　　　                            */
+/* が変更できます。                                              */
+/*                                                               */
+/* ｌｏａｌｅを使うともっといろいろできます。                    */
+/* ＰＧＭにｌｏｃａｌｅを指定することで再コンパイルなしで        */
+/* 表現方法の切り替えが可能です                                  */
+/*                                                               */</FONT>
+
+#include&lt;stdio.h&gt;
+#include&lt;locale.h&gt;
+#include&lt;time.h&gt;
+#include &lt;QSYSINC/H/QSNAPI&gt;
+
+void main()
+{
+ char *string;
+ struct lconv * mylocale;
+ char timstr[70];      /*画面表示用*/
+ int ch;
+ time_t now;           /*システム時刻用のワーク*/
+ struct tm *timeptr;
+ double fp = 1.23; /* サンプルの数字*/
+
+ now = time(NULL);          /*秒数形式の時刻*/
+ timeptr = localtime(&amp;now); /*時刻形式へ
+
+/*ＤＳＭ画面クリアＡＰＩの実行*/
+    QsnClrScl(_C_Get_Ssn_Handle(), '0', NULL);
+
+<FONT COLOR="#FF00FF">/* 省略値のロケール */ </FONT>
+ string = setlocale(LC_TOD, NULL);
+ printf(&quot;%s&quot;,string);
+
+<FONT COLOR="#FF00FF">/* ＵＳ */ </FONT>
+ string = setlocale(LC_ALL, LC_C_USA);
+ mylocale = localeconv();
+ printf( &quot;\n&quot;);
+ printf( &quot;----------ＵＳ----------\n&quot;);
+ printf( &quot;小数点%s %f\n&quot;, mylocale-&gt;decimal_point,fp);
+ printf( &quot;通貨%s\n&quot;, mylocale-&gt;currency_symbol);
+ ch = strftime(timstr,sizeof(timstr)-1,&quot;日付: %A,&quot;
+                &quot; %b %d. \n 時刻: %I:%M %p&quot;, timeptr);
+ printf(&quot;\n %s \n&quot;, timstr);
+
+<FONT COLOR="#FF00FF">/*フランス*/ </FONT>
+ string = setlocale(LC_ALL, LC_C_FRANCE);
+ mylocale = localeconv();
+ printf( &quot;\n&quot;);
+ printf( &quot;----------フランス-----------\n&quot;);
+ printf( &quot;小数点%s %f\n&quot;, mylocale-&gt;decimal_point,fp);
+ printf( &quot;通貨%s\n&quot;, mylocale-&gt;currency_symbol);
+ ch = strftime(timstr,sizeof(timstr)-1,&quot;日付: %A,&quot;
+                &quot; %b %d. \n 時刻: %I:%M %p&quot;, timeptr);
+ printf(&quot;\n %s \n&quot;, timstr);
+
+<FONT COLOR="#FF00FF"> /*ドイツ*/ </FONT>
+ string = setlocale(LC_ALL, LC_C_GERMANY);
+ mylocale = localeconv();
+ printf( &quot;\n&quot;);
+ printf( &quot;----------ドイツ----------\n&quot;);
+ printf( &quot;小数点%s %f\n&quot;, mylocale-&gt;decimal_point,fp);
+ printf( &quot;通貨%s\n&quot;, mylocale-&gt;currency_symbol);
+ ch = strftime(timstr,sizeof(timstr)-1,&quot;日付: %A,&quot;
+                &quot; %b %d. \n 時刻: %I:%M %p&quot;, timeptr);
+ printf(&quot;\n %s \n&quot;, timstr);
+
+<FONT COLOR="#FF00FF"> /*ＵＫ*/ </FONT>
+ string = setlocale(LC_ALL, LC_C_UK);
+ mylocale = localeconv();
+ printf( &quot;\n&quot;);
+ printf( &quot;----------ＵＫ----------\n&quot;);
+ printf( &quot;小数点%s %f\n&quot;, mylocale-&gt;decimal_point,fp);
+ printf( &quot;通貨%s\n&quot;, mylocale-&gt;currency_symbol);
+ ch = strftime(timstr,sizeof(timstr)-1,&quot;日付: %A,&quot;
+                &quot; %b %d. \n 時刻: %I:%M %p&quot;, timeptr);
+ printf(&quot;\n %s \n&quot;, timstr);
+
+<FONT COLOR="#FF00FF"> /*スペイン*/　</FONT>
+ string = setlocale(LC_ALL, LC_C_SPAIN);
+ mylocale = localeconv();
+ printf( &quot;\n&quot;);
+ printf( &quot;----------スペイン----------\n&quot;);
+ printf( &quot;小数点%s %f\n&quot;, mylocale-&gt;decimal_point,fp);
+ printf( &quot;通貨%s\n&quot;, mylocale-&gt;currency_symbol);
+ ch = strftime(timstr,sizeof(timstr)-1,&quot;日付: %A,&quot;
+                &quot; %b %d. \n 時刻: %I:%M %p&quot;, timeptr);
+ printf(&quot;\n %s \n&quot;, timstr);
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>以下のような、実行結果になるでしょう
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+
+  日付 : Sunday, Aug 16.              
+  時刻 : 11:27 AM                     
+                                        
+---------- ＵＳ ----------            
+ 小数点 .                             
+ 通貨 $                               
+                                      
+  日付 : Sunday, Aug 16.              
+  時刻 : 11:27 AM                     
+                                         
+---------- フランス -----------       
+ 小数点 ,                             
+ 通貨 F                               
+                                       
+  日付 : Dimanche, 8 16.              
+  時刻 : 11:27 am
+ ---------- ドイツ ----------    
+  小数点 ,                       
+  通貨 DM                        
+                                 
+   日付 : Sonntag, Aug 16.       
+   時刻 : 11:27 am               
+                                 
+ ---------- ＵＫ ----------      
+  小数点 .                       
+  通貨 $                         
+                                 
+   日付 : Sunday, Aug 16.        
+   時刻 : 11:27 am               
+                                 
+ ---------- スペイン ----------  
+  小数点 ,                       
+  通貨 Pts   
+  日付 : Domingo, AGO 16.                                            
+  時刻 : 11:27 am
+                                                    
+ 端末セッションを終了するためには，実行キーを押してください。
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><H3><FONT COLOR="008000">ロケールの変更だけで、同じプログラム、同じ関数が異なった動作をしているのが
+ご理解いただけたかと思います。</FONT></H3>
+
+<P>ロケールを変更して影響を受ける関数には、以下のようなものがあります<PRE>
+	   fprintf()
+	   gmtime()
+	   isalnum から isxdigit()
+	   localeconv()
+	   localtime()
+	   mktime()
+	   printf()
+	   setlocale()
+	   sprintf()
+	   strcol()
+	   strftime()
+	   strxfrm()
+	   time()
+	   tolower()
+	   toupper()
+	   vfprintf()
+	   vprintf()
+	   vsprintf()
+
+</PRE>
+
+<P>ロケールは以下のカテゴリーに分かれています。
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+
+<FONT COLOR = "FF00FF">LC_ALL</FONT>
+	プログラムの全ロケールを指定します。
+
+<FONT COLOR = "FF00FF">LC_COLLATE</FONT>
+	strcoll および strxform 関数の動作に影響します。
+
+<FONT COLOR = "FF00FF">LC_CTYPE</FONT>
+	文字操作関数の動作に影響します。
+
+<FONT COLOR = "FF00FF">LC_MONETARY</FONT>
+	localeconv が返す貨幣情報に影響します。
+
+<FONT COLOR = "FF00FF">LC_NUMERIC</FONT>
+	書式付き入出力関数および文字列変換関数の小数点文字、
+	およびlocaleconv 関数が返す貨幣以外の書式指定情報に
+	影響します。
+
+<FONT COLOR = "FF00FF">LC_TIME</FONT>
+	strftime 関数の動作に影響します。
+
+<FONT COLOR = "FF00FF">LC_TOD</FONT>
+	time 関数の動作に影響します。
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>上記カテゴリーを使ってロケールの何を変更したいのかを指定出来ます。
+<P>例）
+<P><FONT COLOR = "FF00FF">setlocale(LC_TOD, NULL);</FONT>はtime 関数の動作を省略値のロケールに設定します。
+<P><FONT COLOR = "FF00FF">setlocale(LC_ALL, LC_C_USA);</FONT>は全部のカテゴリーをＵＳＡのロケールに設定します
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+<TITLE>SKGETH</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKGETH</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*ホスト名検索------------------------------------------*
+     C                     CALL 'SKGETH'
+     C                     PARM           HOSTNM128
+     C                     PARM           RC      1
+     C                     PARM           IPSTR  15
+     C                     PARM           IPHOST128
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ホスト名またはＩＰアドレスを検索する<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>HOSTNM</I></FONT>　(入力)</B>
+<DD><UL>検索するホスト名、または、IPアドレス</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>IPSTR</I></FONT>　(出力)</B>
+<DD><UL>検索されたIPアドレス</UL>
+
+<DD><B><FONT COLOR="#800080"><I>IPHOST</I></FONT>　(出力)</B>
+<DD><UL>検索されたホスト名</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+gethostbyname<BR>
+gethostbyaddr<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

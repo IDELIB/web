@@ -1,0 +1,160 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SOCKPTHCPA                                      */
+/* REMARKS     : サーバーデーモン CPA THREAD 版                  */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/10/26                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* 作成方法:                                                    */
+/*     0.ADDLIBLE QCPA                                          */
+/*     1.CRTCMOD                                                */
+/*     2.CRTPTHPGM                                              */
+/*---------------------------------------------------------------*/
+#define QP0Z_CPA_THREADS_PRESENT
+#include <pthread.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+
+#define MAX_THREAD 65535
+
+void * SocketIO(void *);
+
+
+int main(int argc, char *argv[]){
+int        sd;
+int        on = 1;
+int        rc;
+int        size;
+int        t;
+unsigned short  port = 30001;
+struct sockaddr_in saddr;
+
+int        nd[MAX_THREAD];
+pthread_t  threads[MAX_THREAD];
+char       thread_arg[128];
+
+/* OPEN SOCKET */
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    perror("socket() failed");
+    exit(-1);
+  }
+      /* TCP_NODELAY  */
+      if ((rc = setsockopt(sd, IPPROTO_TCP,
+                           TCP_NODELAY,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() TCP_NODELAY failed");
+        exit(-1);
+      }
+      /* SO_REUSEADDR  */
+      if ((rc = setsockopt(sd, SOL_SOCKET,
+                           SO_REUSEADDR,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() SO_REUSEADDR failed");
+        exit(-1);
+      }
+  memset(&saddr, 0x00, sizeof(struct sockaddr_in));
+
+  saddr.sin_family        = AF_INET;
+  saddr.sin_port          = htons(port);
+
+  saddr.sin_addr.s_addr = INADDR_ANY;
+
+  if((rc = bind(sd,(struct sockaddr *)&saddr, sizeof(saddr))) < 0){
+    perror("bind() failed");
+    exit(-1);
+  }
+  if((rc = listen(sd, 10)) < 0 ) {
+    perror("listen() failed");
+  }
+
+  for(t=0; t < MAX_THREAD; t++){
+    size = 0;
+    if((nd[t] = accept(sd,(struct sockaddr *)NULL, &size)) < 0){
+      perror("accept() failed");
+      exit(-1);
+    }
+    /* Create Pthread */
+      sprintf(thread_arg,"%d",nd[t]);
+      rc = pthread_create(&threads[t],NULL,SocketIO,thread_arg);
+      rc = pthread_detach(&threads[t]);
+  }
+  close(sd);
+  exit(0);
+}
+/*-----------------------------------------------------------------*/
+  void * SocketIO(void *arg){
+/*-----------------------------------------------------------------*/
+  char       *thread_arg;
+  int        nd;
+  int        rc;
+  int        buflen = 1024;
+  char       buf[1024] = {0};
+  struct     sockaddr_in taddr;
+  struct     hostent      *hostp;
+  struct     hostent      *host_ent;
+  struct     hostent_data *host_ent_data;
+  int        saddrlen =  sizeof(taddr);
+
+  thread_arg = (char *)arg;
+  nd = atoi(thread_arg);
+
+  memset(&taddr, 0x00, sizeof(struct sockaddr_in));
+  host_ent = malloc(sizeof(struct hostent));
+  host_ent_data = malloc(sizeof(struct hostent_data));
+  memset(host_ent, 0x00,sizeof(struct hostent));
+  memset(host_ent_data, 0x00,sizeof(struct hostent_data));
+
+  getpeername(nd,(struct sockaddr *)&taddr,&saddrlen);
+
+  if((rc = gethostbyaddr_r((char *)&taddr.sin_addr.s_addr,
+                        sizeof(struct in_addr),AF_INET,
+                        host_ent,host_ent_data)) < 0){
+    perror("gethostbyaddr_r");
+  }
+
+  hostp = gethostbyaddr((char *)&taddr.sin_addr.s_addr,
+                         sizeof(struct in_addr),AF_INET);
+
+  printf("***** SocketIO THREAD START *****\n");
+  printf("%s\n",inet_ntoa(taddr.sin_addr));
+  printf("%s\n",hostp->h_name);
+  printf("%s\n",host_ent->h_name);
+
+  while(1){
+    /* read data */
+      if((rc = recv(nd, buf, buflen, 0)) < 0){
+        perror("recv() failed");
+        free(arg);
+        pthread_exit((void *) NULL);
+        return;
+      }
+      if(rc == 0){
+        close(nd);
+        printf("***** SocketIO THREAD END   *****\n");
+        free(arg);
+        pthread_exit((void *) NULL);
+        return;
+      }
+    /* send data */
+      if((rc = send(nd, buf, rc, 0)) < 0){
+        perror("send() failed");
+        free(arg);
+        pthread_exit((void *) NULL);
+        return;
+      }
+  }
+}

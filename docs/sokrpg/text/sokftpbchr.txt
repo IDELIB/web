@@ -1,0 +1,550 @@
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKFTPBCH                                  *
+     H* REMARKS       :    FTP-RPG BCH クライアント 　　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/04/23                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FINPUT   IF  F    9999            DISK
+     E                    BUF      9999  1
+     E                    MSG       512  1
+     E                    SA          3  1
+     E                    SB          3  1
+     E                    PA          3  1
+     E                    PB          3  1
+     IINPUT   AA  01
+     I                                        19999 BUF
+     I            DS
+     I                                    B   1   20CRLF
+     I                                        1   2 CRLFA
+     I            DS
+     I                                    B   1   40BIN4
+     I            DS
+     I                                        1   4 MSGHD
+     I                                        5 260 MSGBD
+     I                                        1 512 MSG
+     C*---------------------------------------------------*
+     C           *ENTRY    PLIST
+     C                     PARM           CIP    15
+     C                     PARM           CPORT   5
+     C                     PARM           CUSER  10
+     C                     PARM           CPASS  10
+     C                     PARM           CLIB   10
+     C                     PARM           CFILE  10
+     C                     PARM           RPATH  60
+     C                     PARM           RFILE  60
+     C                     PARM           CLEN    4
+     C                     PARM           SOSI    1
+     C*---------------------------------------------------*
+     C*初期化
+     C                     EXSR R#INZ
+     C*初期接続
+     C                     EXSR R#CON1
+     C*データポート接続
+     C                     EXSR R#CON2
+     C* DATA獲得
+     C           TAG#01    TAG
+     C                     MOVEA*LOVAL    BUF
+     C                     READ INPUT                    99
+     C           *IN99     IFEQ '1'
+     C                     EXSR R#CLOS
+     C                     SETON                     LR
+     C                     RETRN
+     C                     ENDIF
+     C* DATA送信
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM CLEN      BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     GOTO TAG#01
+     C*ソケットクローズ--------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+     C*--------------------------------------------------------*
+     C* データ受信
+     C           R#RCV     BEGSR
+     C*--------------------------------------------------------*
+     C                     MOVE *LOVAL    BUF
+     C                     CALL 'SKRCVS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUF
+     C*
+     C                     CALL 'SKMSGS'
+     C                     PARM           BUF
+     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C           BUF,1     IFEQ '5'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     ENDSR
+     C*--------------------------------------------------------*
+     C* PORT番号設定
+     C           R#PNO     BEGSR
+     C*--------------------------------------------------------*
+     C                     SETOF                     3031
+     C                     Z-ADD0         A       30
+     C                     Z-ADD0         B       30
+     C                     MOVE BUFLEN    BUFLN   40
+     C           4         DO   BUFLN     X
+     C           *IN30     IFEQ '1'
+     C           BUF,X     IFGE '0'
+     C           BUF,X     ANDLE'9'
+     C                     ADD  1         A
+     C                     MOVE BUF,X     SA,A
+     C                     ENDIF
+     C                     ENDIF
+     C*
+     C           *IN31     IFEQ '1'
+     C           BUF,X     IFGE '0'
+     C           BUF,X     ANDLE'9'
+     C                     ADD  1         B
+     C                     MOVE BUF,X     SB,B
+     C                     ENDIF
+     C                     ENDIF
+     C           BUF,X     IFEQ ','
+     C                     ADD  1         Y       40
+     C           Y         IFEQ 4
+     C                     SETON                     30
+     C                     SETOF                     31
+     C                     ENDIF
+     C           Y         IFEQ 5
+     C                     SETOF                     30
+     C                     SETON                     31
+     C                     ENDIF
+     C                     ENDIF
+     C                     ENDDO
+     C           4         SUB  A         P       40
+     C                     MOVEASA        PA,P
+     C           4         SUB  B         P
+     C                     MOVEASB        PB,P
+     C                     Z-ADD*ZEROS    AA
+     C                     Z-ADD*ZEROS    BB
+     C                     MOVEAPA        WA      3
+     C                     MOVEAPB        WB      3
+     C                     MOVE WA        AA      30
+     C                     MOVE WB        BB      30
+     C                     Z-ADD0         PP      50
+     C           AA        MULT 256       PP      50
+     C           PP        ADD  BB        PP
+     C                     MOVE PP        RPORT   5
+     C                     ENDSR
+     C*--------------------------------------------------------*
+     C* 初期設定
+     C           R#INZ     BEGSR
+     C*--------------------------------------------------------*
+     C                     Z-ADD0         CRLF
+     C                     Z-ADD3338      CRLF
+     C                     MOVEL'==> '    MSGHD
+     C                     ENDSR
+     C*--------------------------------------------------------*
+     C*--------------------------------------------------------*
+     C* 初期接続
+     C           R#CON1    BEGSR
+     C*--------------------------------------------------------*
+     C*ソケットオープン--------------------------------------*
+     C                     CALL 'SKOPEN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットコネクト--------------------------------------*
+     C                     CALL 'SKCONN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM CIP       IP     15
+     C                     PARM CPORT     PORT    5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ノンブロックの設定------------------------------------*
+     C                     CALL 'SKNBLK'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '1'       FLG     1        1=ON 0=OFF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C           1         DO   *HIVAL
+     C*セレクト実行（タイムアウト５秒）----------------------*
+     C                     CALL 'SKSELC'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '00000005'TIMOUT  8
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C           RC        IFEQ 'T'
+     C                     LEAVE
+     C                     ENDIF
+     C*ソケットデータ受信------------------------------------*
+     C                     EXSR R#RCV
+     C                     ENDDO
+     C*ノンブロックの解除------------------------------------*
+     C                     CALL 'SKNBLK'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '0'       FLG     1        1=ON 0=OFF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C* USER送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'USER '   BUF
+     C                     MOVEACUSER     BUF,6
+     C           6         DO   256       X       40
+     C           BUF,X     IFEQ ' '
+     C                     LEAVE
+     C                     ENDIF
+     C                     ENDDO
+     C           X         SUB  1         BUFLN
+     C                     MOVE BUFLN     BUFLEN
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM           BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* USER REPLY受信---------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '3'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C* PASS送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'PASS '   BUF
+     C                     MOVEACPASS     BUF,6
+     C           6         DO   256       X       40
+     C           BUF,X     IFEQ ' '
+     C                     LEAVE
+     C                     ENDIF
+     C                     ENDDO
+     C           X         SUB  1         BUFLN
+     C                     MOVE BUFLN     BUFLEN
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     MOVEA'[XXXXXXX'MSG,10
+     C                     MOVEA'X]'      MSG,18
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM           BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* PASS REPLY受信---------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '2'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C* PASV送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'PASV'    BUF
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM '4'       BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* PASV REPLY受信---------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '2'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ポート番号設定----------------------------------------*
+     C                     EXSR R#PNO
+     C*ローカルポート検索------------------------------------*
+     C                     CALL 'SKGETS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           LIP    15
+     C                     PARM           LPORT   5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKATOI'
+     C                     PARM           BIN4
+     C                     PARM           LPORT
+     C*
+     C                     ADD  1         BIN4
+     C                     MOVE BIN4      LPORT
+     C* CWD送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'CWD '    BUF
+     C                     MOVEARPATH     BUF,5
+     C           BUF,5     IFEQ '*'
+     C                     MOVEA*LOVAL    BUF,4
+     C                     Z-ADD3         BUFLN
+     C                     MOVE BUFLN     BUFLEN
+     C                     ELSE
+     C           5         DO   66        X       40
+     C           BUF,X     IFEQ ' '
+     C                     LEAVE
+     C                     ENDIF
+     C                     ENDDO
+     C           X         SUB  1         BUFLN
+     C                     MOVE BUFLN     BUFLEN
+     C                     ENDIF
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM           BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* CWD REPLY受信----------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '2'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* PWD送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'PWD'     BUF
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM '3'       BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* PWD REPLY受信----------------------------------------*
+     C                     EXSR R#RCV
+     C                     ENDSR
+     C*--------------------------------------------------------*
+     C*データポート接続
+     C           R#CON2    BEGSR
+     C*--------------------------------------------------------*
+     C*第２ソケットオープン----------------------------------*
+     C                     CALL 'SKOPEN'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットバインド--------------------------------------*
+     C                     CALL 'SKBIND'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C                     PARM           LIP
+     C                     PARM           LPORT
+     C*ソケットコネクト--------------------------------------*
+     C                     CALL 'SKCONN'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C                     PARM CIP       IP     15
+     C                     PARM RPORT     PORT    5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* TYPE A送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'TYPE A'  BUF
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM '6'       BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* TYPE A REPLY受信-------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '2'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* STOR送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'STOR  '  BUF
+     C                     MOVEARFILE     BUF,6
+     C           BUF,6     IFEQ '*'
+     C                     MOVEA*LOVAL    BUF,6
+     C                     MOVEACFILE     BUF,6
+     C                     ENDIF
+     C           6         DO   256       X       40
+     C           BUF,X     IFEQ ' '
+     C                     LEAVE
+     C                     ENDIF
+     C                     ENDDO
+     C           X         SUB  1         BUFLN
+     C                     MOVE BUFLN     BUFLEN
+     C*
+     C                     MOVEABUF       MSGBD
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM           BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* STOR REPLY受信---------------------------------------*
+     C                     EXSR R#RCV
+     C           BUF,1     IFNE '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     ENDSR
+     C*--------------------------------------------------------*
+     C* 終了処理
+     C           R#CLOS    BEGSR
+     C*--------------------------------------------------------*
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD2     4
+     C                     PARM           RC      1
+     C                     EXSR R#RCV
+     C* QUIT送信
+     C                     MOVEA*LOVAL    BUF
+     C                     MOVEA'QUIT'    BUF
+     C*
+     C                     CALL 'SKMSGS'
+     C                     PARM           BUF
+     C*
+     C                     CALL 'SKSNDS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM SOSI      SOSISP  1
+     C                     PARM '4'       BUFLEN  4
+     C                     PARM           BUF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '2'       BUFLEN  4
+     C                     PARM CRLFA     BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     ENDSR
+     C*--------------------------------------------------------*

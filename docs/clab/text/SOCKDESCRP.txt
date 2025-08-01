@@ -1,0 +1,97 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SOCKDESCRP                                      */
+/* REMARKS     : ソケットディスクリプターの受取 TAKE             */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/10/26                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+
+#include <qusec.h>
+#include <qsnddtaq.h>
+#include <qusrjobi.h>
+
+struct sockaddr_in saddr;
+
+#define ID_LEN 16
+
+int getjobid(char *);
+
+int  main(int argc, char *argv[]){
+int      sd;
+int      rc;
+int      buflen = 1024;
+char     buf[1024] = {0};
+
+char jobid[ID_LEN];
+char jobid_dq[ID_LEN];
+char CRTDTAQ_CMD[50]  = {"CRTDTAQ DTAQ(CLAB/"};
+char dtaq[11] = {"SOCKDESC  "};
+_Decimal(5,0) data_len=ID_LEN;
+
+dtaq[10] = 0;
+
+strcat(CRTDTAQ_CMD,dtaq);
+strcat(CRTDTAQ_CMD,  ") MAXLEN(20)" );
+
+rc = system(CRTDTAQ_CMD);
+
+if ((rc = getjobid(jobid)) < 0) exit(-1);
+
+  while(1){
+    QSNDDTAQ(dtaq,             /* dtaq name      */
+             "CLAB      ",     /* dtaq lib       */
+             ID_LEN,          /* length of data */
+             jobid);          /* data           */
+
+    if ((sd = takedescriptor(NULL)) < 0){
+      perror("takedescriptor");
+      exit(-1);
+    }
+
+    while(1){
+    /* read data */
+      if((rc = recv(sd, buf, buflen, 0)) < 0){
+        perror("recv() failed");
+        close(sd);
+        break;
+      }
+      if(rc == 0){
+        close(sd);
+        break;
+      }
+    /* send data */
+      if((rc = send(sd, buf, rc, 0)) < 0){
+        perror("send() failed");
+        close(sd);
+        break;
+      }
+    }
+  }
+}
+/*------------------------------------------------------------*/
+  int getjobid(char *jobid){
+/*------------------------------------------------------------*/
+  struct Qwc_JOBI0100 jobinfo;
+  Qus_EC_t error={sizeof(Qus_EC_t)};
+
+  QUSRJOBI(&jobinfo,
+           sizeof(jobinfo),
+           "JOBI0100",
+           "*                         ",
+           "                ",
+           &error);
+  if (error.Bytes_Available != 0) return -1;
+  memcpy(jobid, jobinfo.Int_Job_ID, ID_LEN);
+  return 0;
+}

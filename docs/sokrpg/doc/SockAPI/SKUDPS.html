@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<TITLE>SKUDPS</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKUDPS</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C* UDPソケットデータ送信--------------------------------*
+     C                     CALL 'SKUDPS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUF
+     C                     PARM           IP     15
+     C                     PARM           PORT    5
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ソケットをからデータを送信します。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合に'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>BUFLEN</I></FONT>　(入力)</B>
+<DD><UL>受信するバッファーの長さ（９９９９まで可能）。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>BUF</I></FONT>　(入力)</B>
+<DD><UL>実際にデータを送信するバッファー。少なくともBUFLENで指定した長さは必要。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>IP</I></FONT>　(入力)</B>
+<DD><UL>データ送信先のIPアドレスの文字表現(xxx.xxx.xxx.xxx)</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PORT</I></FONT>　(入力)</B>
+<DD><UL>データ送信先のPORT番号</UL>
+
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+sendto()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

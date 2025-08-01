@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGCAU</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>UDPクライアントプログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGCAU                                  *
+     H* REMARKS       :    UDPクライアントプログラム　　　　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/19                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKUPFM CF  E                    WORKSTN
+     E                    IP      1   1 15
+     C* ソケットオープン --------------------------------------*
+     C                     CALL 'SKUDPO'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C           TAG#01    TAG
+     C                     EXFMTSC01
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVELFLD01     BUFOUT
+     C* ソケットデータ送信 ------------------------------------*
+     C                     CALL 'SKUDPS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C                     PARM           IP     15
+     C                     PARM '30032'   PORT    5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C           FLD01     IFEQ 'EXIT'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットデータ受信 ------------------------------------*
+     C                     CALL 'SKUDPR'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C                     PARM           SIP    15
+     C                     PARM           SPORT   5
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*
+     C                     MOVELBUFIN     FLD02
+     C                     GOTO TAG#01
+     C* ソケットクローズ --------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+** SV SERVER IP ADDRESS
+127.0.0.1
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+画面から入力したデータを、指定されたサーバーのIPアドレスとPORT番号に送信し、サーバーからのデータ受信を繰り返す。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgcau.gif" HEIGHT="400" WIDTH="568">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

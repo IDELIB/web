@@ -1,0 +1,207 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_11-CLAB sokcet</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#800000" VLINK="#008000" ALINK="#FF00FF">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第11章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＲＰＧでソケット通信しよう！</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+<P>ソケット通信はＴＣＰＩＰの通信プログラムのインターフェースですが、ＡＳ／４００では
+Ｖ３１０より、Ｃソケットをサポートしています。それ以前は、Ｐａｓｃａｌでソケット通信
+をサポートしていました。
+<P>ＲＰＧでは、ＩＬＥ／ＯＰＭともに残念ながらサポートしていません。
+<BR>今後のサポートもおそらくはないでしょう。
+
+<P>だからといって、ＲＰＧでソケット通信を行うのをあきらめる必要はありません。
+
+<P>ソケット関数ごとにＰＧＭを作成し、ＲＰＧからＣＡＬＬするようにすれば、ＲＰＧでも
+（というよりは言語をとあず）ソケット通信が可能になります。
+<P>実際、ＳＮＡのＣＰＩ－Ｃでは、ＣＡＬＬ形式でＲＰＧでのＡＰＰＣ通信をサポート
+しています。
+<P>これと同じ仕組みを使ってＴＣＰＩＰでも、ＣＡＬＬ形式でソケット通信を実装すればよいのです。
+<P>以下実際のプログラムを通してその方法について解説します。
+
+<P><B><FONT SIZE=3 COLOR="#ff8080">まず、ＲＰＧから呼び出して利用するＣのプログラム開発の基本的な指針を以下のように定義します。
+</FONT></B>
+<OL>
+	<LI><B>ＲＰＧ＜－＞Ｃ間のパラメーター渡しは、最少限度に絞る。</B><BR>
+	呼び出しのオーバーヘッドを最少にするのと、コーディングをシンプルにする目的のため<BR>
+	ソケット関数の呼び出しパラメータには、可能なかぎり固定値を設定する。
+	<P>
+
+	<LI><B>呼び出されるプログラムは、単機能のＰＧＭとし、呼び出す実際のソケット関数が複数機能をもつ場合は、
+別プログラムとして実装する。</B><BR>
+	基本的には、ソケット関数とＣプログラムは１対１に対応して実装するが、もし、利用するソケット関数が
+複数機能をもちパラメーターで指示するタイプの物である場合は、用途に合わせて、別プログラムとして実装する。<BR>
+これは、パラメーターの設定ミスを避けるのと、呼び出しを単純化する目的である。
+	<P>
+
+	<LI><B>ＲＰＧ＜－＞Ｃ間のパラメータの型は、特別な場合を除き、char（文字型）とする。</B><BR>
+	型の違いによるコンバージョン作業を省略するため、ＲＰＧ側のインターフェースは、常に文字型とし、必要な
+型変換は、呼びたされるＣのプログラム内で処理するものとする。
+	<P>
+
+	<LI><B>戻り値は、使用できないので、戻り値に相当する引数を用意する。</B><BR>
+	RPGのCALLは、戻り値を受け取ることができないので、必要な場合は、それに相当するパラメーターを用意する
+	<P>
+
+</OL>
+
+このような方針で、まずソケット通信に最低限必要な下記のソケット関数について、Ｃのプログラムを用意しましょう
+
+<TABLE BGCOLOR=#FFE0FF ALIGN=CENTER WIDTH="70%" BORDER=2 CELLSPACING=1 CELLPADDING=2>
+<TR ALIGN=CENTER><TD>ソケット関数</TD><TD>Ｃのプログラム名</TD><TD>　説　明　</TD></TR>
+<TR><TD>socket()	</TD>	<TD>SKOPEN</TD>	<TD>ソケットの作成</TD></TR>
+<TR><TD>bind()	</TD>	<TD>SKBIND</TD>	<TD>ソケットのバインド</TD></TR>
+<TR><TD>listen()	</TD>	<TD>SKLISN</TD>	<TD>ソケットのリッスン</TD></TR>
+<TR><TD>accept()	</TD>	<TD>SKACPT</TD>	<TD>ソケットのアクセプト</TD></TR>
+<TR><TD>connect()	</TD>	<TD>SKCONN</TD>	<TD>ソケットのコネクト</TD></TR>
+<TR><TD>close()	</TD>	<TD>SKCLOS</TD>	<TD>ソケットのクローズ</TD></TR>
+<TR><TD>send()	</TD>	<TD>SKSEND</TD>	<TD>データの送信</TD></TR>
+<TR><TD>read()	</TD>	<TD>SKRECV</TD>	<TD>データの受信</TD></TR>
+<TR><TD>gethostbyname()</TD>	<TD><A HREF="./text/skgeth.txt">SKGETH</A></TD><TD>ホスト名からＩＰ検索</TD></TR>
+</TABLE>
+
+<P><FONT SIZE="4" COLOR="#004080"><P>上記のＰＧＭは<A HREF="../sokrpg/sokrpg.html">Socket RPG</A>として、一つのパッケージにまとめました。
+</FONT>
+
+<P><FONT SIZE=3 COLOR="#ff00ff"><B>それでは実際に、これらのプログラムを利用して、
+ＲＰＧによるソケット通信のプログラムを作成してみましょう</B></FONT>
+
+<P>作成するサンプルのＲＰＧは、以下の様なプログラムとします。
+
+<TABLE BGCOLOR="#E0FFDF" WIDTH=95% BORDER=1 ALIGN=CENTER>
+<TR ALIGN=CENTER>
+	<TD WIDTH=48%><A HREF="./text/sokrpgsvr.txt">サーバーＲＰＧ</A></TD>
+	<TD WIDTH=48%><A HREF="./text/sokrpgca.txt">クライアントＲＰＧ</A></TD>
+</TR>
+<TR>
+	<TD><H4>１．ソケットのオープン</H4>
+<FONT SIZE=2>SKOPENプログラムによりソケットをオープンします。SKOPENでは、setsocketオプションで、
+TCP_NODELAY,SO_REUSEADDRをセットしています。</FONT>
+	</TD>
+	<TD><H4>１．ソケットのオープン</H4>
+<FONT SIZE=2>SKOPENプログラムによりソケットをオープンします。SKOPENでは、setsocketオプションで、
+TCP_NODELAY,SO_REUSEADDRをセットしています。</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>２．バインド</H4>
+<FONT SIZE=2>SKBINDプログラムによりソケットにＩＰアドレス／ポート番号を割り当てます。
+SKBINDでは、明示的なＩＰ割り当ての代わりにＡＮＹとしてどのインターフェースからの
+接続要求についても受けとれります。</FONT>
+	</TD>
+	<TD>なし</TD>
+</TR>
+<TR>
+	<TD><H4>３．リッスン</H4>
+<FONT SIZE=2>SKLISNプログラムにより、クライアントからの接続要求を待ちます。
+</FONT>
+	</TD>
+	<TD>なし</TD>
+</TR>
+<TR>
+	<TD>なし</TD>
+	<TD><H4>４．コネクト</H4>
+<FONT SIZE=2>SKCONNプログラムにより、サーバーに接続を行います。ＩＰアドレスは、
+構内ループバックアドレス（１２７．０．０．１）を指定しているので、サーバーと同じマシン上で
+クライアントも実行すると仮定しています。</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>５．アクセプト</H4>
+<FONT SIZE=2>SKACPTプログラムにより、クライアントからの接続要求を受け入れます。<BR>
+この際に、新しいソケットディスクリプターがシステムにより与えられます。これ以降の通信は
+ここで割り当てられた新しいディスクリプターを使用します。
+</FONT>
+	</TD>
+	<TD>なし</TD>
+</TR>
+	<TD><H4>６．クローズ</H4>
+<FONT SIZE=2>SKCLOSプログラムにより、最初に作成したlisten用のソケットディスクリプターをクローズします。<BR>
+通常のｔｃｐｉｐサーバーは、接続要求を受けたあとの処理は、子プロセスを作成し、個別の通信はその子プロセスに
+ませるようにするのが一般的です。<BR>
+しかし、ＲＰＧでは、子プロセスやスレッド処理をサポートしないため、ここでは、別のプログラムが新たに
+そのポートでlisten出来るように、ソケットをクローズしています。
+</FONT>
+	</TD>
+	<TD>なし</TD>
+</TR>
+<TR>
+	<TD><H4>７．データ受信</H4>
+<FONT SIZE=2>SKRECVプログラムにより、クライアントから送信された文字列を受信し、画面表示します。<BR>
+</FONT>
+	</TD>
+	<TD><H4>７．データ送信</H4>
+<FONT SIZE=2>SKSENDプログラムにより、画面から入力された文字列を送信します。<BR>
+</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>８．データ送信</H4>
+<FONT SIZE=2>SKSENDプログラムにより、７．でクライアントから受信した文字列をそのまま送信します。<BR>
+（エコー処理）
+</FONT>
+	</TD>
+	<TD><H4>８．データ受信</H4>
+<FONT SIZE=2>SKRECVプログラムにより、サーバーから送信された文字列を受信し、画面表示します。<BR>
+（エコー処理）
+</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>９．ソケットクローズ</H4>
+<FONT SIZE=2>文字列［EXIT]が送られてきた場合は、SKCLOSプログラムにより、ソケットのクローズを行います。
+</FONT>
+	</TD>
+	<TD><H4>９．ソケットクローズ</H4>
+<FONT SIZE=2>画面からＦ３が押されるか、サーバープログラムが終了した場合は、SKCLOSプログラムにより、ソケットのクローズを行います。
+</FONT>
+	</TD>
+</TR>
+</TABLE>
+
+<CENTER>
+<P><FONT SIZE=3 COLOR="#ff80ff"><B>上記の７．８．はＬＯＯＰするものとします。</B></FONT>
+</CENTER>
+
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

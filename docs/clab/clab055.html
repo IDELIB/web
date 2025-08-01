@@ -1,0 +1,250 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_05-Ｆ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR>
+<TD>
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第５章</B></FONT>
+</TD>
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　統合ファイルシステム</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>RPGプログラマーの為のＣ言語講座</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD>
+</TR>
+<TR>
+<TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD>
+<FONT SIZE=2>
+
+<H4>統合ファイルシステムを使ってみよう！</H4>
+
+<P><FONT SIZE = +1 COLOR="#FF00FF">残念ながら、ＲＰＧでは統合ファイルシステム（ＩＦＳ）にアクセスできません。</FONT>
+
+<P>ＩＬＥ－Ｃで統合ファイルシステムを使用したい場合は、コンパイル時に<B><FONT COLOR="#FF00FF">SYSIFCOPT(IFSIO)</FONT>
+</B>を指定してください。指定しなくてもコンパイルは正常に終わりますが、実行時にファイルオープンエラーと
+なります。
+<P><B>テキストモードでfopenした場合、CCSIDの変換処理が動きます。</B><BR>
+そのせいでしょうか、テキストモードで日本語を使おうするとエラーになります。<BR>
+おそらくトラブルでしょうけど．．．
+<P><FONT COLOR="#FF0000">＜訂正＞　1998/9/19</FONT><BR>
+<B><FONT COLOR="#0000FF">ＩＦＳのテキストモードで日本語（ＭＩＸＥＤ　ＣＣＳＩＤ）が使えないのは、スペックでした。</FONT>
+<BR>
+</B>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : FILE4C                                          */
+/* REMARKS     :ＩＦＳファイルＩ／Ｏ　　
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 98/09/10                                        */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* 標準のＣでは、ファイルはストリームファイルとして                */
+/* 扱われます。*/
+/* ＡＳ／４００のＩＦＳ（統合ファイルシステム）を使用すると*/
+/* ストリームファイルがサポートされます。*/
+/* でも、テキストモードだと日本語はエラーになってしまいます*/
+/*  CRTBNDC SYSIFCOPT(IFSIO)でコンパイルすること*/</FONT>
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  FILE *fp1;
+  char Txt[15];
+  int x;
+
+<FONT COLOR="#008000">/*ファイル作成とデータ出力*/ </FONT>
+  fp1 = fopen(&quot;/home/FILE4C.TXT&quot;,&quot;<FONT COLOR="#FF00FF">w codepage=00037</FONT>&quot;);
+   printf(&quot;%p\n&quot;,fp1);
+   fprintf(fp1,&quot;CODEPAGE 037\n&quot;);
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込み専用でファイルオープン*/ </FONT>
+  fp1 = fopen(&quot;/home/FILE4C.TXT&quot;,&quot;<FONT COLOR="#FF00FF">r codepage=00037</FONT>&quot;);
+   printf(&quot;%p\n&quot;,fp1);
+   fgets(Txt, 15, fp1);
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込んだデータの表示*/ </FONT>
+<FONT COLOR="#008000">  /*HEX表示*/ </FONT>
+   printf(&quot;Hex = &quot;);
+   for (x=0; Txt[x]; x++)
+     printf(&quot;%.2x&quot;, (int)(Txt[x]));
+   printf(&quot;\n&quot;);
+<FONT COLOR="#008000">  /*テキスト表示*/ </FONT>
+   printf(&quot;Txt = &quot;);
+   for (x=0; Txt[x]; x++)
+     printf(&quot;%c &quot;, Txt[x]);
+ }
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P ALIGN="LEFT"><FONT COLOR="#FF00FF">w codepage=00037</FONT>を省略すると、ＪＯＢのＣＣＳＩＤが使用されます。
+このとき日本のＣＣＳＩＤをＪＯＢで使用していると（５０２６，５０３５）ファイルオープンに失敗してしまいます。
+
+<P ALIGN="LEFT"><B><FONT COLOR="#FF00FF">しょうがなく、CODEPAGE037のままでデータに漢字を使ってみました。やはり文字が化けてしまいます。
+</FONT></B>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : FILE4C1                                          */
+/* REMARKS     :ＩＦＳファイルＩ／Ｏ　　*/
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 98/09/10                                        */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* 標準のＣでは、ファイルはストリームファイルとして*/
+/* 扱われます。*/
+/* ＡＳ／４００のＩＦＳ（統合ファイルシステム）を使用すると*/
+/* ストリームファイルがサポートされます。*/
+/* 英語モードだと日本語は化けてしまいます */
+/*  CRTBNDC SYSIFCOPT(IFSIO)でコンパイルすること */ </FONT>
+
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  FILE *fp1;
+  char Bin[15];
+  int x;
+
+<FONT COLOR="#008000">/*ファイル作成とデータ出力*/</FONT>
+  fp1 = fopen("/home/FILE4C.TXT","<FONT COLOR="#FF00FF">w codepage=037</FONT>");
+   printf("%p\n",fp1);
+   <FONT COLOR="#FF00FF">fprintf(fp1,"漢字データ\n");</FONT>
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込み専用でファイルオープン*/</FONT>
+  fp1 = fopen("/home/FILE4C.TXT","<FONT COLOR="#FF00FF">r codepage=037</FONT>");
+   printf("%p\n",fp1);
+   fgets(Bin, 15, fp1);
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込んだデータの表示*/</FONT>
+<FONT COLOR="#008000">  /*HEX表示*/</FONT>
+   printf("Hex = ");
+   for (x=0; Bin[x]; x++)
+     printf("%.2x", (int)(Bin[x]));
+   printf("\n");
+<FONT COLOR="#008000">  /*テキスト表示*/</FONT>
+   printf("Bin = ");
+     printf("%s", Bin);
+ }
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>おそらく、ダブルバイトの文字も１バイトずつ処理され、CCSIDの変換を1バイトずつ行うようです。
+
+<P>現状では、日本語を含んでＩＦＳを使用する場合は、バイナリーモードを使用するしか方法はなさそうです。
+
+<P>本来テキストモードであれは、ＦＩＬＥのＣＣＳＩＤ＜＝＞ＪＯＢのＣＣＳＩＤ間でコード変換できるはずなので、
+ＡＳＣＩＩ＜＝＞ＥＢＣＤＩＣ間での変換をＰＧＭで行わなくても良いはずなのですが．．．日本語はノンサポート
+です。
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : FILE5C                                          */
+/* REMARKS     :ＩＦＳファイルＩ／Ｏ　　*/
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 98/09/10                                        */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* 標準のＣでは、ファイルはストリームファイルとして */
+/* 扱われます。*/
+/* ＡＳ／４００のＩＦＳ（統合ファイルシステム）を使用すると*/
+/* ストリームファイルがサポートされます。*/
+/* バイナリーモードだと日本語でもＯＫです*/
+/*  CRTBNDC SYSIFCOPT(IFSIO)でコンパイルすること*/
+</FONT>
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+  FILE *fp1;
+  char Bin[15];
+  int x;
+
+<FONT COLOR="#008000">/*ファイル作成とデータ出力*/</FONT>
+  fp1 = fopen("/home/FILE5C.BIN","<B><FONT COLOR="#FF00FF">wb</FONT></B>");
+   printf("%p\n",fp1);
+   <FONT COLOR="#FF00FF">fprintf(fp1,"漢字データ\n");</FONT>
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込み専用でファイルオープン*/</FONT>
+  fp1 = fopen("/home/FILE5C.BIN","<B><FONT COLOR="#FF00FF">rb</FONT></B>");
+   printf("%p\n",fp1);
+   fgets(Bin, 15, fp1);
+  fclose(fp1);
+
+<FONT COLOR="#008000">/*読み込んだデータの表示*/</FONT>
+  /*HEX表示*/
+   printf("Hex = ");
+   for (x=0; Bin[x]; x++)
+     printf("%.2x", (int)(Bin[x]));
+   printf("\n");
+<FONT COLOR="#008000">  /*テキスト表示*/</FONT>
+   printf("Bin = ");
+     printf("%s", Bin);
+ }
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>バイナリーモード（ｗｂ，ｒｂ）を使えば日本語の処理も問題なくできるはずです。
+<P>ただ、ＣＣＳＩＤの変換が自動的には行われないため、コード変換が必要な場合にはＰＧＭの
+内部で行う必要があります。
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<TITLE>SKGETP</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKGETP</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*ローカルポート検索------------------------------------*
+     C                     CALL 'SKGETP'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           IP     15
+     C                     PARM           PORT    5
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ソケットのリモートポートを検索する。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>検索するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>IP</I></FONT>　(出力)</B>
+<DD><UL>このソケットが使用している遠隔のIPアドレスの文字表現</UL>
+
+<DD><B><FONT COLOR="#800080"><I>PORT</I></FONT>　(出力)</B>
+<DD><UL>このソケットが使用している遠隔PORT番号</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+getpeername()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

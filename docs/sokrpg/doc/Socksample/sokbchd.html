@@ -1,0 +1,135 @@
+<HTML>
+<HEAD>
+<TITLE>TCP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<CENTER><H1>RPG ソケットバッチプログラム</H1></CENTER><P>
+<HR>
+
+<TABLE ALIGN=CENTER BORDER=0>
+<TR ALIGN=CENTER>
+	<TD><A HREF="./sokrpgbchd.html">サーバーＲＰＧ</A></TD>
+	<TD WIDTH="200"> </TD>
+	<TD><A HREF="./sokrpgca.html">クライアントＲＰＧ</A></TD>
+</TR>
+<TR>
+	<TD><H4>１．SKOPEN</H4>
+<FONT SIZE=2>SKOPENプログラムによりソケットをオープンします。SKOPENでは、setsocketオプションで、
+TCP_NODELAY,SO_REUSEADDRをセットしています。</FONT>
+<P></P>
+	</TD>
+<TD></TD>
+	<TD><H4>１．SKOPEN</H4>
+<FONT SIZE=2>SKOPENプログラムによりソケットをオープンします。SKOPENでは、setsocketオプションで、
+TCP_NODELAY,SO_REUSEADDRをセットしています。</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>２．SKBIND</H4>
+<FONT SIZE=2>SKBINDプログラムによりソケットにＩＰアドレス／ポート番号を割り当てます。
+SKBINDでは、明示的なＩＰ割り当ての代わりにＡＮＹとしてどのインターフェースからの
+接続要求についても受けとれります。</FONT><P></P>
+	</TD>
+<TD></TD>
+<TD></TD>
+</TR>
+<TR>
+	<TD><H4>３．SKLISN</H4>
+<FONT SIZE=2>SKLISNプログラムにより、クライアントからの接続要求を待ちます。
+</FONT>
+	</TD>
+<TD></TD>
+<TD></TD>
+</TR>
+<TR>
+<TD></TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow2.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>４．SKCONN</H4>
+<FONT SIZE=2>SKCONNプログラムにより、サーバーに接続を行います。ＩＰアドレスは、
+構内ループバックアドレス（１２７．０．０．１）を指定しているので、サーバーと同じマシン上で
+クライアントも実行すると仮定しています。</FONT>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>５．SKACPT</H4>
+<FONT SIZE=2>SKACPTプログラムにより、クライアントからの接続要求を受け入れます。<BR>
+この際に、新しいソケットディスクリプターがシステムにより与えられます。これ以降の通信は
+ここで割り当てられた新しいディスクリプターを使用します。
+</FONT><BR><BR>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow1.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+<TD></TD>
+</TR>
+	<TD><H4>６．SKGIVE</H4>
+<FONT SIZE=2>SKGIVEプログラムにより、常駐している BATCH ジョブにソケットデイスクリプターを渡します。<BR>
+<IMG SRC="../img/arrow4.gif" HEIGHT="40" WIDTH="23">SKACPTへ戻る
+	</TD>
+<TD></TD>
+<TD></TD>
+</TR>
+
+<TR>
+<TD ALIGN=CENTER><BR><H4><A HREF="./sokrpgbchp.html">常駐バッチプログラム</A></H4></TD>
+<TD></TD>
+<TD></TD>
+</TR>
+
+<TR>
+	<TD><H4>7．SKTAKE</H4>
+<FONT SIZE=2>SKTAKE プログラムにより、ソケットデイスクリプターを取得します。<BR>
+
+<TD></TD>
+<TD></TD>
+</TR>
+
+<TR>
+	<TD><H4>8．SKRECV</H4>
+<FONT SIZE=2>SKRECVプログラムにより、クライアントから送信された文字列を受信します<BR>
+</FONT>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow2.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>８．SKSEND</H4>
+<FONT SIZE=2>SKSENDプログラムにより、画面から入力された文字列を送信します。<BR>
+</FONT><BR><BR>
+	</TD>
+</TR>
+<TR>
+	<TD><H4>９．SKSEND</H4>
+<FONT SIZE=2>SKSENDプログラムにより、８．でクライアントから受信した文字列をそのまま送信します。<BR>
+（エコー処理）
+</FONT><BR><BR>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow1.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>９．SKRECV</H4>
+<FONT SIZE=2>SKRECVプログラムにより、サーバーから送信された文字列を受信し、画面表示します。<BR>
+（エコー処理）
+</FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD><H4>10．SKCLOS</H4>
+<FONT SIZE=2>文字列［EXIT]が送られてきた場合は、SKCLOSプログラムにより、ソケットのクローズを行います。<BR>
+<IMG SRC="../img/arrow4.gif" HEIGHT="40" WIDTH="23">SKTAKEへ戻る
+<P><FONT SIZE=2>文字列［END]が送られてきた場合は、プログラム終了します。<BR>
+
+
+</FONT>
+	</TD>
+<TD></TD>
+	<TD><H4>10．SKCLOS</H4>
+<FONT SIZE=2>画面からＦ３が押されるか、サーバープログラムが終了した場合は、SKCLOSプログラムにより、ソケットのクローズを行います。
+</FONT>
+	</TD>
+</TR>
+</TABLE>
+
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

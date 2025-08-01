@@ -1,0 +1,17 @@
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CA03(03)
+     A          R SC01
+     A                                  2 23'ソケットRPGクライアント'
+     A                                  5  5'SERVER IP ='
+     A            CIP           15O  B  5 21
+     A                                  7  5'SERVER PORT ='
+     A            CPORT          5O  B  7 21
+     A          R SC02
+     A                                      OVERLAY
+     A                                      PROTECT
+     A            FLD01         70O  B 12  5
+     A                                 14  4'戻り'
+     A            FLD02         70O  O 15  5
+     A                                 23  6'F3 =終了'
+
+.

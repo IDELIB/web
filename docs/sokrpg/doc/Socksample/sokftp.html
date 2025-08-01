@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+<TITLE>SOKFTP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<CENTER><H2>ftpクライアント</H2></CENTER><P>
+<A HREF="./rfc959.txt">RFC959</A> FILE TRANSFER PROTOCOL (FTP)
+<HR>
+
+<CENTER><H2>FTPモデル</H2>
+<IMG SRC="../img/ftpmodel.gif" ALT="FTP Model " HEIGHT="395" WIDTH="630">
+</CENTER>
+<UL>
+<LI>PI ...protocol interpreter
+<LI>DTP...data transfer process 
+</UL>
+
+<H2>解説:</H2>
+
+上図のFTPモデルが示すように、ＦＴＰでは、コマンドをやり取りする通信と、データのやり取りを行う通信は
+別個のプロセスとして定義されています。
+<P>つまり、ftpでは、コマンドのやり取りを行う制御用の通信と、データのやり取りを行う通信とは、各々独立して
+ｔｃｐセッションを開始します。
+
+<P>データコネクションは、どちらから初めても構いませんが、通常はServerからクライアントに接続に行きます。
+<BR>逆にデータコネクションをクライアントから接続しに行くモードをPassivモードと呼びます。
+
+<P>データコネクションの受信側はSocketをオープンし、コネクションをListenし、そのListenポート番号を相手先に
+ftpコマンドのレスポンスとして通知します。（PORTコマンドまたはPASVコマンド）
+
+<P>通知を受けたポートをＰＩからＤＴＰが受け取り、コネクションを開始し、各々のファイルシステムＩ／Ｏを行います。
+
+<P>各ＰＩは、ＤＴＰの状況を監視します。
+
+
+<H2>当サンプルプログラムでは:</H2>
+
+<UL>
+<LI>PASVモードを使用しています。<BR>
+（切り替えのロジックは入っていません。PasvモードをサポートしていないFTPサーバーでは、通信出来ません。）
+<LI>通常は、User Interface ＝＞ User PIの部分は、対話式にftpサブコマンドを投入できますが、当サンプルでは、
+下記の様に、プログラムごとにあらかじめ準備された、固定された順番でftpサブコマンドを実行します。<P>
+	<P>SNDFTPF<BR>
+	<UL>USER,PASS,PASV,CWD,PWD,TYPE,STOR,QUIT</UL>
+	<P>RCVFTPF<BR>
+	<UL>USER,PASS,PASV,CWD,PWD,TYPE,RETR,QUIT</UL>
+	<P>QRYFTPF<BR>
+	<UL>USER,PASS,PASV,CWD,PWD,TYPE,NLST,QUIT</UL>
+<P>
+<LI>シフトJISとEDCDIC(CCSID 5035)の変換をプログラムの中で行っていますので半角カタカナ(CCSID 290)は文字化け
+してしまいます。
+
+</UL>
+
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

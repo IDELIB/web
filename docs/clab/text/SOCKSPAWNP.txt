@@ -1,0 +1,48 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SOCKSPAWNP                                      */
+/* REMARKS     : ソケットサーバー子プロセスSPAWN                 */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/10/26                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <spawn.h>
+
+struct sockaddr_in saddr;
+
+int  main(int argc, char *argv[]){
+int      nd;
+int      rc;
+int      buflen = 1024;
+char     buf[1024] = {0};
+
+/* PARM SETTING */
+  nd = atoi(argv[1]);
+
+  while(1){
+    /* read data */
+      if((rc = recv(nd, buf, buflen, 0)) < 0){
+        perror("recv() failed");
+        exit(-1);
+      }
+      if(rc == 0){
+        close(nd);
+        exit(0);
+      }
+    /* send data */
+      if((rc = send(nd, buf, rc, 0)) < 0){
+        perror("send() failed");
+        exit(-1);
+      }
+  }
+}

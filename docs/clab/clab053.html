@@ -1,0 +1,382 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_05-Ｆ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第５章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＤＳＰＦも使えるの？</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<P>ＤＳＰＦをＩＬＥ－Ｃで利用する場合には、ＩＬＥ－Ｃの拡張関数群（＿Ｒｘｘｘｘｘ）を使う必要があります。
+
+<P ALIGN="LEFT">
+次の関数が、ヘッダーファイル &lt;recio.h&gt; で定義されています。
+ 
+<UL>
+<FONT COLOR="#FF0000"><PRE>
+_Racquire           _Rclose            _Rcommit          _Rdelete
+_Rdevatr            _Rfeod             _Rfeov            _Rformat
+_Rindara            _Riofbk            _Rlocate          _Ropen
+_Ropnfbk            _Rpgmdev           _Rreadd           _Rreadf
+_Rreadindv          _Rreadk            _Rreadl           _Rreadn
+_Rreadnc            _Rreadp            _Rreads           _Rrelease
+_Rrlslck            _Rrollbck          _Rupdate          _Rupfb
+_Rwrite             _Rwrited           _Rwriterd         _Rwrread
+</FONT></PRE>
+</UL>
+
+<P>ＲＰＧでは、Ｆ仕様書にＷＯＲＫＳＴＮファイルが定義してあれば、プログラムでは<FONT COLOR="#FF00FF">［ ＥＸＦＭＴ  ＳＣ０１ ］</FONT>の様に、いきなり画面のレコード様式を指定するだけでＤＳＰＦのＩ／Ｏが可能になります
+
+<P>Ｃを使う場合は、同じことを行うのに、もう少し面倒な手続きが必要になります。
+<UL>
+<P>ファイルのオープン／クローズ
+<P>表示するレコード様式の設定
+<P>ＺＯＮＥ１０進数とインテジャーの変換
+</UL>
+<P>などが追加で必要です。
+
+<P>まず、サンプルのＲＰＧをみてください
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1               
+<FONT COLOR="#008000">     H*------------------------------------------------------------*    
+     H* PROGRAM-ID    :    DSP1R                                   *    
+     H* REMARKS       :    画面ファイルのプログラム   　　         *    
+     H* AUTHOR        :    Y.IDE                                   *    
+     H* DATE-WRITEN   :    98/09/23                                *    
+     H* VERSION       :    01.00 ORIGINAL                          *    
+     H*------------------------------------------------------------*</FONT>
+     FDSP1FM  CF  E                    WORKSTN                          
+     C                     Z-ADD1234567   DPBOTH                        
+     C                     Z-ADD1234567   DPOUT                         
+     C* 画面に表示                                                      
+     C                     EXFMTSC01                                    
+     C*                                                                 
+     C                     SETON                     LR                 
+     C                     RETRN                                       
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>［プログラムの解説］</B>
+<P> 画面ファイルにデータをセットして画面表示を行います。何らかの入力があるとプログラムは終了します。
+<P>使用しているＤＳＰＦのソースコード
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CF03(03)
+     A          R SC01
+     A                                  4 16'数字'
+     A                                  4 37'文字'
+     A                                  6  5'INPUT :'
+     A            DPIN           7Y 0I  6 14
+     A            DPINA         20A  I  6 31
+     A                                  8  5'OUTPUT :'
+     A            DPOUT          7S 0O  8 14
+     A            DPOUTA        20A  O  8 31
+     A                                 10  5'BOTH :'
+     A            DPBOTH         7Y 0B 10 14
+     A            DPBTHA        20A  B 10 31
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>同じ処理をするプログラムＣで作成しましょう。
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : DSP1C                                          */
+/* REMARKS     :ディスプレイファイルＩ／Ｏ　　　　　　
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/08/31                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+#pragma mapinc(&quot;SC01&quot;,&quot;CLAB/DSP1FM(*ALL)&quot;,&quot;both&quot;,&quot; &quot;,&quot;DSP&quot;,&quot;FM&quot;)
+#include &quot;SC01&quot;
+
+int main(void)
+{
+  _RFILE                            *dspf;
+  _RIOFB_T                          *fb; 
+  DSP_t                             sc01;
+  int num = 1234567;
+
+    if (( dspf = <FONT COLOR="#FF0000">_Ropen</FONT>(&quot;DSP1FM&quot;, &quot;ar+&quot; )) == NULL )
+    {
+        printf (&quot;OPEN ERROR\n&quot; );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*カウントアップと設定*/</FONT>
+    QXXITOZ(sc01.FM_SC01_o.DPOUT,  7, 0, num);
+    QXXITOZ(sc01.FM_SC01_o.DPBOTH, 7, 0, num);
+    memset(sc01.FM_SC01_o.DPOUTA,'X',20);
+    memset(sc01.FM_SC01_o.DPBTHA,'X',20);
+
+<FONT COLOR="#008000">/*レコード様式を設定する*/</FONT>
+    <FONT COLOR="#FF0000">_Rformat</FONT>(dspf,&quot;SC01&quot; );
+
+<FONT COLOR="#008000">/* EXFMTに同じ*/</FONT>
+    fb = <FONT COLOR="#FF0000">_Rwriterd</FONT>(dspf, &amp;sc01, sizeof(sc01) );
+
+  <FONT COLOR="#FF0000">_Rclose</FONT> (dspf);
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<P><B>［プログラムの解説］</B>
+<P>_Rformat(dspf,"SC01");の命令で、画面ファイルのレコード様式を設定してから、<BR>
+_Rwriterd(dspf,&sc01,sizeof(sc01) );で画面の入出力を行っています。<BR>
+
+<P>画面様式の指定は、ＲＰＧでは不要の命令ですが、内部的には、レコード様式の選択が自動的に行われています。
+<P>ＲＰＧ２（Ｓ／３６など）では、Ｏ仕様書の最初にレコード様式名のコーディングをしていました。<BR>
+たしかこんな感じだったと思います。
+<UL>
+      O               <FONT COLOR="#FF0000">K</FONT>4 "SC01"
+</UL>
+
+<H3>次にサブファイルを使った例をみてみましょう</H3>
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     H            Y/                                    1
+     <FONT COLOR="#008000">H*------------------------------------------------------------*
+     H* PROGRAM-ID    :    SUB1R                                   *
+     H* REMARKS       :   サブファイルのプログラム
+     H* AUTHOR        :    Y.IDE                                   *
+     H* DATE-WRITEN   :    98/09/22                                *
+     H* VERSION       :    01.00 ORIGINAL                          *
+     H*------------------------------------------------------------*</FONT>
+     FSUB1FM  CF  E                    WORKSTN
+     F                                        RRN   KSFILE SC01
+     <FONT COLOR="#008000">C*サブファイルのクリア</FONT>
+     C                     SETON                     31
+     C                     WRITESC01C
+     C                     SETOF                     31
+     <FONT COLOR="#008000">C* 18レコードを出力</FONT>
+     C           1         DO   18        RRN     30
+     C                     Z-ADDRRN       DPSEQ
+     C                     Z-ADD1234567   DPBOTH
+     C                     Z-ADD1234567   DPOUT
+     C                     MOVE *ALL'X'   DPBTHA
+     C                     MOVE *ALL'X'   DPOUTA
+     C                     WRITESC01
+     C                     ENDDO
+     <FONT COLOR="#008000">C*画面に表示</FONT>
+     C                     EXFMTSC01C
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P><B>［プログラムの解説］</B>
+<P> サブファイルをクリアし、サブファイルにレコードを１８件書き込み、画面表示を行います。何らかの入力があるとプログラムは終了します。
+
+<P>使用しているサブファイルのソースコード
+
+<FONT COLOR="#FF00FF"><P>DSPF SUB1FM</FONT>
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+     A                                      DSPSIZ(24 80 *DS3)
+     A                                      CF03(03)
+     A          R SC01                      SFL
+     A            DPSEQ          2  0O  5  4
+     A            DPIN           7Y 0I  6  8
+     A            DPBOTH         7Y 0B  6 32
+     A            DPOUT          7S 0O  6 56
+     A            DPINA         20A  I  7  8
+     A            DPBTHA        20A  B  7 32
+     A            DPOUTA        20A  O  7 56
+     A          R SC01C                     SFLCTL(SC01)
+     A                                      SFLDSP
+     A                                      SFLDSPCTL
+     A  30                                  SFLINZ
+     A  31                                  SFLCLR
+     A                                      SFLSIZ(0018)
+     A                                      SFLPAG(0006)
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>同じ処理をするＣプログラムを作成しましょう。
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<FONT SIZE=2>
+<PRE>
+<FONT COLOR="#008000">/*--------------------------------------------------------------*/
+/* PROGRAM-ID  : SUB1C                                          */
+/* REMARKS     :サブファイルＩ／Ｏ
+/* AUTHOR      : Y.Ide                                          */
+/* DATE-WRITEN : 98/09/23                                       */
+/* VERSION     : 01.00 ORIGINAL                                 */
+/*--------------------------------------------------------------*/
+</FONT>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;recio.h&gt;
+#include &lt;decimal.h&gt;
+#include &lt;xxcvt.h&gt;
+
+#pragma mapinc("SC01","CLAB/SUB1FM(*ALL)","both"," ","DSP","FM")
+#include "SC01"
+
+int main(void)
+{
+  _RFILE                            *subf;
+  _RIOFB_T                          *fb; <FONT COLOR="#008000">/*オープンフィードバック*/</FONT>
+  DSP_t                             sc01;
+  int num = 1234567;
+  int x;
+
+<FONT COLOR="#008000">/*ファイルのオープン*/</FONT>
+    if (( subf = <FONT COLOR="#FF0000">_Ropen</FONT>("SUB1FM", "ar+" )) == NULL )
+    {
+        printf ("OPEN ERROR\n" );
+        exit ( 1 );
+    }
+<FONT COLOR="#008000">/*サブファイルのクリア*/</FONT>
+    <FONT COLOR="#FF0000">_Rformat</FONT>(subf,"SC01C" );
+     sc01.FM_SC01C_o.IN31 = '1';
+    <FONT COLOR="#FF0000">_Rwrite</FONT>(subf,&sc01.FM_SC01C_o,sizeof(sc01.FM_SC01C_o));
+
+<FONT COLOR="#008000">/* 18レコードを出力*/
+  /*レコード様式を設定する*/</FONT>
+    <FONT COLOR="#FF0000">_Rformat</FONT>(subf,"SC01" );
+  <FONT COLOR="#008000">/*ＬＯＯＰ*/</FONT>
+  for(x=1 ; x <= 18 ; x++){
+    QXXITOZ(sc01.FM_SC01_o.DPSEQ,   2, 0, x);
+    QXXITOZ(sc01.FM_SC01_o.DPBOTH,  7, 0, num);
+    QXXITOZ(sc01.FM_SC01_o.DPOUT,   7, 0, num);
+    memset(sc01.FM_SC01_o.DPBTHA, 'X', sizeof(sc01.FM_SC01_o.DPBTHA));
+    memset(sc01.FM_SC01_o.DPOUTA, 'X', sizeof(sc01.FM_SC01_o.DPOUTA));
+    fb =  <FONT COLOR="#FF0000">_Rwrited</FONT>(subf,&sc01.FM_SC01_o, 56, x);
+  }
+
+<FONT COLOR="#008000">/*画面を表示する*/
+  /*レコード様式を設定する*/</FONT>
+    <FONT COLOR="#FF0000">_Rformat</FONT>(subf,"SC01C" );
+       sc01.FM_SC01C_o.IN30 = '0';
+       sc01.FM_SC01C_o.IN31 = '0';
+
+  <FONT COLOR="#008000">/* EXFMTと同じ*/</FONT>
+       fb = <FONT COLOR="#FF0000">_Rwriterd</FONT>(subf, &sc01.FM_SC01C_o, 2);
+
+  <FONT COLOR="#FF0000">_Rclose</FONT> (subf);
+
+}
+</PRE>
+</FONT>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>［プログラムの解説］
+
+<P>サブファイルへの書き出しは、ＲＲＮ（相対レコード番号）を使用する必要があるため、<BR>
+<FONT COLOR="#FF0000">_Rwrited</FONT>命令を使用して書き出しを行っています。
+<UL>
+      fb=_Rwrited(subf,&sc01.FM_SC01_o, 56, <FONT COLOR="#FF0000">x</FONT>);<BR>
+      x に RRNの番号を指定します
+</UL>
+<P><FONT COLOR="#FF00FF">注意</FONT>
+<P>ＲＰＧでは、プログラムの開始時に各変数の初期化が行われるので、標識は初期値’０’になりますが、
+Ｃではそのような初期化は行われません。よって標識の値に’０’が入っているかどうかは不定です。<BR>
+上記、プログラムではＩＮ３０とＩＮ３１を明示的に’０’にセットしていますが、これは、必要な処理です<BR>
+
+<FONT size=+1 COLOR="#FF00FF"><P>初期化は行われないことに注意しましょう！！</FONT>
+
+<B><FONT SIZE=+2 COLOR="#0000FF">
+<P>ＲＰＧとＣの両者を比較すると、改めてＲＰＧの生産性の高さを実感しますね。
+<P>DSPF使った処理は、特別な理由がない限り、ＲＰＧで作成するのが賢い選択と言えるでしょう。
+</FONT>
+</B>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

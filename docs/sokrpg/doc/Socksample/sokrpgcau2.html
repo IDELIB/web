@@ -1,0 +1,121 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGCAU2</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>読み取りタイムアウト処理</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGCAU2                                 *
+     H* REMARKS       :    UDP読み取りタイムアウト処理　　            *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/19                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKUPFM CF  E                    WORKSTN
+     I              '127.0.0.1      '     C         IPA
+     C*ソケットオープン--------------------------------------*
+     C                     CALL 'SKUDPO'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C*ソケットバインド--------------------------------------*
+     C                     CALL 'SKBIND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM IPA       IP     15
+     C                     PARM '30033'   PORT    5
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ノンブロックの設定------------------------------------*
+     C                     CALL 'SKNBLK'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '1'       FLG     1        1=ON 0=OFF
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C           TAG#01    TAG
+     C                     EXFMTSC01
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVELFLD01     BUFOUT
+     C*ソケットデータ送信------------------------------------*
+     C                     CALL 'SKUDPS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C                     PARM IPA       SIP    15
+     C                     PARM '30032'   SPORT   5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C           FLD01     IFEQ 'EXIT'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*セレクト実行（タイムアウト５秒）----------------------*
+     C                     CALL 'SKSELC'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '00000005'TIMOUT  8
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C           RC        IFEQ 'T'
+     C                     MOVE *BLANK    FLD02
+     C                     MOVEL'TIMEOUT' FLD02
+     C                     GOTO TAG#01
+     C                     ENDIF
+     C*ソケットデータ受信------------------------------------*
+     C                     CALL 'SKUDPR'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C                     PARM           SIP    15
+     C                     PARM           SPORT   5
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*
+     C                     MOVELBUFIN     FLD02
+     C                     GOTO TAG#01
+     C*ソケットクローズ--------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+画面から入力したデータを、指定されたサーバーのIPアドレスとPORT番号に送信し、サーバーからのデータ受信を繰り返す。
+<P>サーバーからのデータが５秒以内に戻ってこない場合は、タイムアウトとして処理する。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgcau2.gif" HEIGHT="400" WIDTH="568">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

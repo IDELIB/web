@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGBCHD</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>RPG ソケットバッチメインプログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGBCHD                                 *
+     H* REMARKS       :    RPG ソケットバッチメインプログラム         *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/10/05                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     E                    MSG     1   2 80
+     C*ソケットオープン--------------------------------------*
+     C                     CALL 'SKOPEN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットバインド--------------------------------------*
+     C                     CALL 'SKBIND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM 'ANY'     ANY    15
+     C                     PARM '30031'   PORT    5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットリッスン--------------------------------------*
+     C                     CALL 'SKLISN'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*ソケットアクセプト------------------------------------*
+     C           1         DO   *HIVAL
+     C                     CALL 'SKACPT'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           ND      4
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+<FONT COLOR="#ff0080">     C*他のＪＯＢにソケットをあたえる------------------------*
+     C                     CALL 'SKGIVE'
+     C                     PARM           ND      4
+     C                     PARM           RC      1
+     C                     PARM 'SOKBCH  'APLID   8
+</FONT>     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*
+     C           RC        IFEQ 'N'
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG,1
+     C                     CALL 'SKCLOS'
+     C                     PARM           ND      4
+     C                     PARM           RC      1
+     C                     LEAVE
+     C                     ENDIF
+     C*
+     C                     CALL 'SKMSGS'
+     C                     PARM           MSG,2
+     C*--------------------------------------------------------*
+     C                     ENDDO
+     C*ソケットクローズ--------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+**
+クライアントの要求を他のＪＯＢにディスパッチできません。クローズします。
+クライアントの要求を他のＪＯＢにディスパッチしました。
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+クライアントからの接続をまち、実際の接続後は、ソケットディスクリプターを他のＪＯＢに渡し、
+データの送受信は他のＪＯＢにまかせ、自分は、次のクライアントからの接続をまつ、SKTAKEで待機している
+ＪＯＢがいないとプログラム終了します。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgbchd.gif" HEIGHT="150" WIDTH="701">
+
+<P>クライアントから接続がくるごとに、<B>「クライアントの要求を他のＪＯＢにディスパッチしました。」</B>という
+メッセージが、画面下部と JOBLOG に出力されます。
+
+<P>終了させるには、クライアント接続して<B>「END」</B>の文字を送り、まず常駐しているすべての SOKRPGBCHP ジョブを
+終了させます。
+<BR>その状態で接続すると、<B>「クライアントの要求を他のＪＯＢにディスパッチできません。クローズします。」</B>
+というメッセージを表示して、当プログラムは終了します。
+
+<BR><BR>
+
+
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

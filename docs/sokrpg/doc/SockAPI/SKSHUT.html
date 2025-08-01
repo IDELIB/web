@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<TITLE>SKSHUT</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKSHUT</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*シャットダウン送受信禁止------------------------------*
+     C                     CALL 'SKSHUT'
+     C                     PARM            SD      4
+     C                     PARM        	   RC      1
+     C                     PARM 'B'   	   HOW     1
+     C* ソケット送信禁止 ------------------------------------*    
+     C                     CALL 'SKSHUT'                            
+     C                     PARM           SD      4                 
+     C                     PARM           RC      1                 
+     C                     PARM 'S'       HOW     1                 
+     C* ソケット受信禁止 ------------------------------------*    
+     C                     CALL 'SKSHUT'                            
+     C                     PARM           SD      4                 
+     C                     PARM           RC      1                 
+     C                     PARM 'R'       HOW     1                 
+     C*------------------------------------------------------*                                                                  
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ソケットを遮断します。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>HOW</I></FONT>　(入力)</B>
+<DD><UL>送信，受信，送受信のどれを禁止するかを指示する
+<UL>
+<LI>'B' : 送受信の禁止
+<LI>'S' : 送信の禁止
+<LI>'R' : 受信の禁止
+</UL>
+</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+shutdown()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

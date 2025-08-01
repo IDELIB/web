@@ -1,0 +1,173 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_07-Ｉ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第７章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｉ仕様書－データエリア</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+データエリアを使用するＲＰＧプログラムは、ＵＤＳの指定を行うだけです。
+簡単なので、ＲＰＧではよく使われる機能です。
+
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    ISPEC3R                                    *
+     H* REMARKS       :    ＬＤＡ                                     *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/8/15                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     I           <FONT COLOR="#ff0080">UDS</FONT>
+     I                                        1   1 CHAR
+     I                                        2  11 STRING
+     C*
+     C                     MOVE 'A'       CHAR
+     C                     MOVEL'12345678'STRING
+     C*
+     C                     CALL 'ISPEC3'
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+     C*
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>Ｃのプログラムでは、データエリアにアクセスするには、２つの方法があります。
+
+<H4>１．システムＡＰＩを使用する方法</H4>
+<H4>２．Ｃのライブラリー関数で用意されている組み込み関数を利用する方法</H4>
+
+<P>１．システムＡＰＩを使用する方法
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : ISPEC3                                          */
+/* REMARKS     : Ｉ仕様書データエリア　　                        */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/8/15                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/*  Ｃでデータエリアを使うには、ＡＰＩの利用が必要です。         */
+
+#include&LT;stdio.h&GT;
+#include&LT;qusec.h&GT;
+#include&LT;QWCRDTAA.H&GT;
+
+typedef _Packed struct Rdtaa_Data_Returned
+    {
+       int  Bytes_Available;
+       int  Bytes_Returned;
+       char Type_Value_Returned[10];
+       char Library_Name[10];
+       int  Length_Value_Returned;
+       int  Number_Decimal_Positions;
+       char Value[120];
+    } Rdtaa_Data_Returned_t;
+
+void main(int argc, char *argv[])
+{
+  Rdtaa_Data_Returned_t LDA;
+  int RcverLen = 37 + 120;
+  char DataAraName[20] = "*LDA                ";
+  int StartPos = 1;
+  int DataLen = 120;
+  Qus_EC_t err_code;
+
+  err_code.Bytes_Provided = 0;
+
+  QWCRDTAA(&LDA,RcverLen,DataAraName,StartPos,DataLen,&err_code);
+  printf("%s",LDA.Value);
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>２．Ｃのライブラリー関数で用意されている組み込み関数を利用する方法
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : ISPEC3                                          */
+/* REMARKS     :Ｉ仕様書データエリア　　                     */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/8/22                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* 組子関数を利用してデータエリアをアクセスする                */
+#include &LT;stdio.h&GT;
+#include &LT;xxdtaa.h&GT;
+
+int main(void)
+{
+  char Value[1025] = {0};
+
+ /* データエリアの名前*/
+  _DTAA_NAME_T DataAraName = {"*LDA      ", "          "};
+
+ /* ＲＴＶＤＴＡＡＲＡの実行*/
+  QXXRTVDA(DataAraName,1,1024,Value);
+
+ /* データエリアの内容表示*/
+  printf("%s",Value);
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

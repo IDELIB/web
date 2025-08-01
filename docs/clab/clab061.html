@@ -1,0 +1,303 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_06-Ｅ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第６章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｅ仕様書－配列</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<P>配列についてＲＰＧとＣ言語の違いについてみていきましょう。
+
+<P>配列とは、同じ長さ，属性，の変数をいくつか並べて扱える変数のまとまりです。
+<BR>配列は、ＲＰＧでは、Ｅ仕様書で定義します。
+
+<P>ＲＰＧの配列の各要素のデータの設定は、コンパイル時，プログラム内部でまたはファイルから行うことができます。
+
+<P><B>まず、定義方法についてをＲＰＧとＣ言語で比較しましょう。
+
+<PRE><FONT SIZE="+1">［ＲＰＧ］
+  *...1....+....2....+....3....+....4....+....5....+....6
+  E....FromfileTofile++Name++N/rN/tbLenPDSArrnamLenPDSCom
+  E                    A           8  1
+
+［Ｃ言語］
+      char A[8];
+</FONT></PRE>
+</B>
+
+ＲＰＧの場合、桁数がわかりにくいと思いますが、 27 ～ 32 桁目が配列名（Ａ）、36 ～ 39 桁目が配列中の項目の数（８）40 ～ 42 桁目が、項目の長さ（１）です。
+
+<P>Ｃ言語の場合、”型名　配名［配列の要素の数］;”です。
+
+<P>この定義は、いずれも、1バイトの文字を８個並べた配列Ａを定義しています。下図を参照してください。
+
+<P><CENTER>
+<TABLE BORDER=0 BGCOLOR="#FFF0FF" >
+<TR><TD>
+</TD>
+
+<TD>
+<CENTER>
+<P>配列Ａ
+
+<TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+<TR>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+<TD WIDTH="40"><CENTER>...</CENTER></TD>
+</TR>
+</TABLE>
+
+</TD></TR>
+<TR>
+<TD>
+<BR>
+ＲＰＧ<BR>
+Ｃ言語<BR>
+
+</TD>
+<TD>
+<TABLE BORDER=0>
+<TR>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+<TD WIDTH="40"><CENTER>↑</CENTER></TD>
+</TR>
+<TR>
+<TD WIDTH="40"><CENTER>A,1</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,2</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,3</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,4</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,5</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,6</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,7</CENTER></TD>
+<TD WIDTH="40"><CENTER>A,8</CENTER></TD>
+</TR>
+<TR>
+<TD WIDTH="40"><CENTER>A[0]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[1]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[2]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[3]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[4]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[5]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[6]</CENTER></TD>
+<TD WIDTH="40"><CENTER>A[7]</CENTER></TD>
+</TR>
+
+</TABLE>
+</CENTER>
+
+</TD></TR>
+</TABLE>
+</CENTER>
+
+<P>配列の各要素を表すには、ＲＰＧの場合は、配列名,添字、Ｃの場合は、配列名[添字］となります。<BR>
+ＲＰＧは、配列の要素を１から数えますので、1番目の要素は、A,1となり、<FONT COLOR="#FF0000">A,0はエラー</FONT>になります。
+これに対し、Ｃ言語は、通常配列の要素をゼロから数えますので、char A[8]とした場合は、<FONT COLOR="#FF0000">１番目の要素はA[0]となり、A[8]は存在しません。</FONT>
+<P><B>次に、実際に配列の各要素にデータをセットする方法についてみていきましょう。
+
+<P>１．コンパイル時に配列の各要素にデータを設定する方法
+
+<PRE><FONT SIZE="+1">［ＲＰＧ］
+  *...1....+....2....+....3....+....4....+....5....+....6
+  E....FromfileTofile++Name++N/rN/tbLenPDSArrnamLenPDSCom
+  E                    A       8   8  1
+...
+**
+ABCDEFGH
+
+［Ｃ言語］
+      char A[8] = {'A','B','C','D','E','F','G','H'};
+</FONT></PRE>
+</B>
+
+ＲＰＧの場合、ソースコードの一番最後に、配列定義した順番に、配列のデータ項目を記入します。そして、この配列入力レコード中の配列項目数を、ファイル仕様書（補足 E ）の33 ～ 35 桁目に記入します。上記の例では、一行に８個のデータ項目を記入しているので、35 桁目に８と記入しています。もしここに４と設定した場合は、以下のようになります
+<PRE><FONT SIZE="+1">  *...1....+....2....+....3....+....4....+....5....+....6
+  E....FromfileTofile++Name++N/rN/tbLenPDSArrnamLenPDSCom
+  E                    A       <FONT COLOR="#FF00FF">4</FONT>   8  1
+...
+<FONT COLOR="#FF00FF">**
+ABCD
+EFGH
+</FONT></FONT></PRE>
+</B>
+
+Ｃ言語の場合は、配列もほかの変数と同じく、定義するときに初期化できます。初期化するデータは中カッコ｛｝で囲み、カンマで区切って表します。初期化するデータは配列の第１要素から順番に指定していきます。配列の要素数よりもデータ項目の方が少ない場合には、残りの要素には０が設定てれます。また、初期化するデータ項目が、要素数と等しい場合は、配列の要素数の指定を省略することが可能です。
+<UL>
+<B>char A[8] = {'A','B','C','D','E','F','G','H'};</B>
+</UL>
+は、
+<UL>
+<B>char A[] = {'A','B','C','D','E','F','G','H'};</B>
+</UL>と書くこともできます。
+
+<P>省略することのメリットとしては、あとでデータ項目を追加する場合に、要素の数を書き換えなくてもコンパイルが可能になります。もし、下記のように、要素数がデータ項目より少ないと、コンパイル時にエラーとなります。
+<UL>
+<B>char A[<FONT COLOR="#FF0000">8</FONT>] = {<FONT COLOR="#FF0000">'A','B','C','D','E','F','G','H','I','J'</FONT>};</B>
+</UL>
+これは、コンパイル・エラーとなります。
+
+<P>ＲＰＧの配列に指定できる型（データ・タイプ）は、文字フィールド（文字列）、ゾーン十進数，パック十進数です。<BR>
+一方、Ｃ言語では、これらの型はありません。文字列は、文字型（char）の配列として、処理する必要があります。<BR>
+ＲＰＧでの文字列の配列は、Ｃ言語では、２次元配列として定義します。
+
+<P><B>文字列の配列定義
+
+<PRE><FONT SIZE="+1">［ＲＰＧ］
+  *...1....+....2....+....3....+....4....+....5....+....6
+  E....FromfileTofile++Name++N/rN/tbLenPDSArrnamLenPDSCom
+  E                    STR         3  4
+
+［Ｃ言語］
+      char STR[3][4];
+</FONT></PRE>
+</B>
+
+<P>この定義は、いずれも、4バイトの文字列（1バイト文字を４個並べた配列）を３個並べた配列ＳＴＲを定義しています。下図を参照してください。
+
+<P><CENTER>
+<TABLE BORDER=0 BGCOLOR="#FFF0FF" >
+<TR><TD>
+ＲＰＧ
+</TD>
+
+<TD>
+<CENTER>
+<P>配列ＳＴＲ
+
+<TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+<TR>
+<TD WIDTH="160"><CENTER>...</CENTER></TD>
+<TD WIDTH="160"><CENTER>...</CENTER></TD>
+<TD WIDTH="160"><CENTER>...</CENTER></TD>
+
+</TR>
+</TABLE>
+
+</TD></TR>
+<TR>
+<TD>
+</TD>
+<TD>
+<TABLE BORDER=0 CELLSPACING=0>
+<TR>
+<TD WIDTH="160">↑</TD>
+<TD WIDTH="160">↑</TD>
+<TD WIDTH="160">↑</TD>
+</TR>
+<TR>
+<TD WIDTH="160">STR,1</TD>
+<TD WIDTH="160">STR,2</TD>
+<TD WIDTH="160">STR,3</TD>
+</TR>
+<TR>
+<TD WIDTH="160">STR[0][0]</TD>
+<TD WIDTH="160">STR[1][0]</TD>
+<TD WIDTH="160">STR[2][0]</TD>
+</TR>
+<TR>
+<TD WIDTH="160">↓</TD>
+<TD WIDTH="160">↓</TD>
+<TD WIDTH="160">↓</TD>
+</TR>
+
+</TABLE>
+</CENTER>
+
+</TD></TR>
+
+<TR>
+<TD>Ｃ言語</TD>
+<TD>
+<TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+<TR>
+<TD WIDTH="160"><CENTER>
+<TABLE WIDTH=100% CELLSPACING=0 BORDER=1><TR><TD>.</TD><TD>.</TD><TD>.</TD><TD>.</TD></TR></TABLE>
+</CENTER></TD>
+
+<TD WIDTH="160"><CENTER>
+<TABLE WIDTH=100% CELLSPACING=0 BORDER=1><TR><TD>.</TD><TD>.</TD><TD>.</TD><TD>.</TD></TR></TABLE>
+</CENTER></TD>
+
+<TD WIDTH="160"><CENTER>
+<TABLE WIDTH=100% CELLSPACING=0 BORDER=1><TR><TD>.</TD><TD>.</TD><TD>.</TD><TD>.</TD></TR></TABLE>
+</CENTER></TD>
+</TR>
+</TABLE>
+
+<TABLE WIDTH=160 CELLSPACING=0 BORDER=0><TR><TD>↑</TD><TD>↑</TD><TD>↑</TD><TD>↑</TD></TR></TABLE>
+<TABLE WIDTH=160 CELLSPACING=0 BORDER=0><TR><TD>STR[0][0]</TD><TD>STR[0][1]</TD><TD>STR[0][2]</TD><TD>STR[0][3]</TD></TR></TABLE>
+
+<CENTER>２次元配列　STR[3][4]</CENTER>
+</TD></TR>
+</TABLE>
+</CENTER>
+
+<P>配列の各要素を表すには、ＲＰＧの場合は、配列名,添字、Ｃの場合は、配列名[添字][添字］となります。
+ＲＰＧは、４バイトの文字列を配列の要素としてとるので、1番目の要素は、STR,1となります。これに対し、
+Ｃ言語は、文字の配列の配列（２次元配列）として定義してあるので、<FONT COLOR="#FF0000">最初の添え字が要素、２番目の添え字が長さに相当します</FONT>、よって、<BR>
+
+<UL>
+<B>STR[0][0],　STR[1][0],　STR[2][0],　STR[3][0]</B>
+</UL>
+とカウントアップすれば、４バイト毎に指定でき、<BR>
+
+<UL>
+<B>STR[0][0],　STR[0][1],　STR[0][2],　STR[0][3]</B>
+</UL>
+とすると、１バイト毎に指定が可能です。
+
+<P>ＲＰＧは残念ながら多次元の配列をサポートしていませんが、Ｃ言語では、このように配列の配列と言うかたちで多次元の配列を扱うことが可能です。
+
+<UL><B>例）ary[5][3][4]　上記の配列をさらに５個持てる配列</B></UL>
+
+<P>このように書くとＣ言語の配列は、扱いが非常にめんどうなものだと思われてしまうかもしれませんが、<BR>
+実際めんどうです。<BR>
+ここでの解説は、配列に絞っているため、ポインターを使用していません。<BR>
+実際のプログラミングの際には、ポインターと配列を併用するのが普通です。<BR>
+配列の次の章では、ポインターと配列を使用したプログラミングをサンプル・コーディングを交えて解説したいと思います。<BR>
+もう少しすっきりとしたコーディングになるはずです
+
+</FONT>
+</TD></TR>
+</TABLE>
+<P><HR>
+</TD></TR>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>CLab_99-付録</title>
+</head>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＡＳ／４００のポインターサイズ</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<BR>
+
+<H3>ＡＳ／４００はＲＩＳＣになってから64bitOSと言われています。</H3>
+
+<P>ここではＡＳ／４００のポインターサイズはいくつなのか、実際に調べてみましょう？
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : POINT7                                          */
+/* REMARKS     : ポインターの長さは?                           */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 98/04/28                                        */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/*                                                               */</FONT>
+
+#include<stdio.h>
+
+void main()
+{
+<FONT COLOR="#008000">/*ポインターの定義*/</FONT>
+char *ptr_a = "ABCD";
+char *ptr_b ;
+
+<FONT COLOR="#008000">/*他の型の定義*/</FONT>
+short s;
+int   i;
+long  l;
+<FONT COLOR="008000">/* long long は OS/400 V430のみ有効、他のバージョンではエラー */</FONT>
+long long ll;
+
+ printf("POINTER LENGTH = %d \n",sizeof(ptr_a));
+ printf("POINTER DATA   = %p \n",ptr_a);
+
+ printf("SHORT     SIZE = %d \n",sizeof(s));
+ printf("INT       SIZE = %d \n",sizeof(i));
+ printf("LONG      SIZE = %d \n",sizeof(l));
+ printf("LONG LONG SIZE = %d \n",sizeof(ll));
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>sizeof関数は、その型のもつサイズを調べることができる関数です。<BR>
+上記の ptr_a のサイズを画面に表示することが可能です。<BR>
+実行結果は以下の様になるでしょう
+<P>
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+
+   <FONT COLOR="#FF0000">POINTER LENGTH = 16</FONT>                                                          
+   POINTER DATA   = SPP:0000 :1aefQPADEV0004IDE       043092 :e00:0:23e         
+   SHORT     SIZE = 2                                                           
+   INT       SIZE = 4                                                           
+   LONG      SIZE = 4                                                           
+   LONG LONG SIZE = 8                                                           
+    端末セッションを終了するためには，実行キーを押してください。                
+                                                                                
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>sizeof関数で調べた値の結果が、<FONT COLOR="#FF0000">POINTER LENGTH = 16</FONT> になっています。 <BR>
+と言うことは、ＡＳ／４００のポインターのサイズは<FONT COLOR="#FF0000">１６バイト（１６＊８＝１２８ビット）</FONT>
+と言うことがわかります。
+
+<P>ポインターが128ビットと言うことは、ＯＳとしては<FONT COLOR="#FF0000">128ビットＯＳ</FONT>
+であるといってもいいのではと言う気もしますがいまのところ、POWER_PCのCPUが64bitなので、64bitOSということになっている
+のでしょうね。
+
+<P>他の多くのプラットフォームＯＳがやっと、32bitから64bitに対応しているのに比べ、OS/400自体すでに128bitとは
+あらためて、AS/400ってすごいマシンということがわかりますね。
+
+<P>今後、96bitとか、128bitとか言う CPU の時代になってやっと、OS/400にH/Wが追いついてくるんでしょう。
+
+<P>WINDOWSその他の３２bit（８＊４）ＯＳでは、ポインターの値をインテジャーに保管するようなコーディングをたまに見かけますが
+OS/400では、ポインターが１６バイトもあるので、とても ４バイトのインテジャーに保管はできません。<BR>
+
+<P>Ｖ430から、long longと言う型が追加されましたが、それでも、８バイトでまだ半分しかありません。
+
+<P>こういうお作法の悪いコーディングをする人にかぎって、”OS/400 ではどうして出来ないんだ”などと文句を言いがちです。
+
+<P>なぜできないか、ちょっと考えればすぐわかりそうなものなのですが．．．．
+
+
+
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

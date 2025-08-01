@@ -1,0 +1,117 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : SOCKDESCRD                                      */
+/* REMARKS     : ソケットディスクリプターの渡し GIVE             */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/10/26                                      */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+
+#include <qusec.h>
+#include <qrcvdtaq.h>
+#include <qsnddtaq.h>
+
+#define ID_LEN 16
+
+int  main(int argc, char *argv[]){
+int        sd;
+int        nd;
+int        on = 1;
+int        rc;
+int        size;
+unsigned short  port = 30001;
+int        buflen = 1024;
+char       buf[1024] = {0};
+
+char jobid[ID_LEN];
+char jobid_dq[ID_LEN];
+_Decimal(5,0) data_len=ID_LEN;
+char CRTDTAQ_CMD[50]  = {"CRTDTAQ DTAQ(CLAB/"};
+char dtaq[11] = {"SOCKDESC  "};
+
+struct sockaddr_in saddr;
+struct sockaddr_in saddr2;
+
+/* SETUP DATAQ */
+
+    strcat(CRTDTAQ_CMD,dtaq);
+    strcat(CRTDTAQ_CMD,  ") MAXLEN(20)" );
+
+    system(CRTDTAQ_CMD);
+
+/* OPEN SOCKET */
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    perror("socket() failed");
+    exit(-1);
+  }
+      /* TCP_NODELAY  */
+      if ((rc = setsockopt(sd, IPPROTO_TCP,
+                           TCP_NODELAY,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() TCP_NODELAY failed");
+        exit(-1);
+      }
+      /* SO_REUSEADDR  */
+      if ((rc = setsockopt(sd, SOL_SOCKET,
+                           SO_REUSEADDR,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() SO_REUSEADDR failed");
+        exit(-1);
+      }
+  memset(&saddr, 0x00, sizeof(struct sockaddr_in));
+
+  saddr.sin_family        = AF_INET;
+  saddr.sin_port          = htons(port);
+
+  saddr.sin_addr.s_addr = INADDR_ANY;
+
+  if((rc = bind(sd,(struct sockaddr *)&saddr, sizeof(saddr))) < 0){
+    perror("bind() failed");
+    exit(-1);
+  }
+  if((rc = listen(sd, 10)) < 0 ) {
+    perror("listen() failed");
+  }
+
+  while(1){
+    memset(&saddr2, 0x00, sizeof(struct sockaddr_in));
+    size = sizeof(struct sockaddr_in);
+    if((nd = accept(sd,(struct sockaddr *)&saddr2, &size)) < 0){
+      perror("accept() failed");
+      exit(-1);
+    }
+
+    QRCVDTAQ(dtaq,              /* dtaq name      */
+             "CLAB      ",      /* dtaq lib       */
+             &data_len,         /* length of data */
+             jobid_dq,          /* data           */
+             3);                /* wait time (sec)*/
+
+    if(data_len != ID_LEN){
+      printf("RCVDTAQ TIMEOUT");
+      close(sd);
+      close(nd);
+      exit(-1);
+    }
+
+    if ((rc = givedescriptor(nd, jobid_dq)) < 0){
+      perror("givedescriptor");
+      exit(-1);
+    }
+    close(nd);
+  }
+}

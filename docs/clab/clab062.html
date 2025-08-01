@@ -1,0 +1,262 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_06-Ｅ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#800000" VLINK="#008000" ALINK="#FF00FF">
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第６章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｅ仕様書－配列とポインター</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<P>Ｃ言語では配列とポインターは非常によくにています。配列の添え字を使って行えることは、ポインターを使ってもできます。
+
+<P>それでは、まず、ポインターについて少しおさらいしましょう。
+
+<P>ポインターとは、何かを指している変数です。<BR>
+
+定義の方法は、<P>
+
+      <B>char *A;</B>
+
+<P>この様に、変数の前に<B>＊（間接演算子）</B>を付けて定義します。型を表すchar,int付きで定義するのは、ポインターが指している
+ところに、定義したデータ型のデータを置くということを表します。<P>
+
+
+      <B>char *A ="ABCDE;</B><BR>
+
+<P>この場合は、Aと言うポインターに、文字列"ABCDE"のアドレスが初期値として入ります。
+
+<P><CENTER>
+<TABLE BORDER=0 BGCOLOR="#FFF0FF" >
+ <TR>
+  <TD></TD>
+  <TD>ポインター<BR>*A</TD>
+  <TD><CENTER>文字列　"ABCDE"</TD>
+ </TR>
+ <TR>
+  <TD>値</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER>0x2001</CENTER></TD>
+     <TD WIDTH="100" BGCOLOR="#D0D0D0"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER> A </CENTER></TD>
+     <TD WIDTH="50"><CENTER> B </CENTER></TD>
+     <TD WIDTH="50"><CENTER> C </CENTER></TD>
+     <TD WIDTH="50"><CENTER> D </CENTER></TD>
+     <TD WIDTH="50"><CENTER> E </CENTER></TD>
+     <TD WIDTH="50"><CENTER> \0</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+ <TR>
+ <TD>メモリー<BR>アドレス</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=0 CELLSPACING=2 BGCOLOR="#FFF0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER>0x1234</CENTER></TD>
+     <TD WIDTH="100"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2001</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2002</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2003</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2004</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2005</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2006</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+ <TR>
+  <TD></TD>
+  <TD>↓________________________________↑<BR><BR>
+</TD>
+ </TR>
+</TABLE>
+</CENTER>
+
+<P>ポインターＡには、0x2001というメモリーアドレスが入っています。
+<FONT SIZE=1>注.実際のAS/400のポインターは128bit(16byte)です。</FONT><BR>
+0x2001には'A'と言う文字が置いてあります。ポインターは、この'A'と言う文字を指しています。
+
+<P>配列の場合は
+
+   <P><B>char A[6] = "ABCDE" ;</B>
+
+<P>配列は、”型名　配名［配列の要素の数］;”です。
+
+<P><CENTER>
+<TABLE BORDER=0 BGCOLOR="#FFF0FF" >
+<TR><TD>
+</TD>
+
+<TD>
+<CENTER>
+<P>配列Ａ
+
+<TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+<TR>
+<TD WIDTH="50"><CENTER> A </CENTER></TD>
+<TD WIDTH="50"><CENTER> B </CENTER></TD>
+<TD WIDTH="50"><CENTER> C </CENTER></TD>
+<TD WIDTH="50"><CENTER> D </CENTER></TD>
+<TD WIDTH="50"><CENTER> E </CENTER></TD>
+<TD WIDTH="50"><CENTER> \0</CENTER></TD>
+</TR>
+</TABLE>
+
+</TD></TR>
+<TR>
+<TD>
+<BR>
+Ｃ言語<BR>
+</TD>
+<TD>
+<TABLE BORDER=0>
+<TR>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+<TD WIDTH="50"><CENTER>↑</CENTER></TD>
+</TR>
+<TR>
+<TD WIDTH="50"><CENTER>A[0]</CENTER></TD>
+<TD WIDTH="50"><CENTER>A[1]</CENTER></TD>
+<TD WIDTH="50"><CENTER>A[2]</CENTER></TD>
+<TD WIDTH="50"><CENTER>A[3]</CENTER></TD>
+<TD WIDTH="50"><CENTER>A[4]</CENTER></TD>
+<TD WIDTH="50"><CENTER>A[5]</CENTER></TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</TD></TR>
+</TABLE>
+</CENTER>
+
+<P>このように配列は、連続した要素の並びになっています。<BR>
+ここで、この配列を差すポインターを考えてみましょう。
+<P>
+<B>
+  char *p;<BR>
+  char A[6] = "ABCDE" ;<BR>
+  p = &A[0]; /* p = A ;でも同じ意味　*/<BR> 
+</B>
+
+<P><P><CENTER>
+<TABLE BORDER=0 BGCOLOR="#FFF0FF" >
+ <TR>
+  <TD></TD>
+  <TD>ポインター<BR>*p</TD>
+  <TD><CENTER>配列 A</TD>
+ </TR>
+ <TR>
+  <TD>値</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=1 CELLSPACING=0 BGCOLOR="#FFE0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER>0x2001</CENTER></TD>
+     <TD WIDTH="100" BGCOLOR="#D0D0D0"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER> A </CENTER></TD>
+     <TD WIDTH="50"><CENTER> B </CENTER></TD>
+     <TD WIDTH="50"><CENTER> C </CENTER></TD>
+     <TD WIDTH="50"><CENTER> D </CENTER></TD>
+     <TD WIDTH="50"><CENTER> E </CENTER></TD>
+     <TD WIDTH="50"><CENTER> \0</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+ <TR>
+ <TD>メモリー<BR>アドレス</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=0 CELLSPACING=2 BGCOLOR="#FFF0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER>0x1234</CENTER></TD>
+     <TD WIDTH="100"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2001</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2002</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2003</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2004</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2005</CENTER></TD>
+     <TD WIDTH="50"><CENTER>0x2006</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+ <TR>
+ <TD>配列 A</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=0 CELLSPACING=2 BGCOLOR="#FFF0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER></CENTER></TD>
+     <TD WIDTH="100"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[0]</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[1]</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[2]</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[3]</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[4]</CENTER></TD>
+     <TD WIDTH="50"><CENTER>A[5]</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+ <TR>
+ <TD>ポインター*p</TD>
+  <TD COLSPAN=2>
+   <TABLE BORDER=0 CELLSPACING=2 BGCOLOR="#FFF0FF" >
+    <TR>
+     <TD WIDTH="50"><CENTER></CENTER></TD>
+     <TD WIDTH="100"><CENTER>...</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*p</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*(p+1)</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*(p+2)</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*(p+3)</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*(p+4)</CENTER></TD>
+     <TD WIDTH="50"><CENTER>*(p+5)</CENTER></TD>
+    </TR>
+   </TABLE>
+  </TD>
+ </TR>
+
+ <TR>
+  <TD></TD>
+  <TD>↓________________________________↑<BR><BR>
+</TD>
+ </TR>
+</TABLE>
+</CENTER>
+
+
+</FONT>
+</TD></TR>
+</TABLE>
+<P><HR>
+</TD></TR>
+</TABLE>
+</BODY>
+</HTML>

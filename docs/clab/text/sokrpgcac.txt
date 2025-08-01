@@ -1,0 +1,129 @@
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID    :    SOKRPGCAC                                  */
+/* REMARKS       :    ILE-C ソケットプログラム                   */
+/* AUTHOR        :    Y.IDE                                      */
+/* DATE-WRITEN   :    1999/09/23                                 */
+/* VERSION       :    01.00 ORIGINAL                             */
+/*---------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <recio.h>
+#include <errno.h>
+
+#pragma mapinc("DSPF","CLAB/SOKCAFM(*ALL)","both"," ","DSP","FM")
+#include "DSPF"
+
+int        sd;
+_RFILE                            *dspfd;
+
+void setonLR(void){
+  close(sd);
+  _Rclose (dspfd);
+  exit(0);
+}
+
+struct sockaddr_in saddr;
+
+int main(int argc, char *argv[]){
+
+  _RIOFB_T                          *fb; /* オープンフィードバック */
+  DSP_t                             dspf;
+
+int        on = 1;
+int        rc;
+unsigned short  port = 0;
+char     server[16] = {0};
+char     rbuf[256]  = {0};
+char     sbuf[256]  = {0};
+
+  /* ＤＳＰＦオープン */
+    if (( dspfd = _Ropen("CLAB/SOKCAFM", "ar+" )) == NULL ){
+        perror("DSPF OPEN ERR" );
+        exit ( 1 );
+    }
+  /* ＤＳＰＦフィールド設定 */
+    memcpy(dspf.FM_SC01_o.CIP,"127.0.0.1      ",15);
+    memcpy(dspf.FM_SC01_o.CPORT,"30031",5);
+  /* SC01 レコード様式を設定する */
+    _Rformat(dspfd,"SC01" );
+  /* EXFMT に同じ */
+    fb = _Rwriterd(dspfd, &dspf, sizeof(dspf) );
+    if (dspf.FM_SC01_i.IN03 == '1') setonLR();
+    memcpy(server,dspf.FM_SC01_i.CIP,15);
+    port = atoi(dspf.FM_SC01_i.CPORT);
+
+  /* OPEN SOCKET */
+  if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    perror("socket() failed");
+    setonLR();
+  }
+      /* TCP_NODELAY  */
+      if ((rc = setsockopt(sd, IPPROTO_TCP,
+                           TCP_NODELAY,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() TCP_NODELAY failed");
+      }
+      /* SO_REUSEADDR  */
+      if ((rc = setsockopt(sd, SOL_SOCKET,
+                           SO_REUSEADDR,
+                           (char *)&on,
+                           sizeof(on))) < 0)
+      {
+        perror("setsockopt() SO_REUSEADDR failed");
+      }
+
+  memset(&saddr, 0x00, sizeof(struct sockaddr_in));
+  saddr.sin_family        = AF_INET;
+  saddr.sin_port          = htons(port);
+  saddr.sin_addr.s_addr = inet_addr(server);
+
+/* Connect() to server. */
+  if((rc = connect(sd,(struct sockaddr *)&saddr, sizeof(saddr))) < 0){
+    perror("connect() failed");
+    setonLR();
+  }
+/* 画面Ｉ／Ｏ */
+  /* SC01 レコード様式を設定する */
+    _Rformat(dspfd,"SC01" );
+  /* WRITE に同じ */
+  /* ＤＳＰＦフィールド設定 */
+    memcpy(dspf.FM_SC01_o.CIP,server,15);
+    sprintf(dspf.FM_SC01_o.CPORT,"%d",port);
+    fb = _Rwrite(dspfd, &dspf, sizeof(dspf) );
+
+  /* SC02 レコード様式を設定する */
+    _Rformat(dspfd,"SC02" );
+
+    memset(&dspf,' ',sizeof(dspf));
+while(1){
+  /* EXFMT に同じ */
+    fb = _Rwriterd(dspfd, &dspf, sizeof(dspf) );
+    if (dspf.FM_SC02_i.IN03 == '1') setonLR();
+    memcpy(sbuf,dspf.FM_SC02_i.FLD01,70);
+    if((memcmp(sbuf,"EXIT",4) == 0)) setonLR();
+
+/* send socket */
+  if((rc = send(sd, sbuf, 256, 0)) < 0){
+    perror("send() failed");
+    setonLR();
+  }
+
+/* read socket */
+  if((rc = recv(sd, rbuf, 256, 0)) < 0){
+    perror("recv() failed");
+    setonLR();
+  }
+  memcpy(dspf.FM_SC02_o.FLD01,sbuf,70);
+  memcpy(dspf.FM_SC02_o.FLD02,rbuf,70);
+
+}
+}

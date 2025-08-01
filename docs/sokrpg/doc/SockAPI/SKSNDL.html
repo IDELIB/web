@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+<TITLE>SKSNDL</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKSNDL</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C* DATA送信 --------------------------------------------*
+     C                     CALL 'SKSNDL'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM 'Y'       SOSISP  1              Y/N 
+     C                     PARM           BUFLEN  4
+     C                     PARM           BUF
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>シフトJISにデータを変換後に、末尾にCRLFを付加してデータを送信する。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>エラーが発生した場合、'E'に設定される。</UL>
+
+<DD><B><FONT COLOR="#800080"><I>SOSISP</I></FONT>　(入力)</B>
+<DD><UL>シフトコードをブランク１文字として変換するかどうか。
+<BR>'Y'ブランクにする。
+<BR>'N'ブランクにしない。
+</UL>
+
+<DD><B><FONT COLOR="#800080"><I>BUFLEN</I></FONT>　(入力)</B>
+<DD><UL>送信するデータの長さ</UL>
+
+<DD><B><FONT COLOR="#800080"><I>BUF</I></FONT>　(入力)</B>
+<DD><UL>実際に送信するデータ、BUFLENで指定した長さ以上を用意すること</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+send()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

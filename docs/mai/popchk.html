@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+<TITLE>IDELIB for AS/400 - POPCHK</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+
+<TABLE BORDER=1 Cellpadding=0 Cellspacing=1 WIDTH=680 BGCOLOR=#DBEDFF>
+
+<TR><TD><CENTER>
+<H2><FONT COLOR="#804040">AS/400 POPメールチェックコマンド POPCHK</FONT></H2>
+<FONT Size=2>掲載日: 2001/3/3, 更新日: 2001/8/11</FONT><BR>
+</CENTER>
+</TD></TR>
+
+<TR><TD><CENTER><FONT COLOR="#804040">
+<H3>＜概要＞</H3><B>
+<P>POPサーバーのメール一覧を受信します。
+</B></FONT>
+<IMG SRC="gif/popchk.gif" ALT="画面イメージ" HEIGHT="450" WIDTH="648">
+</CENTER>
+<UL><B>MAILBOX 用ライブラリー：</B>
+<LI>このライブラリーに４つの物理ファイルを作成し、メールのデータを出力します。
+</UL>
+<UL><B>確認間隔：</B>
+<LI>０は一回でプログラム終了します。
+<LI>０より大きい値を設定すると、その時間間隔（秒）でＬＯＯＰします。終了にはENDJOBが必要です。
+</UL>
+<UL><B>受信したメールは削除：</B>
+<LI>＊ＹＥＳは受信したメールをPOPサーバーより削除します。
+<LI>＊ＮＯは受信したメールをPOPサーバーより削除しません。
+</UL>
+<UL><B>現データの消去：</B>
+<LI>＊ＹＥＳは関連する物理ファイルをクリアします。
+<LI>＊ＮＯは関連する物理ファイルをクリアしません、前回受信後の新着メールのみ受信します。
+</UL>
+<UL><B>新着メール受信時の処理：</B>
+<LI>＊ＮＯＮＥは何もしません。
+<LI>＊ＭＳＧは指定したＭＳＧＱにユーザーメッセージを送信します。
+<LI>＊ＳＣＡＮは <A HREF="popscn.html">POPSCN</A> コマンドを実行します。
+<LI>＊ＣＭＤは設定したコマンドを実行します。
+<LI>＊ＦＷＤは <A HREF="popfwd.html">POPFWD</A> コマンドを実行します。
+<LI>＊ＣＰＹは <A HREF="popcpy.html">POPCPY</A> コマンドを実行します。
+</UL>
+
+</TR></TD>
+
+<TR><TD ALIGN=CENTER><BR>
+<H4><A HREF="index.html">[戻る]</A></H4>
+</TD></TR>
+</TABLE>
+
+</CENTER>
+</BODY>
+</HTML>
+
+
+

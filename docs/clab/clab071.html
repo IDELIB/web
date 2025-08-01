@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+<TITLE>CLab_07-Ｉ仕様書</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0 WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="100%">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第７章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　Ｉ仕様書－データタイプの違い</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+
+<TABLE BORDER=0 WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+<P>ＲＰＧ言語とＣ言語で扱えるデータタイプ違いについてみていきましょう。
+
+<H3>RPGプログラムのフィールドは、
+<UL>
+	<LI>文字列
+	<LI>ゾーン 10 進数
+	<LI>パック 10 進数
+	<LI>２進数形式
+</UL>
+とすることができます。
+</H3>
+
+<P>外部記述を使用する場合は、さらにデータタイプが増えますが、各データタイプとＣのデータ型との
+対応については、<A HREF="./clab051.html">内部／外部記述</A>の章を見て下さい。
+
+<P>ＲＰＧプログラムの内部では、内部数値はパック 10 進数で扱われます。
+<BR>（例外は、データストラクチャーのサブフィールドなどで定義されいている場合です。）
+<P>そのため、何の指定もせずにＲＰＧプログラム内で数値定義を行うと、そのフィールドは
+パック 10 進数となります。
+<P>ＲＰＧプログラムでその他の数値、ゾーン 10 進数、２進数形式を定義する場合は、Ｉ仕様書を利用します。
+
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD><FONT SIZE=3>
+<PRE>
+     IDATAS1      DS
+     I                                    B   1   20BIN2
+     IDATAS2      DS
+     I                                    B   1   40BIN4
+     IDATAS3      DS
+     I                                    　  1  100ZONE
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>BIN2 は２バイトの２進数形式　(short int に相当）<BR>
+BIN4 は４バイトの２進数形式　( int に相当）<BR>
+ZONE は10バイトのゾーン 10 進数　(一般のＣでは持っていないデータ型となります。）<BR>
+
+<H3>［Ｃプログラムで利用する場合は？］</H3>
+
+<P>ＡＳ／４００では、ヘッダーファイル　decimal.h にパック10進数のデータ型が定義されています。
+このヘッダーファイルをインクルードすると、パック10進数の型は decimal(n,p) がり利用出来ます。
+ここでn は、パック 10 進定数の桁を表し、p は、少数部の桁数です。
+
+<H3>deciaml(9.2) aaa;</H3>
+
+の様に定義します。
+
+文字定数で記述する場合は、
+
+<H3>12345.99D または 12345.99d </H3> 
+
+の様に定義します。
+
+<P>ゾーン 10 進数 は文字型の配列　char[n]で対応します。符号の処理のみ必要ですが、文字としては
+同じ値となります。
+
+<P>ゾーンを他のデータ型に変換する為の関数もＡＳ／４００では、用意されているので利用可能です。<BR><BR>
+
+<CENTER>
+<TABLE BORDER="2" CELLSPACING="2" CELLPADDING="5" BGCOLOR="#fffff0">
+<TR>
+<TD>QXXDTOP</TD><TD>浮動小数点をパック10進数に変換する</TD>
+</TR>
+<TR>
+<TD>QXXITOP</TD><TD>整数をパック10進数に変換する</TD>
+</TR>
+<TR>
+<TD>QXXPTOD</TD><TD>パック10進数をdoubleに変換する</TD>
+</TR>
+<TR>
+<TD>QXXPTOI</TD><TD>パック10進数を整数に変換する</TD>
+</TR>
+<TR>
+<TD>QXXITOZ</TD><TD>整数をゾーン10進数に変換する</TD>
+</TR>
+<TR>
+<TD>QXXDTOZ</TD><TD>doubleをゾーン10進数に変換する</TD>
+</TR>
+<TR>
+<TD>QXXZTOD</TD><TD>ゾーン10進数をdoubleに変換する</TD>
+</TR>
+<TR>
+<TD>QXXZTOI</TD><TD>ゾーン10進数を整数に変換する</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<P><HR>
+
+</TD></TR>
+</TABLE>
+
+</body>
+</html>

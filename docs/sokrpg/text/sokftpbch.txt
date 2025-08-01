@@ -1,0 +1,30 @@
+             PGM        PARM(&CIP &CUSER &CPASS &CLIBFILE &CMBR +
+                          &RPATH &RFILE &CLEN &SOSI &CPORT)
+             DCL        VAR(&CIP     )   TYPE(*CHAR)   LEN(15)
+             DCL        VAR(&CPORT   )   TYPE(*CHAR)   LEN( 5)
+             DCL        VAR(&CUSER   )   TYPE(*CHAR)   LEN(10)
+             DCL        VAR(&CPASS   )   TYPE(*CHAR)   LEN(10)
+             DCL        VAR(&CLIB    )   TYPE(*CHAR)   LEN(10)
+             DCL        VAR(&CFILE   )   TYPE(*CHAR)   LEN(10)
+             DCL        VAR(&CLIBFILE)   TYPE(*CHAR)   LEN(20)
+             DCL        VAR(&CMBR    )   TYPE(*CHAR)   LEN(10)
+             DCL        VAR(&RPATH   )   TYPE(*CHAR)   LEN(60)
+             DCL        VAR(&RFILE   )   TYPE(*CHAR)   LEN(60)
+             DCL        VAR(&CLEN    )   TYPE(*CHAR)   LEN( 4)
+             DCL        VAR(&SOSI    )   TYPE(*CHAR)   LEN( 1)
+ /*                                                   */
+             MONMSG     MSGID(CPF9800) EXEC(GOTO CMDLBL(ENDLABEL))
+ /*                                                   */
+             CHGVAR     VAR(&CFILE) VALUE(%SST(&CLIBFILE 1 10))
+             CHGVAR     VAR(&CLIB ) VALUE(%SST(&CLIBFILE 11 10))
+
+             CHKOBJ     OBJ(&CLIB/&CFILE) OBJTYPE(*FILE) MBR(&CMBR)
+ /*                                                   */
+             OVRDBF     FILE(INPUT) TOFILE(&CLIB/&CFILE) OVRSCOPE(*JOB)
+             CALL       PGM(SOKFTPBCHR) PARM(&CIP &CPORT &CUSER +
+                          &CPASS &CLIB &CFILE &RPATH &RFILE &CLEN +
+                          &SOSI)
+ /*                                                   */
+             DLTOVR     FILE(INPUT) LVL(*JOB)
+ /*                                                   */
+ ENDLABEL:   ENDPGM

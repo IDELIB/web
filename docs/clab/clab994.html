@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-付録</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>付録</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　ＩＬＥ－ＲＰＧからＣを呼び出す</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<H3>ＩＬＥ－ＲＰＧからＣを呼び出す場合の、サンプルコードです。</H3>
+
+<H4>ILE-RPGの場合は、戻りコードもうけとれます。</H4>
+
+<P>Ｃを呼び出すＰＧＭ PROG2R
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+     H DATEDIT(*YMD/)
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    PROG2R                                     *
+     H* REMARKS       :   Ｃを呼び出すＰＧＭ　　　　　　　          *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/8/15                                  *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     DPROG2            PR            10I 0 EXTPROC('PROG2')
+     D                               10
+     D                               10I 0 VALUE
+     D STRING          S             10
+     D INT4            S             10I 0
+     D RC              S             10I 0
+     C*
+     C                   MOVEL     '12345678'    STRING
+     C                   Z-ADD     123           INT4
+     C*
+     C                   EVAL      RC = PROG2(STRING : INT4)
+     C*
+     C                   SETON                                        LR
+     C                   RETURN
+     C*
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>RPGから呼び出されるＰＧＭ PROG1C
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+/*---------------------------------------------------------------*/
+/* PROGRAM-ID  : PROG2C                                          */
+/* REMARKS     : RPGから呼び出されるＰＧＭ                     */
+/* AUTHOR      : Y.Ide                                           */
+/* DATE-WRITEN : 1999/8/15                                       */
+/* VERSION     : 01.00 ORIGINAL                                  */
+/*---------------------------------------------------------------*/
+/* ＩＬＥ　ＲＰＧから呼ばれるプログラム　　　　                */
+/* ＲＰＧからはポインター渡および値渡しでパラメーターを受け取る*/
+
+#include&LT;stdio.h&GT;
+
+int  PROG2(char *p1, int p2 ) {
+
+printf("P1 = %s \n",p1);
+printf("P2 = %d \n",p2);
+
+ return 0 ;
+
+}
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

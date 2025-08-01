@@ -1,0 +1,52 @@
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGUP                                   *
+     H* REMARKS       :    RPGソケット処理子プロセス                *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/27                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     C*
+     C           *ENTRY    PLIST
+     C                     PARM           SD      4
+     C*
+     C           TAG#01    TAG
+     C*ソケットデータ受信------------------------------------*
+     C                     CALL 'SKRECV'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     MOVELBUFIN     ENDSW   4
+     C           ENDSW     IFEQ 'EXIT'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVELBUFIN     BUFOUT
+     C*ソケットデータ送信（もらったデータの折り返し）--------*
+     C                     CALL 'SKSEND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     GOTO TAG#01
+     C*--------------------------------------------------------*
+     C           TAG#E     TAG
+     C*ソケットクローズ--------------------------------------*
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C*
+     C                     SETON                     LR
+     C                     RETRN
+
+.

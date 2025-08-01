@@ -1,0 +1,121 @@
+<HTML>
+<HEAD>
+<TITLE>TCP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<CENTER><H2>典型TCP通信パターン</H2></CENTER><P>
+<HR>
+
+<TABLE ALIGN=CENTER BORDER=0>
+<TR ALIGN=CENTER>
+	<TD>サーバー</TD>
+	<TD WIDTH="200"> </TD>
+	<TD>クライアント</TD>
+</TR>
+<TR>
+	<TD><H4>１．socket</H4>
+<FONT SIZE=2>socket 関数によりソケットをオープンします。</FONT>
+	</TD>
+<TD></TD>
+	<TD><H4>１．socket</H4>
+<FONT SIZE=2>socket 関数によりソケットをオープンします。</FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+<TD></TD>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+</TR>
+
+<TR VALIGN=TOP>
+	<TD><H4>２．bind</H4>
+<FONT SIZE=2>bind関数によりソケットにＩＰアドレス／ポート番号を割り当てます。</FONT></TD>
+<TD></TD>
+	<TD><H4>（２．bind ）</H4>
+<FONT SIZE=2>bind関数によりソケットにＩＰアドレス／ポート番号を割り当てます。<BR>
+クライアントでは、必須ではないので必要に応じて使用する</FONT></TD>
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+<TD></TD>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+</TR>
+
+<TR>
+	<TD><H4>３．listen</H4>
+<FONT SIZE=2>listen関数により、クライアントからの接続要求を待ちます。</FONT>
+	</TD>
+<TD></TD>
+<TD></TD>
+</TR>
+<TR>
+<TD></TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow2.gif" ALT="＝＝＝＝＝＝＞" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+
+	<TD><H4>４．connect </H4>
+<FONT SIZE=2>connect 関数により、サーバーに接続を行います。</FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+<TD></TD>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+</TR>
+
+<TR>
+	<TD><H4>５．accept </H4>
+<FONT SIZE=2>accept 関数により、クライアントからの接続要求を受け入れます。</FONT>
+	</TD>
+<TD ALIGN=CENTER><IMG SRC="../img/arrow1.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+<TD></TD>
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+<TD></TD>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+</TR>
+
+<TR>
+	<TD><H4>７．recv  または send </H4>
+<FONT SIZE=2>recv または send 関数によりデータを送受信します。<BR>
+</FONT>
+	</TD>
+<TD ALIGN=CENTER>
+<IMG SRC="../img/arrow2.gif" ALT="＜＝＝＝＝＝" ALIGN="middle" HEIGHT="23" WIDTH="110">
+<IMG SRC="../img/arrow1.gif" ALT="＝＝＝＝＝＞" ALIGN="middle" HEIGHT="23" WIDTH="110"></TD>
+	<TD><H4>７．recv  または send</H4>
+<FONT SIZE=2>recv または send 関数によりデータを送受信します。<BR></FONT>
+	</TD>
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+<TD></TD>
+	<TD ALIGN=CENTER><IMG SRC="../img/arrow3.gif" HEIGHT="40" WIDTH="23"></TD>
+</TR>
+
+<TR>
+	<TD><H4>８．close </H4>
+<FONT SIZE=2>close 関数によりソケットのクローズを行います。</FONT>
+	</TD>
+<TD></TD>
+	<TD><H4>８．close </H4>
+<FONT SIZE=2>close 関数によりソケットのクローズを行います。</FONT>
+	</TD>
+</TR>
+</TABLE>
+
+
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>

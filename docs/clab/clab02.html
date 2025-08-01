@@ -1,0 +1,337 @@
+<HTML>
+<HEAD>
+<TITLE>CLab-第２章　はじめてのプログラム</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER>
+<TABLE BORDER=0" WIDTH="600" BGCOLOR="#FEFBDA">
+<TR><TD>
+
+<TABLE BORDER=0" WIDTH="600">
+<TR>
+<TD BGCOLOR="#800040" WIDTH="10%" ALIGN="CENTER">
+<FONT SIZE=2 COLOR="#FFFFFF"><B>第２章</B></FONT>
+</TD>
+
+<TD BGCOLOR="000000" WIDTH="75%">
+<FONT SIZE=4 COLOR ="#FFFFFF"><B>　はじめてのプログラム</B></FONT>
+<BR>
+</TD>
+<TD BGCOLOR="000000" WIDTH="15%">
+<FONT SIZE=1 COLOR ="#FFFFFF"><B>
+RPGプログラマーの為のＣ言語講座
+</B></FONT>
+</TD>
+</TR>
+</TABLE>
+</TD></TR>
+
+<TR><TD ALIGN="CENTER">
+<TABLE BORDER=0" WIDTH="570">
+<TR>
+<TD><FONT SIZE=2>
+
+<P>　Ｃ言語の入門者が最初に書くプログラムは画面に<FONT COLOR="#FF00FF">”Hello，World！"</FONT>って表示するのが昔からのしきたりだそうです。理由は知りませんが．．.<BR>
+と言う訳なので、まだ何も解説してませんが、とりあえず下記のソースコードを入力して、コンパイルして、実行しましょう。
+
+<P>最初のプログラム LIST1
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+
+<FONT COLOR="#008000">/* 最初のプログラムは"Hello,World!"を表示する */</FONT>
+
+#include&lt;stdio.h>
+
+   void main(){
+       printf("Hello, World! ??/n");　
+   }
+
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>ソースコードを打ち込んだら、CRTBNDC　コマンドを使用してコンパイルしてください。もしエラーがでたら
+コンパイルリストを印刷してエラーの内容を確認して修正してください。コンパイルリストを出力するには、CRTBNDCコマンドでOUTPUT(*PRINT)を指定します。
+
+<P>コンパイルが完了したら実行してみましょう。実行するコマンドはCALL PGM(LIST1)です。
+<P>画面にHello　World！と表示されましたか？表示されれば、ＯＫです。
+
+<P>LIST1実行結果イメージ<BR><CENTER>
+<IMG SRC="./gif/list1.gif" WIDTH="568" HEIGHT="406" ALT="LIST1実行結果" BORDER="1">
+</CENTER>
+
+<P>でも、見慣れない画面ですね、これはDSM（ダイナミックスクリーンマネージャー）という画面です。
+<P>PCやUNIXのコマンドライン画面と似た動きをします。行単位に画面Ｉ／Ｏが行われます。Ｃ言語で標準入力／標準出力を行うと自動的にこのＤＳＭ画面が使用されます。ＯＳ／４００のｆｔｐクライアントやネイティブ・ドミノのコンソールでも使用されています。ＤＳＭ画面はＩＮＰＵＴ／ＯＵＴＰＵＴという名称でオーバーライドを行うことが可能ですので、画面入力をファイルから行いたい場合は、ＩＮＰＵＴにＰＦをオーバーライドすることで、入力を切り替えることが可能です。
+<P>OS/400以外のプラットフォームでは、標準入力を使ってパイプやリダイレクトが出来たりします。<BR>
+たとえば、<FONT COLOR="#FF00FF">＃ＰＧＭＡ｜ＰＧＭＢ</FONT>とすると<BR>
+ＰＧＭＡの出力結果がそのままＰＧＭＢの入力データとすることができます。
+<P>これはどちらかというとＣ言語というより、shellなどの機能になります。ＡＳ／４００ではshellに相当するものがありませんので、（ＱＳＨＥＬＬ解釈プログラムと言う機能がありますが、まだ一般的でないのと、機能が限定的なので取りあえずなしと言うことにしてください）今後の機能拡張がまたれるところです。
+
+<P>ところでソースコードの表示文字の中に見慣れない文字があります。
+
+<P><FONT COLOR="#008000">”Hello, World!??/n”の<U>？？／ｎ</U>です。</FONT>
+
+<P>これは、画面には表示されませんでした。何でしょう
+
+<P>試しに、この部分を取り除いた、以下のコードを実行して見てください。
+
+<P>？？／ｎを取り除いたプログラム LIST2
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* 改行なしのプログラム */</FONT>
+ #include&lt;stdio.h>　
+
+ void main(){
+　  printf("Hello, World!");　
+    printf("Hello, World!");　
+ }
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>どうなりましたか？
+
+<P>次に以下のコードを実行してください
+
+<P>改行付きのプログラム LIST3
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* 改行付きのプログラム */</FONT>
+#include&lt;stdio.h>　
+
+ void main(){　
+    printf("Hello, World!??/n");　
+    printf("Hello, World!??/n");　
+ }　
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>どうなりましたか？
+
+<P>”？？／”は<I>三文字表記</I>で'￥'を表しますので、”？？／ｎ”は”￥ｎ”と書いたのと同じことです。これは改行を意味する<I><FONT COLOR="#FF00FF">拡張表記</FONT></I>です。これ意外にも、以下の拡張表記が可能です。
+<BR>
+<P>主な拡張表記
+<TABLE BORDER COLS=2 WIDTH="400" BGCOLOR="#E0FFDF" >
+<TR>
+<TD WIDTH="10%">\a</TD>
+
+<TD WIDTH="10%">警報 (ベル)</TD>
+</TR>
+
+<TR>
+<TD>\b</TD>
+
+<TD>後退　</TD>
+</TR>
+
+<TR>
+<TD>\f</TD>
+
+<TD>用紙送り (改ページ)</TD>
+</TR>
+
+<TR>
+<TD>\n</TD>
+
+<TD>復帰改行</TD>
+</TR>
+
+<TR>
+<TD>\r</TD>
+
+<TD>復帰</TD>
+</TR>
+
+<TR>
+<TD>\t</TD>
+
+<TD>水平タブ</TD>
+</TR>
+
+<TR>
+<TD>\v</TD>
+
+<TD>垂直タブ</TD>
+</TR>
+
+<TR>
+<TD>\'</TD>
+
+<TD>一重引用符</TD>
+</TR>
+
+<TR>
+<TD>\"</TD>
+
+<TD>二重引用符</TD>
+</TR>
+
+<TR>
+<TD>\?</TD>
+
+<TD>疑問符</TD>
+</TR>
+
+<TR>
+<TD>\\</TD>
+
+<TD>円記号</TD>
+</TR>
+
+<TR>
+<TD>\x00</TD>
+
+<TD>１６進数</TD>
+</TR>
+
+<TR>
+<TD>\00</TD>
+
+<TD>８進数</TD>
+</TR>
+</TABLE>
+
+
+<P>？？／ｎが改行を表すことが解かりました。？？／ｎは￥ｎと同じ意味だということも解かりました。それでは、￥ｎを実行してみましょう。
+
+<P>改行付きのプログラム LIST4
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* 改行付きのプログラム */</FONT>
+#include&lt;stdio.h>　
+
+ void main() {　
+    printf("Hello, World!\n");　
+    printf("Hello, World!\n");　
+ }
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<P>多分、直接’￥ｎ’と記入した場合は、そのまま’￥ｎ’って画面上に表示されたと思います。
+これは、コードページ５０３５の場合は、￥と＄を同じコードページ内に納めるため、’￥’文字のＨＥＸコードが別のコードをふられているためにＣのコンパイラーは、制御コードの始まりの’￥’として扱わず、通常の文字と同じ扱いをするために起こります。コードページ５０３５の環境でで制御コード（拡張表記）の始めの文字として扱われる文字は、バックスラッシュになります。
+
+<P>次はどうでしょう。
+
+<P>改行付きのプログラム LIST5
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* 改行付きのプログラム */</FONT>
+#include&lt;stdio.h>　
+
+ void main() {
+     printf("Hello, World!??x15");　
+     printf("Hello, World!??x15");　
+ }
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<P>AS/400では復帰改行の制御コードはｘ１５になります。ですから、そのままHEXコードを使用しても結果は同じく改行されます。ただし、他のプラットフォームに移植する場合は、書き換える必要が発生しますのでこうゆうプラットフォーム固有のコードの移植性は低くなりますし、コードの見通しも悪くなります。
+
+
+<P><B>ところで、実行するつど、DSM画面に前回の実行結果が残っていて美しくありませんね。</B><BR>
+いったん、画面をクリアしてから表示するようにしたいですね。
+
+<P><FONT COLOR="#FF00FF"><B>システムＡＰＩを使ってみましょう！！</B></FONT>
+
+<P>システムＡＰＩでＤＳＭ画面クリアプログラム LIST6
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* ＤＳＭのシステムＡＰＩプログラム */</FONT>
+
+#include&lt;stdio.h>　
+#include "QSYSINC/H/QSNAPI"　
+
+ void main() {
+     <FONT COLOR="#FF00FF">QsnClrScl(_C_Get_Ssn_Handle(), '0', NULL);</FONT>　
+     printf("Hello, World!??/n");　
+ }　
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+#include "QSYSINC/H/QSNAPI"が一行増えました。これはＲＰＧの/ＣＯＰＹと同じ働きをします。元のファイルＱＳＹＳＩＮＣライブラリーのＨファイルのＱＳＮＡＰＩメンバーを表示して見てください。その中に、画面をクリアするＡＰＩのQsnClrSclが定義されています。
+
+<H4>QsnClrScl(セッション・ハンドル,サイズ変更指示,エラー・コード)</H4>
+
+<P>セッションハンドルは現在使用している画面のＩＤです。この値をとるために_C_Get_Ss_Handle()関数を実行してます。この関数は、現在使用しているセッション・ハンドルを戻します。この関数はstdio.hの中に定義されています。
+
+<P>上記の文は、以下のようにもかくことが可能です
+
+
+<P>システムＡＰＩでＤＳＭ画面クリアプログラム LIST7
+<CENTER>
+<TABLE BORDER=1 WIDTH="550" BGCOLOR="#E0FFDF" >
+<TR>
+<TD>
+<PRE>
+<FONT COLOR="#008000">/* ＤＳＭのシステムＡＰＩプログラム */</FONT>
+#include&lt;stdio.h>　
+#include "QSYSINC/H/QSNAPI"　
+
+  void main() {
+
+    Qs Ssn_hd;　
+
+      <FONT COLOR="#FF00FF">Ssn_hd = _C_Get_SsnHandle();</FONT>　
+      <FONT COLOR="#FF00FF">QsnClrScl(Ssn_hd, '0', NULL);</FONT>　
+      printf("Hello, World!??/n");　
+ }　
+</PRE>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+<P>C言語では、関数の戻り値をそのまま次の関数の引数にできます。
+<BR>ＲＰＧなら必ずワークのフィールドの定義が必要になるところですが、Ｃ言語では中間ワーク的なフィールドは定義する必要はありません。
+
+<P>他の章で詳細は解説しますが、Ｃ言語の関数は、引数と戻り値をもちます。
+<P>ＲＰＧでは、外部のサブＰＧＭを呼び出す場合は、パラメーターとして値の受渡しのみで戻り値はありません。
+<P>Ｃ言語では、ＲＰＧのパラメーターに相当するものが、引数であり、それとは別に戻り値を帰しますので、その戻り値を利用して、次の関数の引数とすることが出来る訳です。
+
+</FONT>
+</TD></TR>
+</TABLE>
+
+<HR>
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>

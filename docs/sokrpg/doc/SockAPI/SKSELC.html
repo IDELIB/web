@@ -1,0 +1,49 @@
+<HTML>
+<HEAD>
+<TITLE>SKSELCK</TITLE>
+</HEAD>
+<BODY BGCOLOR=WHITE>
+<BASEFONT SIZE=4>
+<CENTER><H2>SKSELC</H2></CENTER>
+<HR>
+
+<DL>
+<DT><B>構文：</B>
+<DD>
+<CODE><PRE>
+     C*セレクト実行（タイムアウト２０秒）----------------------*
+     C                     CALL 'SKSELC'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '00000020'TIMOUT  8
+     C*------------------------------------------------------*
+</PRE></CODE>
+
+<DT><B>解説：</B>
+
+<DD>ノンブロックのソケットにデータが着信するのを待つ。<P>
+
+<DT><B>パラメーター：</B>
+
+<DD><B><FONT COLOR="#800080"><I>SD</I></FONT>　(入力)</B>
+<DD><UL>使用するソケットディスクリプターの番号</UL>
+
+<DD><B><FONT COLOR="#800080"><I>RC</I></FONT>　(出力)</B>
+<DD><UL>
+エラーが発生した場合、'E'に設定される。
+<P>タイムアウトした場合、'T'に設定される。
+</UL>
+
+<DD><B><FONT COLOR="#800080"><I>TIMOUT</I></FONT>　(入力)</B>
+<DD><UL>タイムアウトするまでの秒数を指定する。文字タイプです</UL>
+
+<P><DT><B>実行されるソケット関数：</B>
+<DD>
+select()<P>
+</DL>
+
+<HR>
+<ADDRESS>1999 Socket RPG</ADDRESS>
+<CENTER><A HREF="../index.html">[Return]</A></CENTER>
+</BODY>
+</HTML>

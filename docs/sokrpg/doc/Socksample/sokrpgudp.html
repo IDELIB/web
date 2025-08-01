@@ -1,0 +1,122 @@
+<HTML>
+<HEAD>
+<TITLE>SOKRPGUDP</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#408080" ALINK="#FF0000">
+<BASEFONT SIZE=4 COLOR="#000080" FACE="Times New Roman">
+<H1>UDPサーバープログラム</H1>
+<A HREF="../index.html">Return</A>
+<HR>
+<H4>［例］</H4><CODE><PRE>
+     H            Y/                                    1
+     H*---------------------------------------------------------------*
+     H* PROGRAM-ID    :    SOKRPGUDP                                  *
+     H* REMARKS       :    UDPソケットプログラム　                    *
+     H* AUTHOR        :    Y.IDE                                      *
+     H* DATE-WRITEN   :    1999/03/19                                 *
+     H* VERSION       :    01.00 ORIGINAL                             *
+     H*---------------------------------------------------------------*
+     FSOKUDFM CF  E                    WORKSTN
+     E                    IP      1   1 15
+     E                    TXT     1   2 70
+     C*
+     C                     MOVEATXT,1     FLD01
+     C                     EXFMTSC01
+     C           *IN03     IFEQ '1'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットオープン --------------------------------------*
+     C                     CALL 'SKUDPO'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* ソケットバインド --------------------------------------*
+     C                     CALL 'SKBIND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM 'ANY'     ANY    15
+     C                     PARM '30032'   PORT    5
+     C*--------------------------------------------------------*
+     C* ＡＮＹもしくは、ＩＰアドレスのどちらかを指定する
+     C* 以下はＩＰアドレス固定でバインドする例です。
+     C                     MOVE '0'       DUMMY   1
+     C           DUMMY     IFEQ '1'
+     C                     CALL 'SKBIND'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM           IP
+     C                     PARM '30032'   PORT    5
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C                     MOVEATXT,2     FLD01
+     C                     WRITESC01
+     C*
+     C           TAG#01    TAG
+     C* ソケットデータ受信 ------------------------------------*
+     C                     CALL 'SKUDPR'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFIN 256
+     C                     PARM           FIP    15
+     C                     PARM           FPORT   5
+     C*--------------------------------------------------------*
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* 終了判定
+     C                     MOVELBUFIN     ENDSW   4
+     C           ENDSW     IFEQ 'EXIT'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C* 画面表示
+     C                     MOVELBUFIN     FLD01
+     C                     WRITESC01
+     C                     MOVELBUFIN     BUFOUT
+     C* ソケットデータ送信（もらったデータの折り返し）--------*
+     C                     CALL 'SKUDPS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C                     PARM '256'     BUFLEN  4
+     C                     PARM           BUFOUT256
+     C                     PARM           FIP    15
+     C                     PARM           FPORT   5
+     C           RC        IFEQ 'E'
+     C                     GOTO TAG#E
+     C                     ENDIF
+     C*--------------------------------------------------------*
+     C                     GOTO TAG#01
+     C* ソケットクローズ --------------------------------------*
+     C           TAG#E     TAG
+     C                     CALL 'SKCLOS'
+     C                     PARM           SD      4
+     C                     PARM           RC      1
+     C*--------------------------------------------------------*
+     C                     SETON                     LR
+     C                     RETRN
+** SV SERVER IP ADDRESS
+127.0.0.1
+** INIT TEXT
+サーバープログラムを実行するには、実行キーを押す。
+クライアントからのデータ受信待機中．．．．
+</PRE></CODE><P>
+
+<H4>【解説】</H4>
+クライアントからのデータをまち、受信したデータは画面に表示し、受信元にデータをそのまま送信する。
+
+<H4>【実行結果】</H4>
+<IMG SRC="../img/sokrpgudp.gif" HEIGHT="400" WIDTH="568">
+<CENTER>
+<HR>
+<!------------------------------------------------------------------------------------->
+<A HREF="../index.html">[Return]</A><BR>
+</CENTER>
+
+</BODY>
+</HTML>
