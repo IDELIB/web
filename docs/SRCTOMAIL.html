@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRCTOMAIL - IBMi SMTP メール送信プログラム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Yu Gothic', 'Meiryo', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+            padding-left: 15px;
+            border-left: 5px solid #764ba2;
+        }
+        
+        h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .overview {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .file-structure {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .file-structure .file {
+            padding: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .file-structure .file::before {
+            content: "📄 ";
+        }
+        
+        .file-structure .folder {
+            padding: 5px 0;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .file-structure .folder::before {
+            content: "📁 ";
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .code-block .comment {
+            color: #68d391;
+        }
+        
+        .code-block .keyword {
+            color: #f687b3;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .badge-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .badge-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .version-history {
+            background: #fff5f5;
+            border-left: 5px solid #fc8181;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .version-history h4 {
+            color: #c53030;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .note {
+            background: #fef5e7;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .note::before {
+            content: "💡 ";
+            font-size: 1.2em;
+        }
+        
+        .warning {
+            background: #fef5f5;
+            border-left: 5px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning::before {
+            content: "⚠️ ";
+            font-size: 1.2em;
+        }
+        
+        footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .toc {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .toc h3 {
+            border: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .toc a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 SRCTOMAIL</h1>
+            <p>IBMi ILE-C SMTP メール送信プログラム</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Version 3.01 - SSL/TLS対応 完全版</p>
+        </header>
+        
+        <div class="content">
+            <!-- 目次 -->
+            <div class="toc">
+                <h3>📑 目次</h3>
+                <ul>
+                    <li><a href="#overview">1. 概要</a></li>
+                    <li><a href="#structure">2. プログラム構成</a></li>
+                    <li><a href="#features">3. 主要機能</a></li>
+                    <li><a href="#parameters">4. コマンドパラメータ</a></li>
+                    <li><a href="#build">5. ビルド手順</a></li>
+                    <li><a href="#usage">6. 使用例</a></li>
+                    <li><a href="#technical">7. 技術仕様</a></li>
+                    <li><a href="#version">8. バージョン履歴</a></li>
+                </ul>
+            </div>
+            
+            <!-- 概要 -->
+            <section id="overview">
+                <h2>1. 概要</h2>
+                <div class="overview">
+                    <p><strong>SRCTOMAIL</strong> は、IBMi（AS/400）環境でソースファイルやデータベースファイルのメンバーを、SMTPプロトコルを使用してメール送信するためのプログラムです。</p>
+                    <p style="margin-top: 15px;">ILE-C言語で実装され、SSL/TLS暗号化通信、SMTP認証、文字コード変換、添付ファイル機能など、現代的なメール送信に必要な機能を完備しています。</p>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔒 セキュア通信</h4>
+                        <p>SSL/TLS暗号化通信に対応。Port 465（SSL over SMTP）とPort 587（STARTTLS）をサポート。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔐 SMTP認証</h4>
+                        <p>PLAIN認証とLOGIN認証に対応。Base64エンコードによる安全な認証処理。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🌏 文字コード変換</h4>
+                        <p>EBCDIC⇔ASCII、JIS、Shift-JIS、EUC等の文字コード変換に対応。半角カタカナの全角変換も可能。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📎 添付ファイル</h4>
+                        <p>IFS上のファイルを最大300件まで添付可能。MIMEマルチパート形式で送信。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📧 複数宛先</h4>
+                        <p>To、Cc、Bccそれぞれ最大300件まで指定可能。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🎌 日本語対応</h4>
+                        <p>RFC1522準拠のBase64エンコードで日本語ヘッダーに完全対応。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- プログラム構成 -->
+            <section id="structure">
+                <h2>2. プログラム構成</h2>
+                
+                <div class="file-structure">
+                    <div class="folder">SRCTOMAIL プロジェクト</div>
+                    <div class="file">SMTPSRVS.c (2,593行) - SMTPサービスプログラム</div>
+                    <div class="file">SRCTOMAIL.c - メインプログラム</div>
+                    <div class="file">SMTP.H - ヘッダーファイル</div>
+                    <div class="file">SMTPSRVS.BND - バインディングソース</div>
+                    <div class="file">SRCTOMAIL.CMD - CLコマンド定義</div>
+                    <div class="file">SRCTOMAIL.HLP - ヘルプパネルグループ</div>
+                    <div class="file">MSRCTOMAIL.CLP - ビルドスクリプト</div>
+                </div>
+                
+                <h3>2.1 SMTPSRVS.c（サービスプログラム）</h3>
+                <p>SMTPメール送信の中核機能を提供するサービスプログラムです。</p>
+                
+                <h4>主要機能:</h4>
+                <ul>
+                    <li><strong>SMTP通信:</strong> ソケット通信によるSMTPプロトコル実装（HELO/EHLO, MAIL FROM, RCPT TO, DATA, QUIT）</li>
+                    <li><strong>SSL/TLS対応:</strong> GSKit APIを使用した暗号化通信
+                        <ul>
+                            <li>Port 465: SSL over SMTP（接続時からSSL）</li>
+                            <li>Port 587: STARTTLS（平文接続後にTLS化）</li>
+                        </ul>
+                    </li>
+                    <li><strong>SMTP認証:</strong> PLAIN、LOGIN認証方式（Base64エンコード）</li>
+                    <li><strong>文字コード変換:</strong> iconv APIによる多様な文字コード変換</li>
+                    <li><strong>MIMEエンコード:</strong> RFC1522準拠のBase64エンコード、マルチパート対応</li>
+                    <li><strong>カタカナ処理:</strong> 半角カタカナ→全角カタカナ変換（濁点・半濁点処理含む）</li>
+                    <li><strong>DCM統合:</strong> Digital Certificate Manager APIによる証明書管理</li>
+                    <li><strong>ライセンス管理:</strong> AES暗号化によるライセンスキー検証</li>
+                </ul>
+                
+                <h4>エクスポート関数（28個）:</h4>
+                <table>
+                    <tr>
+                        <th>関数名</th>
+                        <th>説明</th>
+                    </tr>
+                    <tr>
+                        <td>SMTPOpen</td>
+                        <td>SMTPサーバーへの接続</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPClose</td>
+                        <td>SMTP接続のクローズ</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPFrom / SMTPFromNoConvert</td>
+                        <td>送信元アドレスの設定</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPRcpt / SMTPRcptNoConvert</td>
+                        <td>宛先アドレスの設定</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPSubj</td>
+                        <td>件名の設定</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPDate</td>
+                        <td>日付ヘッダーの生成</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPMsgID</td>
+                        <td>Message-IDの生成</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPMIME</td>
+                        <td>MIMEヘッダーの設定</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPMpartText / SMTPMpartAttach</td>
+                        <td>マルチパート処理</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPSend / SMTPSendAuth</td>
+                        <td>メール送信（認証あり/なし）</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPRegDCM</td>
+                        <td>DCMへのアプリケーションID登録</td>
+                    </tr>
+                    <tr>
+                        <td>SMTPValidAddr</td>
+                        <td>メールアドレスの妥当性検証</td>
+                    </tr>
+                </table>
+                
+                <h3>2.2 SRCTOMAIL.c（メインプログラム）</h3>
+                <p>ソースファイルをメール送信するアプリケーションプログラムです。</p>
+                
+                <h4>主要機能:</h4>
+                <ul>
+                    <li>ソースファイル（物理ファイル/メンバー）の読み込み</li>
+                    <li>複数宛先対応（To/Cc/Bcc 各最大300件）</li>
+                    <li>添付ファイル機能（IFSファイル、最大300件）</li>
+                    <li>メールヘッダー生成（From, To, Subject, Date, Message-ID, Reply-To等）</li>
+                    <li>SMTP認証パラメータ処理</li>
+                    <li>エラーメッセージ処理（*STATUS, *DIAG, *ESCAPE）</li>
+                    <li>例外ハンドラー実装（CPF9898）</li>
+                </ul>
+                
+                <h3>2.3 SRCTOMAIL.CMD（CLコマンド定義）</h3>
+                <p>ユーザーインターフェース用のCLコマンド定義です。IBMiの標準的なコマンド形式でプログラムを呼び出せます。</p>
+                
+                <h3>2.4 その他のファイル</h3>
+                <ul>
+                    <li><strong>SMTP.H:</strong> 関数プロトタイプと定数定義</li>
+                    <li><strong>SMTPSRVS.BND:</strong> サービスプログラムのエクスポートシンボル定義</li>
+                    <li><strong>SRCTOMAIL.HLP:</strong> 各パラメータの詳細なヘルプ情報（日本語、296行）</li>
+                    <li><strong>MSRCTOMAIL.CLP:</strong> プログラムのコンパイル・作成手順を定義</li>
+                </ul>
+            </section>
+            
+            <!-- 主要機能 -->
+            <section id="features">
+                <h2>3. 主要機能</h2>
+                
+                <h3>3.1 SSL/TLS暗号化通信</h3>
+                <div class="feature-card">
+                    <p><strong>GSKit API</strong>を使用した暗号化通信に対応しています。</p>
+                    <ul>
+                        <li><strong>Port 465:</strong> SSL over SMTP（接続開始時からSSL暗号化）</li>
+                        <li><strong>Port 587:</strong> STARTTLS（平文で接続後、STARTTLSコマンドでTLS化）</li>
+                        <li><strong>証明書管理:</strong> DCM（Digital Certificate Manager）との統合</li>
+                        <li><strong>自動登録:</strong> アプリケーションIDの自動登録・解除機能</li>
+                    </ul>
+                </div>
+                
+                <div class="note">
+                    SSL/TLS接続を使用する場合は、IBMiにDCM（5770SS1 Option 34）が導入されている必要があります。
+                </div>
+                
+                <h3>3.2 SMTP認証</h3>
+                <div class="feature-card">
+                    <p>以下の認証方式に対応しています:</p>
+                    <ul>
+                        <li><strong>PLAIN認証:</strong> ユーザー名とパスワードをBase64エンコードして送信</li>
+                        <li><strong>LOGIN認証:</strong> ユーザー名とパスワードを個別にBase64エンコードして送信</li>
+                    </ul>
+                    <p style="margin-top: 10px;">認証情報はEBCDICからASCIIに変換後、Base64エンコードされます。</p>
+                </div>
+                
+                <h3>3.3 文字コード変換</h3>
+                <div class="feature-card">
+                    <p><strong>iconv API</strong>を使用した柔軟な文字コード変換:</p>
+                    <ul>
+                        <li><strong>入力CCSID:</strong> 5035（日本語EBCDIC）、5026（カタカナEBCDIC）等</li>
+                        <li><strong>出力CCSID:</strong> 
+                            <ul>
+                                <li>5054（JIS）- デフォルト</li>
+                                <li>932（Shift-JIS）</li>
+                                <li>943（CP943）</li>
+                                <li>5050（EUC）</li>
+                            </ul>
+                        </li>
+                        <li><strong>カタカナ処理:</strong> 半角カタカナ→全角カタカナ変換（濁点・半濁点の合成処理含む）</li>
+                        <li><strong>SO/SI制御:</strong> シフトイン/アウト文字の適切な処理</li>
+                    </ul>
+                </div>
+                
+                <h3>3.4 MIMEエンコード</h3>
+                <div class="feature-card">
+                    <ul>
+                        <li><strong>RFC1522準拠:</strong> ヘッダー部分の日本語をBase64エンコード</li>
+                        <li><strong>マルチパート:</strong> 添付ファイル用のmultipart/mixed形式</li>
+                        <li><strong>Content-Type:</strong> text/plain、application/octet-stream等</li>
+                        <li><strong>Base64エンコード:</strong> 添付ファイルのエンコード</li>
+                    </ul>
+                </div>
+                
+                <h3>3.5 エラーハンドリング</h3>
+                <div class="feature-card">
+                    <p>3種類のメッセージタイプでエラー情報を提供:</p>
+                    <ul>
+                        <li><strong>*STATUS:</strong> 処理状況メッセージ</li>
+                        <li><strong>*DIAG:</strong> 診断メッセージ（デバッグ情報）</li>
+                        <li><strong>*ESCAPE:</strong> エスケープメッセージ（エラー終了）</li>
+                    </ul>
+                    <p style="margin-top: 10px;">例外ハンドラー（CPF9898）により、予期しないエラーにも対応しています。</p>
+                </div>
+            </section>
+            
+            <!-- コマンドパラメータ -->
+            <section id="parameters">
+                <h2>4. コマンドパラメータ</h2>
+                
+                <table>
+                    <tr>
+                        <th>パラメータ</th>
+                        <th>説明</th>
+                        <th>必須</th>
+                        <th>デフォルト</th>
+                    </tr>
+                    <tr>
+                        <td><strong>TO</strong></td>
+                        <td>宛先メールアドレス（最大300件）</td>
+                        <td>✓</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FROM</strong></td>
+                        <td>送信元メールアドレス</td>
+                        <td>✓</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SERVER</strong></td>
+                        <td>メールサーバー（ホスト名またはIPアドレス）</td>
+                        <td>✓</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FILE</strong></td>
+                        <td>ソースファイル（ライブラリ/ファイル名）</td>
+                        <td>✓</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MBR</strong></td>
+                        <td>メンバー名</td>
+                        <td></td>
+                        <td>*FIRST</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SUBJECT</strong></td>
+                        <td>件名（128文字まで）</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FROMCCSID</strong></td>
+                        <td>ファイルのCCSID</td>
+                        <td></td>
+                        <td>5035</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOCCSID</strong></td>
+                        <td>メール本文のCCSID</td>
+                        <td></td>
+                        <td>*JIS (5054)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>KATAKANA</strong></td>
+                        <td>カタカナ処理（*DBCS/*NONE）</td>
+                        <td></td>
+                        <td>*DBCS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SFTBLANK</strong></td>
+                        <td>シフト文字のブランク置換</td>
+                        <td></td>
+                        <td>*YES</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DEBUG</strong></td>
+                        <td>デバッグモード</td>
+                        <td></td>
+                        <td>*NO</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ATTACH</strong></td>
+                        <td>添付ファイル（IFSパス、最大300件）</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CC</strong></td>
+                        <td>CCメールアドレス（最大300件）</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BCC</strong></td>
+                        <td>BCCメールアドレス（最大300件）</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>REPLYTO</strong></td>
+                        <td>Reply-Toアドレス</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SMTPPORT</strong></td>
+                        <td>ポート番号（*SMTP/25, *SMTPS/587, *SSL/465）</td>
+                        <td></td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SMTPUSR</strong></td>
+                        <td>SMTP認証ユーザー名</td>
+                        <td></td>
+                        <td>*NONE</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SMTPPWD</strong></td>
+                        <td>SMTP認証パスワード</td>
+                        <td></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SSL</strong></td>
+                        <td>SSL/TLS使用フラグ</td>
+                        <td></td>
+                        <td>*NO</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NOCNV</strong></td>
+                        <td>ヘッダー漢字エンコードなし</td>
+                        <td></td>
+                        <td>*NO</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GSKAPPID</strong></td>
+                        <td>DCM APPLICATION ID</td>
+                        <td></td>
+                        <td>MAI_SMTPS_CLIENT</td>
+                    </tr>
+                </table>
+                
+                <h3>4.1 メールアドレスの形式</h3>
+                <p>以下の3つの形式がサポートされています:</p>
+                <div class="code-block">
+<span class="comment">// 形式1: メールアドレスのみ</span>
+'user@example.com'
+
+<span class="comment">// 形式2: 名前 <メールアドレス></span>
+'山田太郎 <user@example.com>'
+
+<span class="comment">// 形式3: メールアドレス(名前)</span>
+'user@example.com(山田太郎)'
+                </div>
+                
+                <div class="note">
+                    日本語を含む名前部分は、RFC1522に従ってBase64エンコードされます。
+                </div>
+            </section>
+            
+            <!-- ビルド手順 -->
+            <section id="build">
+                <h2>5. ビルド手順</h2>
+                
+                <p>MSRCTOMAIL.CLPを実行することで、すべてのオブジェクトが作成されます。</p>
+                
+                <div class="code-block">
+<span class="comment">/* ビルドスクリプトの実行 */</span>
+<span class="keyword">CALL</span> PGM(MSRCTOMAIL)
+                </div>
+                
+                <h3>5.1 ビルドプロセス</h3>
+                <ol>
+                    <li><strong>CRTCMOD:</strong> SMTPSRVSモジュールの作成
+                        <ul>
+                            <li>SYSIFCOPT(*IFSIO) - IFSファイルアクセス有効化</li>
+                            <li>TGTRLS(V7R1M0) - ターゲットリリース V7R1M0</li>
+                        </ul>
+                    </li>
+                    <li><strong>CRTCMOD:</strong> SRCTOMAILモジュールの作成
+                        <ul>
+                            <li>DBGVIEW(*ALL) - デバッグビュー有効化</li>
+                        </ul>
+                    </li>
+                    <li><strong>CRTSRVPGM:</strong> SMTPSRVSサービスプログラムの作成
+                        <ul>
+                            <li>SMTPSRVS.BNDバインディングソースを使用</li>
+                        </ul>
+                    </li>
+                    <li><strong>CRTPGM:</strong> SRCTOMAILプログラムの作成
+                        <ul>
+                            <li>SMTPSRVSサービスプログラムをバインド</li>
+                        </ul>
+                    </li>
+                    <li><strong>CRTPNLGRP:</strong> ヘルプパネルグループの作成</li>
+                    <li><strong>CRTCMD:</strong> SRCTOMAILコマンドの作成
+                        <ul>
+                            <li>ヘルプパネルグループを関連付け</li>
+                        </ul>
+                    </li>
+                    <li><strong>CHGOBJOWN:</strong> オブジェクト所有者をQPGMRに変更（セキュリティ強化）</li>
+                </ol>
+                
+                <div class="warning">
+                    ビルドには、ILE C/C++コンパイラー（5770WDS Option 51）が必要です。
+                </div>
+            </section>
+            
+            <!-- 使用例 -->
+            <section id="usage">
+                <h2>6. 使用例</h2>
+                
+                <h3>6.1 基本的な使用例</h3>
+                <div class="code-block">
+<span class="comment">/* シンプルなメール送信 */</span>
+<span class="keyword">SRCTOMAIL</span> TO('user@example.com') +
+          FROM('sender@example.com') +
+          SERVER('smtp.example.com') +
+          FILE(MYLIB/QRPGLESRC) +
+          MBR(MYPGM) +
+          SUBJECT('プログラムソース送付')
+                </div>
+                
+                <h3>6.2 SSL/TLS + SMTP認証</h3>
+                <div class="code-block">
+<span class="comment">/* セキュアな送信（STARTTLS） */</span>
+<span class="keyword">SRCTOMAIL</span> TO('user@example.com') +
+          FROM('sender@example.com') +
+          SERVER('smtp.gmail.com') +
+          FILE(MYLIB/QRPGLESRC) +
+          MBR(MYPGM) +
+          SUBJECT('重要なソースコード') +
+          SMTPPORT(*SMTPS) +
+          SMTPUSR('myaccount@gmail.com') +
+          SMTPPWD('mypassword') +
+          SSL(*YES)
+                </div>
+                
+                <h3>6.3 複数宛先 + 添付ファイル</h3>
+                <div class="code-block">
+<span class="comment">/* 複数宛先と添付ファイル */</span>
+<span class="keyword">SRCTOMAIL</span> TO('user1@example.com' +
+             'user2@example.com' +
+             'user3@example.com') +
+          CC('manager@example.com') +
+          BCC('archive@example.com') +
+          FROM('sender@example.com') +
+          SERVER('smtp.example.com') +
+          FILE(MYLIB/QRPGLESRC) +
+          MBR(MYPGM) +
+          SUBJECT('プロジェクト資料') +
+          ATTACH('/home/user/document.pdf' +
+                 '/home/user/image.jpg') +
+          REPLYTO('support@example.com')
+                </div>
+                
+                <h3>6.4 文字コード変換</h3>
+                <div class="code-block">
+<span class="comment">/* Shift-JISで送信 */</span>
+<span class="keyword">SRCTOMAIL</span> TO('user@example.com') +
+          FROM('sender@example.com') +
+          SERVER('smtp.example.com') +
+          FILE(MYLIB/QRPGLESRC) +
+          MBR(MYPGM) +
+          SUBJECT('Shift-JIS形式') +
+          FROMCCSID(5035) +
+          TOCCSID(*SJIS) +
+          KATAKANA(*DBCS)
+                </div>
+                
+                <h3>6.5 デバッグモード</h3>
+                <div class="code-block">
+<span class="comment">/* デバッグ情報をJOBLOGに出力 */</span>
+<span class="keyword">SRCTOMAIL</span> TO('user@example.com') +
+          FROM('sender@example.com') +
+          SERVER('smtp.example.com') +
+          FILE(MYLIB/QRPGLESRC) +
+          MBR(MYPGM) +
+          SUBJECT('テスト送信') +
+          DEBUG(*YES)
+                </div>
+            </section>
+            
+            <!-- 技術仕様 -->
+            <section id="technical">
+                <h2>7. 技術仕様</h2>
+                
+                <h3>7.1 対応プロトコル・規格</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>SMTP</h4>
+                        <p>RFC 5321準拠のSMTPプロトコル実装</p>
+                        <span class="badge badge-primary">RFC 5321</span>
+                    </div>
+                    <div class="feature-card">
+                        <h4>MIME</h4>
+                        <p>RFC 2045/2046準拠のMIME形式</p>
+                        <span class="badge badge-primary">RFC 2045</span>
+                        <span class="badge badge-primary">RFC 2046</span>
+                    </div>
+                    <div class="feature-card">
+                        <h4>エンコード</h4>
+                        <p>RFC 1522準拠のヘッダーエンコード</p>
+                        <span class="badge badge-primary">RFC 1522</span>
+                    </div>
+                    <div class="feature-card">
+                        <h4>SSL/TLS</h4>
+                        <p>GSKit APIによるSSL/TLS実装</p>
+                        <span class="badge badge-success">GSKit</span>
+                    </div>
+                </div>
+                
+                <h3>7.2 システム要件</h3>
+                <table>
+                    <tr>
+                        <th>項目</th>
+                        <th>要件</th>
+                    </tr>
+                    <tr>
+                        <td>OS</td>
+                        <td>IBM i V7R1M0以降</td>
+                    </tr>
+                    <tr>
+                        <td>コンパイラー</td>
+                        <td>ILE C/C++ (5770WDS Option 51)</td>
+                    </tr>
+                    <tr>
+                        <td>SSL/TLS使用時</td>
+                        <td>Digital Certificate Manager (5770SS1 Option 34)</td>
+                    </tr>
+                    <tr>
+                        <td>ネットワーク</td>
+                        <td>TCP/IP接続可能な環境</td>
+                    </tr>
+                </table>
+                
+                <h3>7.3 制限事項</h3>
+                <ul>
+                    <li>宛先（To/Cc/Bcc）: 各最大300件</li>
+                    <li>添付ファイル: 最大300件</li>
+                    <li>件名: 最大128文字</li>
+                    <li>メールアドレス: 最大80文字</li>
+                    <li>添付ファイルパス: 最大512文字</li>
+                    <li>対応SMTP認証: PLAIN、LOGIN のみ（CRAM-MD5、DIGEST-MD5は未対応）</li>
+                </ul>
+                
+                <h3>7.4 セキュリティ考慮事項</h3>
+                <div class="note">
+                    <strong>セキュリティに関する推奨事項:</strong>
+                    <ul>
+                        <li>SMTP認証のパスワードは DSPINPUT(*NO) により入力時に非表示となり、ジョブログにも記録されません</li>
+                        <li>本番環境では、SSL/TLS接続の使用をお勧めします</li>
+                        <li>SSL/TLS使用時は、DCMで適切な証明書管理を行うことを推奨します</li>
+                        <li>プログラムオブジェクトの所有者とアクセス権限を適切に設定することをお勧めします</li>
+                        <li>パスワードはメモリ上で一時的に保持されますが、プログラム終了時にクリアされます</li>
+                        <li><strong>DEBUG(*YES)</strong> を使用すると、SMTPサーバーとの通信内容がジョブログに出力されます。本番環境では DEBUG(*NO) の使用を推奨します</li>
+                    </ul>
+                </div>
+                
+                <h3>7.5 デバッグモードの動作</h3>
+                <p>DEBUGパラメータにより、トラブルシューティング用の詳細情報を出力できます。</p>
+                
+                <h4>DEBUG(*YES) の場合:</h4>
+                <div class="feature-card">
+                    <ul>
+                        <li>✅ SMTPサーバーとの全通信内容がジョブログに記録される</li>
+                        <li>✅ 送受信されるコマンド（EHLO, MAIL FROM, RCPT TO, DATA等）とレスポンスが確認できる</li>
+                        <li>✅ 認証プロセスの詳細が可視化される</li>
+                        <li>✅ エラー発生時の原因特定に有用</li>
+                        <li>⚠️ 通信内容が可視化されるため、本番環境では注意が必要</li>
+                    </ul>
+                </div>
+                
+                <h4>DEBUG(*NO) の場合（デフォルト）:</h4>
+                <div class="feature-card">
+                    <ul>
+                        <li>✅ 通常の処理メッセージ（*STATUS）のみ出力</li>
+                        <li>✅ 本番環境に適した設定</li>
+                        <li>✅ ジョブログが簡潔に保たれる</li>
+                        <li>✅ パフォーマンスへの影響が最小限</li>
+                    </ul>
+                </div>
+                
+                <div class="note">
+                    開発・テスト環境では DEBUG(*YES) を使用し、本番環境では DEBUG(*NO) を使用することを推奨します。
+                </div>
+                
+                <h3>7.6 パフォーマンス</h3>
+                <ul>
+                    <li>ソケット通信にTCP_NODELAYオプションを使用し、遅延を最小化</li>
+                    <li>非ブロッキングモードでの接続処理（3秒タイムアウト）</li>
+                    <li>SSL/TLSハンドシェイクのリトライ機能（最大3回）</li>
+                    <li>効率的な文字コード変換（iconvライブラリ使用）</li>
+                </ul>
+            </section>
+            
+            <!-- バージョン履歴 -->
+            <section id="version">
+                <h2>8. バージョン履歴</h2>
+                
+                <div class="version-history">
+                    <h4>Version 3.01 (2023年)</h4>
+                    <ul>
+                        <li>GSK_CLIENT_AUTH_PASSHTRUをTRUEに設定</li>
+                        <li>無効なサーバー証明書も許容する設定追加</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 3.00 (2023年)</h4>
+                    <ul>
+                        <li>ライセンスキー機能追加</li>
+                        <li>DCM API統合（SMTPRegDCM関数）</li>
+                        <li>DCM LPPインストール確認機能</li>
+                        <li>アプリケーションIDの自動登録/解除</li>
+                        <li>SSL/TLS接続方式の整理:
+                            <ul>
+                                <li>isSSL: Port 465 SMTP Over SSL</li>
+                                <li>isSMTPS: Port 587 SMTPS (STARTTLS)</li>
+                            </ul>
+                        </li>
+                        <li>X-Mailer: MAI/400 Version 3.00</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.30 (2020年)</h4>
+                    <ul>
+                        <li>TLS対応（GSKIT使用）</li>
+                        <li>SSL/TLS暗号化通信機能追加</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.17 (2018年)</h4>
+                    <ul>
+                        <li>SMTPValidAddr関数追加（メールアドレス検証）</li>
+                        <li>DspEXTMSG関数追加（DIAG+EXIT）</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.16 (2017年)</h4>
+                    <ul>
+                        <li>DspEXTMSG関数追加</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.15 (2016年)</h4>
+                    <ul>
+                        <li>Message-IDにマイクロ秒使用（SMTPMsgID関数）</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.14 (2015年)</h4>
+                    <ul>
+                        <li>SubjectのMIMEエンコード対応（SMTPSubj関数）</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.13 (2014年)</h4>
+                    <ul>
+                        <li>X-Mailer: MAI/400 Version 2.13</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.12 (2013年)</h4>
+                    <ul>
+                        <li>SMTPCrWrite、SMTPCommaWrite関数追加</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.11 (2012年)</h4>
+                    <ul>
+                        <li>PLAIN認証形式修正: <00>xx<00>pp<00> → <00>xx<00>pp</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.10 (2011年)</h4>
+                    <ul>
+                        <li>No Convert オプション追加</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.09 (2010年)</h4>
+                    <ul>
+                        <li>SMTP-AUTH対応</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 2.00 (2009年6月15日)</h4>
+                    <ul>
+                        <li>サービスプログラム化</li>
+                        <li>SMTPSRVS.c作成</li>
+                    </ul>
+                </div>
+                
+                <div class="version-history">
+                    <h4>Version 1.00 (2000年2月18日)</h4>
+                    <ul>
+                        <li>初版リリース</li>
+                        <li>基本的なSMTPメール送信機能</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- まとめ -->
+            <section>
+                <h2>9. まとめ</h2>
+                <div class="overview">
+                    <p><strong>SRCTOMAIL</strong>は、20年以上の開発・改良の歴史を持つ、成熟したメール送信プログラムです。</p>
+                    <p style="margin-top: 15px;">IBMi環境特有の文字コード処理、SSL/TLS暗号化通信、SMTP認証など、現代的なメール送信に必要な機能を完備しており、企業システムでの実用に耐える品質を備えています。</p>
+                    <p style="margin-top: 15px;">ソースファイルの送信だけでなく、添付ファイル機能により、様々なドキュメントの配信にも活用できます。</p>
+                </div>
+                
+                <h3>主な利点</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>✅ 高い互換性</h4>
+                        <p>V7R1M0以降のIBMiで動作。長期間のバージョンアップに対応。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ セキュア</h4>
+                        <p>SSL/TLS暗号化とSMTP認証により、安全な通信を実現。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ 柔軟性</h4>
+                        <p>多様な文字コード、複数宛先、添付ファイルに対応。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ 使いやすさ</h4>
+                        <p>IBMi標準のコマンド形式で、直感的に使用可能。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ 拡張性</h4>
+                        <p>サービスプログラム化により、他のプログラムから呼び出し可能。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ 保守性</h4>
+                        <p>詳細なヘルプとデバッグ機能により、トラブルシューティングが容易。</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p><strong>SRCTOMAIL</strong> - IBMi SMTP Mail Sender</p>
+            <p style="margin-top: 10px;">Version 3.01 | Author: Y.Ide | 2000-2023</p>
+            <p style="margin-top: 20px; font-size: 0.9em;">
+                <span class="badge badge-info">ILE-C</span>
+                <span class="badge badge-success">SSL/TLS</span>
+                <span class="badge badge-warning">SMTP-AUTH</span>
+                <span class="badge badge-primary">MIME</span>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
