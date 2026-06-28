@@ -1,0 +1,603 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>SRCTOMAIL 技術解説書 — MAI/400 v3.01</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1f2328;
+    background: #ffffff;
+  }
+  .page { max-width: 760px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* ── タイトル ── */
+  .doc-title { font-size: 22px; font-weight: 700; color: #1f2328; margin-bottom: 4px; }
+  .doc-sub   { font-size: 13px; color: #57606a; margin-bottom: 24px; }
+  .sep       { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+
+  /* ── 目次 ── */
+  .toc { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px 20px; margin-bottom: 32px; }
+  .toc-title { font-size: 12px; font-weight: 700; color: #57606a; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 4px 0; font-size: 13px; }
+  .toc a { color: #3b82d4; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── 見出し ── */
+  h2 { font-size: 17px; font-weight: 700; color: #1f2328; margin: 36px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #3b82d4; }
+  h3 { font-size: 14px; font-weight: 700; color: #1f2328; margin: 22px 0 8px; }
+  h4 { font-size: 13px; font-weight: 700; color: #57606a; margin: 16px 0 6px; }
+  p  { margin: 8px 0; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+
+  /* ── コードブロック ── */
+  pre {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: "Consolas", "SFMono-Regular", monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 10px 0;
+    white-space: pre;
+  }
+  code { font-family: "Consolas", "SFMono-Regular", monospace; font-size: 12.5px; background: #f7f8fa; padding: 1px 4px; border-radius: 3px; }
+
+  /* ── テーブル ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  thead th { background: #f7f8fa; color: #1f2328; font-weight: 700; padding: 8px 10px; text-align: left; border: 1px solid #e5e7eb; }
+  tbody td { padding: 7px 10px; border: 1px solid #e5e7eb; vertical-align: top; }
+  tbody tr:nth-child(even) td { background: #fafafa; }
+
+  /* ── 注記ボックス ── */
+  .note, .warn, .info {
+    border-left: 4px solid #3b82d4;
+    background: #f0f6ff;
+    padding: 10px 14px;
+    border-radius: 0 4px 4px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .warn { border-color: #f59e0b; background: #fffbeb; }
+  .info { border-color: #7c5cd8; background: #f5f0ff; }
+  .label { font-weight: 700; margin-right: 4px; }
+
+  /* ── バッジ ── */
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin: 2px; }
+  .b-blue   { background: #dbeafe; color: #1d4ed8; }
+  .b-green  { background: #dcfce7; color: #166534; }
+  .b-gray   { background: #f3f4f6; color: #374151; }
+  .b-purple { background: #ede9fe; color: #5b21b6; }
+
+  /* ── アーキテクチャ図（SVG相当をdivで） ── */
+  .arch-box {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; margin: 16px 0;
+    font-size: 12px;
+  }
+  .arch-row { display: flex; gap: 8px; justify-content: center; align-items: center; }
+  .box {
+    border: 1.5px solid #e5e7eb; border-radius: 6px;
+    padding: 8px 14px; background: #f7f8fa;
+    text-align: center; min-width: 120px;
+  }
+  .box.accent { border-color: #3b82d4; background: #eff6ff; font-weight: 700; }
+  .box.purple { border-color: #7c5cd8; background: #f5f0ff; }
+  .box.green  { border-color: #16a34a; background: #f0fdf4; }
+  .arrow { font-size: 18px; color: #57606a; line-height: 1; }
+  .arrow-v { font-size: 18px; color: #57606a; }
+
+  /* ── フローステップ ── */
+  .flow { counter-reset: step; margin: 12px 0; }
+  .flow-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin: 6px 0; padding: 8px 12px;
+    background: #f7f8fa; border-radius: 6px; border-left: 3px solid #3b82d4;
+    font-size: 13px;
+  }
+  .flow-item::before {
+    counter-increment: step;
+    content: counter(step);
+    min-width: 20px; height: 20px;
+    background: #3b82d4; color: #fff;
+    border-radius: 50%; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── フッター ── */
+  .footer {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 11px; color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-title">SRCTOMAIL 技術解説書</div>
+  <div class="doc-sub">MAI/400 Version 3.01 — IBMi (AS/400) ILE-C SMTP メール送信プログラム 内部アーキテクチャ詳解</div>
+  <hr class="sep" />
+
+  
+  <nav class="toc">
+    <div class="toc-title">目次</div>
+    <ol>
+      <li><a href="#s1">プログラム全体構成</a></li>
+      <li><a href="#s2">ファイル一覧とオブジェクト対応</a></li>
+      <li><a href="#s3">SMTPSRVS サービスプログラム — 公開 API</a></li>
+      <li><a href="#s4">グローバル変数とデータ構造</a></li>
+      <li><a href="#s5">SMTP セッション確立フロー</a></li>
+      <li><a href="#s6">文字コード変換サブシステム</a></li>
+      <li><a href="#s7">半角カタカナ→全角変換 (HanToZen)</a></li>
+      <li><a href="#s8">RFC 1522 ヘッダーエンコード</a></li>
+      <li><a href="#s9">Base64 エンコードアルゴリズム</a></li>
+      <li><a href="#s10">SSL/TLS (GSKit) 初期化フロー</a></li>
+      <li><a href="#s11">SMTP 認証フロー (PLAIN / LOGIN)</a></li>
+      <li><a href="#s12">メール本文送信ロジック (sendSocket / sendSocket2)</a></li>
+      <li><a href="#s13">MIME マルチパート構造</a></li>
+      <li><a href="#s14">SRCTOMAIL メインプログラム制御フロー</a></li>
+      <li><a href="#s15">エラーメッセージ処理</a></li>
+      <li><a href="#s16">ビルド手順 (MSRCTOMAIL.CLP)</a></li>
+      <li><a href="#s17">既知の制約と注意点</a></li>
+    </ol>
+  </nav>
+
+  
+  <h2 id="s1">1. プログラム全体構成</h2>
+  <p>SRCTOMAIL は IBMi のオブジェクトとして <strong>*PGM / *SRVPGM / *CMD / *PNLGRP</strong> の 4 種で構成される。すべてライブラリ <code>MAI</code> に格納される。</p>
+
+  <div class="arch-box">
+    <div class="arch-row">
+      <div class="box accent">SRCTOMAIL (*CMD)<br /><small>21 パラメータ</small></div>
+    </div>
+    <div class="arrow-v">↓ 呼び出し</div>
+    <div class="arch-row">
+      <div class="box accent">SRCTOMAIL (*PGM)<br /><small>SRCTOMAIL.c</small></div>
+    </div>
+    <div class="arrow-v">↓ BNDSRVPGM</div>
+    <div class="arch-row">
+      <div class="box purple">SMTPSRVS (*SRVPGM)<br /><small>SMTPSRVS.c — 27 エクスポート関数</small></div>
+    </div>
+    <div class="arrow-v">↓ 使用 API</div>
+    <div class="arch-row">
+      <div class="box green">GSKit (gskssl.h)</div>
+      <div class="box green">iconv (QSYSINC)</div>
+      <div class="box green">TCP/IP Socket</div>
+      <div class="box green">DCM API (QSYRGAP)</div>
+    </div>
+  </div>
+
+  <div class="note"><span class="label">設計方針：</span>メール組み立てロジック（ヘッダー/ボディ書き込み）を IFS 一時ファイルに蓄積し、最後に <code>SMTPSend()</code> または <code>SMTPSendAuth()</code> で一括送信する二段階方式を採る。これにより本文生成とソケット通信を完全に分離している。</div>
+
+  
+  <h2 id="s2">2. ファイル一覧とオブジェクト対応</h2>
+  <table>
+    <thead><tr><th>ソースファイル</th><th>IBMi オブジェクト種別</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td><code>SMTPSRVS.c</code></td><td>*MODULE → *SRVPGM</td><td>SMTP プロトコル実装・SSL/TLS・文字変換を提供するサービスプログラム本体（約 2,050 行）</td></tr>
+      <tr><td><code>SRCTOMAIL.c</code></td><td>*MODULE → *PGM</td><td>メインプログラム。パラメータ受取・ファイル読込・SMTPSRVS 呼び出し（約 510 行）</td></tr>
+      <tr><td><code>SMTP.H</code></td><td>ヘッダーファイル</td><td>定数定義・全 API 関数プロトタイプ宣言</td></tr>
+      <tr><td><code>SMTPSRVS.BND</code></td><td>バインダー・ソース</td><td>27 シンボルのエクスポート宣言（STRPGMEXP/ENDPGMEXP）</td></tr>
+      <tr><td><code>SRCTOMAIL.CMD</code></td><td>*CMD</td><td>CLコマンド定義。21 個のパラメータを持つ</td></tr>
+      <tr><td><code>MSRCTOMAIL.CLP</code></td><td>ビルドスクリプト</td><td>CRTCMOD → CRTSRVPGM → CRTPGM → CRTCMD → CHGOBJOWN の順に実行</td></tr>
+      <tr><td><code>SRCTOMAIL.HLP</code></td><td>*PNLGRP</td><td>コマンドヘルプパネルグループ</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s3">3. SMTPSRVS サービスプログラム — 公開 API</h2>
+  <p><code>SMTPSRVS.BND</code> で宣言された 27 関数がエクスポートされる。ヘッダーファイル <code>SMTP.H</code> にプロトタイプが記述されている。</p>
+
+  <h3>3.1 初期化・終了系</h3>
+  <table>
+    <thead><tr><th>関数シグネチャ</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>int SMTPOpen(char *server, int port)</code></td><td>ライセンスキー確認、ローカルホスト名取得、ソケットアドレス設定、IFS 一時ファイル作成、作業バッファ割り当て（B64str/BINstr等 各 1024 bytes）、iconv コンバーター (acd/ecd/jcd) オープン</td></tr>
+      <tr><td><code>int SMTPClose(void)</code></td><td>iconv クローズ、一時ファイルクローズ、ソケットクローズ、一時ファイル削除</td></tr>
+      <tr><td><code>int SMTPSetConvert(int from, int to, int kana)</code></td><td>汎用 iconv コンバーター <code>icd</code> を指定 CCSID で構築。SMTPOpen より先に呼ぶこと</td></tr>
+      <tr><td><code>int SMTPSetSftSp(int flag)</code></td><td>シフト文字(SO/SI)をブランクに置換するフラグを設定</td></tr>
+      <tr><td><code>void SMTPSetDebug(int debug)</code></td><td>デバッグスイッチを設定。1 の場合 sendSocket で DspSTSMSG を呼ぶ</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 ヘッダー組み立て系（一時ファイルへの書き込み）</h3>
+  <table>
+    <thead><tr><th>関数</th><th>書き込まれるヘッダー行</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td><code>SMTPFrom(char *from)</code></td><td><code>From: ...</code></td><td>SO/SI 範囲を RFC1522 エンコード。setFrom() で FromAd を抽出</td></tr>
+      <tr><td><code>SMTPFromNoConvert(char *from)</code></td><td><code>From: ...</code></td><td>エンコードなし。0x0F の後にスペース挿入のみ</td></tr>
+      <tr><td><code>SMTPRcpt(char *type, char *rcpt)</code></td><td><code>To:/Cc:/Bcc: ...</code></td><td>Bcc は一時ファイル未書き込み。setRcpt() で Rcptlist に追加</td></tr>
+      <tr><td><code>SMTPRcptNoConvert(char *type, char *rcpt)</code></td><td>同上（エンコードなし）</td><td></td></tr>
+      <tr><td><code>SMTPSubj(char *subj)</code></td><td><code>Subject: ...</code></td><td>HanToZen 変換後、SO/SI 単位で RFC1522 エンコード。32 文字超で折り返し</td></tr>
+      <tr><td><code>SMTPDate(void)</code></td><td><code>Date: Wed, 01 Jan 2025 12:00:00 +0900</code></td><td>setlocale("C") + strftime 使用。タイムゾーン固定 +0900</td></tr>
+      <tr><td><code>SMTPMsgID(void)</code></td><td><code>Message-Id: &lt;...&gt;</code></td><td>QWCRSVAL で QDATETIME（マイクロ秒）＋ジョブ番号＋送信者アドレスから生成</td></tr>
+      <tr><td><code>SMTPMIME(char *content)</code></td><td><code>MIME-Version: 1.0</code> + <code>Content-Type: ...</code></td><td>"text/plain" または "multipart/mixed" を引数で切替</td></tr>
+      <tr><td><code>SMTPOther(char *type, char *val)</code></td><td>任意ヘッダー（例: <code>Reply-To: ...</code>）</td><td>TrimBlank 後 <code>type val\n</code> を書き込む</td></tr>
+      <tr><td><code>SMTPBody(void)</code></td><td><code>X-Mailer: MAI/400 Version 3.00</code> + 空行</td><td>ヘッダーとボディの区切り空行もここで出力</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.3 ボディ書き込み系</h3>
+  <table>
+    <thead><tr><th>関数</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>SMTPWrite(char *text)</code></td><td>1 行書き込み。KanaSW=1 の場合 HanToZen 変換してから出力。chkString() で非表示文字除去</td></tr>
+      <tr><td><code>SMTPEtcWrite(char *str)</code></td><td>変換なしでそのまま fprintf 出力（改行なし）</td></tr>
+      <tr><td><code>SMTPCrWrite(void)</code></td><td>改行 \n のみ書き込む</td></tr>
+      <tr><td><code>SMTPCommaWrite(void)</code></td><td>カンマ , のみ書き込む（複数宛先の区切り）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.4 添付ファイル系</h3>
+  <table>
+    <thead><tr><th>関数</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>SMTPMpartText(void)</code></td><td>マルチパートのテキスト部パート区切り行と Content-Type ヘッダーを出力</td></tr>
+      <tr><td><code>SMTPMpartAttach(char *ifs, char *ctype, char *name, char *desc)</code></td><td>IFS ファイルを 57 バイト単位で読み込み B64Encode してパートを生成</td></tr>
+      <tr><td><code>SMTPMpartClose(void)</code></td><td>マルチパート終了境界 <code>--boundary--\n</code> を出力</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.5 送信系</h3>
+  <table>
+    <thead><tr><th>関数</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>int SMTPSend(void)</code></td><td>認証なし。HELO ベースのシンプルな送信。initSocket() を呼ぶ</td></tr>
+      <tr><td><code>int SMTPSendAuth(char *usr, char *pwd, int smtps, char *appid)</code></td><td>SMTP-AUTH + 任意 SSL/TLS。initSocketAuth() を呼ぶ</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.6 ユーティリティ系</h3>
+  <table>
+    <thead><tr><th>関数</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>int SMTPValidAddr(char *addr)</code></td><td>@ が存在するか確認。0=ブランク、-1=@なし、正=OK</td></tr>
+      <tr><td><code>int SMTPRegDCM(char *appid, int port)</code></td><td>DCM LPP インストール確認 → APPID 登録 → isSSL/isSMTPS フラグ設定</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s4">4. グローバル変数とデータ構造</h2>
+  <p>SMTPSRVS.c は単一コンパイル単位でグローバル変数を多用する。サービスプログラムとして単一スレッドの用途を前提としている。</p>
+
+  <h3>4.1 主要グローバル変数</h3>
+  <table>
+    <thead><tr><th>変数名</th><th>型</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>fp</code></td><td><code>FILE *</code></td><td>IFS 一時ファイルのファイルポインター（メール本文蓄積用）</td></tr>
+      <tr><td><code>sd</code></td><td><code>int</code></td><td>ソケットディスクリプタ</td></tr>
+      <tr><td><code>fname[L_tmpnam]</code></td><td><code>char[]</code></td><td>tmpnam() で生成した一時ファイル名</td></tr>
+      <tr><td><code>Boundary[50]</code></td><td><code>char[]</code></td><td>MIME マルチパート境界文字列（固定値）</td></tr>
+      <tr><td><code>isBody / isBase64</code></td><td><code>int</code></td><td>SMTPSend ループ内で本文区間・Base64 区間を識別するフラグ</td></tr>
+      <tr><td><code>gskHandleEnv / gskHandleSes</code></td><td><code>gsk_handle</code></td><td>GSKit 環境ハンドル・セッションハンドル</td></tr>
+      <tr><td><code>Rcptlist[1024][1024]</code></td><td><code>char[][]</code></td><td>宛先メールアドレス一覧（RCPT TO コマンド送信に使用）</td></tr>
+      <tr><td><code>FromAd[1024]</code></td><td><code>char[]</code></td><td>MAIL FROM に使用する純粋なアドレス部分</td></tr>
+      <tr><td><code>icd / acd / ecd / jcd</code></td><td><code>iconv_t</code></td><td>iconv コンバーター（汎用/EBCDIC→SJIS/SJIS→EBCDIC/EBCDIC→JIS）</td></tr>
+      <tr><td><code>FromCCSID / ToCCSID / KanaSW</code></td><td><code>int</code></td><td>文字コード変換設定（SMTPSetConvert で変更可）</td></tr>
+      <tr><td><code>isPLAIN / isLOGIN</code></td><td><code>int</code></td><td>EHLO レスポンスから検出した認証方式フラグ</td></tr>
+      <tr><td><code>isSSL / isSMTPS</code></td><td><code>int</code></td><td>SSL over SMTP(465) / STARTTLS(587) フラグ</td></tr>
+      <tr><td><code>wbuf[32767]</code></td><td><code>char[]</code></td><td>汎用ワークバッファ（エラーメッセージ等）</td></tr>
+      <tr><td><code>B64Chars[64]</code></td><td><code>char[]</code></td><td>Base64 変換テーブル（A-Z, a-z, 0-9, +, /）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 CCSID 定数マッピング</h3>
+  <table>
+    <thead><tr><th>定数名</th><th>数値</th><th>文字セット</th></tr></thead>
+    <tbody>
+      <tr><td><code>C5035</code></td><td>5035</td><td>日本語 EBCDIC（IBM i 標準）</td></tr>
+      <tr><td><code>C5026</code></td><td>5026</td><td>カタカナ EBCDIC（CCSID 290/1027 系）</td></tr>
+      <tr><td><code>JIS</code></td><td>5054</td><td>ISO-2022-JP（7bit JIS）</td></tr>
+      <tr><td><code>SJIS</code></td><td>932</td><td>Windows Shift-JIS</td></tr>
+      <tr><td><code>CP943</code></td><td>943</td><td>IBM CP943 Shift-JIS</td></tr>
+      <tr><td><code>EUC</code></td><td>5050</td><td>EUC-JP</td></tr>
+      <tr><td><code>ASCII</code></td><td>819</td><td>ISO-8859-1</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s5">5. SMTP セッション確立フロー</h2>
+
+  <h3>5.1 認証なし (SMTPSend → initSocket)</h3>
+  <div class="flow">
+    <div class="flow-item">socket(AF_INET, SOCK_STREAM, 0) — TCP ソケット生成</div>
+    <div class="flow-item">setsockopt TCP_NODELAY — Nagle アルゴリズム無効化</div>
+    <div class="flow-item">connect() — SMTPサーバーへ接続（ブロッキングモード）</div>
+    <div class="flow-item">isSSL &gt; 0 の場合 initGSK() — SSL Over SMTP (Port 465)</div>
+    <div class="flow-item">recvSocket() — 220 Service Ready 受信</div>
+    <div class="flow-item">sendSocket("HELO hostname") — HELO 送信</div>
+    <div class="flow-item">recvSocket() — 250 OK 確認</div>
+    <div class="flow-item">sendSocket("MAIL FROM:&lt;addr&gt;") — 送信者宣言</div>
+    <div class="flow-item">sendSocket("RCPT TO:&lt;addr&gt;") × RcptCount — 宛先宣言（ループ）</div>
+    <div class="flow-item">sendSocket("DATA") — データ転送開始</div>
+    <div class="flow-item">一時ファイルの全行を sendSocket / sendSocket2 で送信</div>
+    <div class="flow-item">closeSocket() — &lt;CRLF&gt;.&lt;CRLF&gt; 送信 → "QUIT" → GSKit クローズ</div>
+  </div>
+
+  <h3>5.2 認証あり (SMTPSendAuth → initSocketAuth)</h3>
+  <p>基本フローは認証なしと同じだが、接続後に <strong>EHLO</strong> を送信してサーバー機能を取得し、認証処理を挿入する。</p>
+  <div class="flow">
+    <div class="flow-item">socket / setsockopt / fcntl(O_NONBLOCK) — 非ブロッキングで接続（タイムアウト 3 秒）</div>
+    <div class="flow-item">connect() + select() — 3秒タイムアウト付き非同期接続</div>
+    <div class="flow-item">fcntl(F_SETFL, flags) — ブロッキングモードに戻す</div>
+    <div class="flow-item">isSSL==1 → initGSK(GSKAPPID) — SSL Over SMTP (Port 465)</div>
+    <div class="flow-item">recvSocket() → sendSocket("EHLO hostname") → recvSocket() ループ</div>
+    <div class="flow-item">250- 行を解析: AUTH PLAIN / LOGIN / CRAM-MD5 / DIGEST-MD5 / STARTTLS を検出</div>
+    <div class="flow-item">isSMTPS==1 の場合: "STARTTLS" 送信 → 220 確認 → initGSK() → isSSL=1</div>
+    <div class="flow-item">isSSL==1 の場合: initAuthSSL() — SSL後に再度 EHLO で AUTH を取得</div>
+    <div class="flow-item">isPLAIN==1 → initAuthPLAIN() / isLOGIN==1 → initAuthLOGIN()</div>
+    <div class="flow-item">sendSocket("RSET") → 250 確認 — 認証後にセッションリセット</div>
+    <div class="flow-item">MAIL FROM / RCPT TO / DATA — 以降は認証なしと同じ</div>
+  </div>
+
+  <div class="warn"><span class="label">注意：</span>CRAM-MD5 / DIGEST-MD5 はサーバー機能として検出されても実装されておらず、最終的に isPLAIN / isLOGIN のどちらかが 1 でなければ DspESCMSG でエスケープメッセージを送出して異常終了する。</div>
+
+  
+  <h2 id="s6">6. 文字コード変換サブシステム</h2>
+  <p>iconv API を用いた 4 種のコンバーターを使い分ける。</p>
+
+  <table>
+    <thead><tr><th>変数</th><th>変換方向</th><th>使用箇所</th></tr></thead>
+    <tbody>
+      <tr><td><code>acd</code></td><td>EBCDIC 5035 → SJIS 932</td><td>CnvToAsc() — SMTP コマンド・認証文字列を ASCII に変換</td></tr>
+      <tr><td><code>ecd</code></td><td>SJIS 932 → EBCDIC 5035</td><td>CnvToEbc() — サーバー応答を EBCDIC に変換して strncmp で判定</td></tr>
+      <tr><td><code>jcd</code></td><td>EBCDIC 5035 → JIS 5054</td><td>CnvToJis() — DBCS 文字列を ISO-2022-JP に変換してヘッダーエンコード</td></tr>
+      <tr><td><code>icd</code></td><td>FromCCSID → ToCCSID</td><td>Convert() — 本文の DBCS 部分を指定 CCSID に変換（sendSocket2 内）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.1 CnvToJis の実装詳細</h3>
+  <pre>int CnvToJis(char *iStr, char *oStr) {
+  // iconv(jcd, ...) で EBCDIC → JIS 変換
+  // 変換失敗時は 1 バイト進めてリトライするフォールバックループ
+  // 変換後末尾に 0x1B 0x28 0x42 (ASCII復帰エスケープ) を付加
+  *wStrP++ = 0x1B; *wStrP++ = 0x28; *wStrP++ = 0x42; *wStrP = 0x00;
+  return (oLenSave - oLen + 3); // 出力バイト数を返す
+}</pre>
+
+  <p>ISO-2022-JP は状態付きエンコーディングであるため、変換終了後に必ず <code>ESC(B</code>（= <code>0x1B 0x28 0x42</code>）でASCIIモードに戻している。</p>
+
+  
+  <h2 id="s7">7. 半角カタカナ→全角変換 (HanToZen / HanToZen290)</h2>
+  <p>CCSID 5035 向けが <code>HanToZen</code>、CCSID 5026 向けが <code>HanToZen290</code>。それぞれ入力バイト列を走査して次の変換を行う。</p>
+
+  <ul>
+    <li>SO/SI で囲まれた既存 DBCS 区間はそのままコピー</li>
+    <li>SBCS モードで ISKANA マクロが真の文字（半角カタカナ）を検出</li>
+    <li>次バイトが <strong>濁点</strong>（EBCDAKU=190）→ ntbl テーブルで濁点付き DBCS コードに置換</li>
+    <li>次バイトが <strong>半濁点</strong>（EBCMARU=191）→ mtbl テーブルで半濁点付き DBCS コードに置換</li>
+    <li>それ以外 → DBCSPLUS (0x43) + 元コードとしてダブルバイト化</li>
+    <li>カタカナが連続する間は SO...SI ブロックを継続して出力効率を高める</li>
+  </ul>
+
+  <div class="note"><span class="label">実装補足：</span><code>c290[128]</code> テーブルは CCSID 1027 から CCSID 290 への単バイト変換テーブル（128 エントリ）。値 -1 はマッピング不可を示す。HanToZen290 はこのテーブルを通じて DBCS コードを決定する。</div>
+
+  
+  <h2 id="s8">8. RFC 1522 ヘッダーエンコード</h2>
+  <p>日本語を含むメールヘッダーは RFC 1522 の <code>=?charset?encoding?text?=</code> 形式でエンコードする。実装は <code>RFC1522e()</code> が担う。</p>
+
+  <pre>char *RFC1522e(char *JISstr) {
+  // JIS 文字列を B64Encode でエンコード
+  B64strP = B64Encode(JISstr, strlen(JISstr));
+  // ISO-2022-JP + Base64 形式でラップ
+  sprintf(RFCstr, "=?ISO-2022-JP?B?%s?=", B64strP);
+  return RFCstr;
+}</pre>
+
+  <p><strong>件名 (SMTPSubj) の折り返し処理：</strong> SO/SI ブロックが 32 文字を超えると強制的に <code>\n </code> （折り返し + スペース）を挿入して新しいブロックを開始する。これは RFC 2047 の 76 文字制限対応の実装である。</p>
+
+  <table>
+    <thead><tr><th>フィールド</th><th>処理関数</th><th>エンコード対象</th></tr></thead>
+    <tbody>
+      <tr><td>From</td><td>SMTPFrom → RFC1522e</td><td>SO/SI で囲まれた DBCS 区間のみ</td></tr>
+      <tr><td>To/Cc/Bcc</td><td>SMTPRcpt → RFC1522e</td><td>同上</td></tr>
+      <tr><td>Subject</td><td>SMTPSubj → RFC1522e</td><td>HanToZen 後の全 DBCS 区間（32文字超で折り返し）</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s9">9. Base64 エンコードアルゴリズム</h2>
+  <p><code>B64Encode(char *in, int len)</code> は外部ライブラリを使わず自前実装。標準的な 3 バイト → 4 文字変換を行う。</p>
+
+  <pre>// 3バイト (c1,c2,c3) → 4文字変換の核心部
+ch = c1 &gt;&gt; 2;               B64str[x]   = B64Chars[ch];
+ch = ((c1&amp;0x3)&lt;&lt;4)|(c2&gt;&gt;4); B64str[x+1] = B64Chars[ch];
+ch = ((c2&amp;0xf)&lt;&lt;2)|(c3&gt;&gt;6); B64str[x+2] = B64Chars[ch];
+ch = c3 &amp; 0x3f;             B64str[x+3] = B64Chars[ch];
+// 端数処理: 1バイト余り → "xx==" / 2バイト余り → "xxx="</pre>
+
+  <div class="note"><span class="label">注意：</span>len パラメーターは関数冒頭で <code>len--</code> されるため、呼び出し時には実際のバイト数をそのまま渡す必要がある（<code>strlen(str)</code> を渡せば正しく動作する）。</div>
+
+  <p>添付ファイルの Base64 化では 57 バイト単位（= 76 文字行）で分割して出力する。</p>
+  <pre>// SMTPMpartAttach 内のループ
+n = fread(BINstr, 1, 57, fpa);  // 57 bytes → 76 Base64 chars
+B64str = B64Encode(BINstr, n);
+fprintf(fp, "%s\n", B64str);</pre>
+
+  
+  <h2 id="s10">10. SSL/TLS (GSKit) 初期化フロー</h2>
+  <p><code>initGSK(char *GSKAPPID)</code> が GSKit API を順に呼び出す。</p>
+
+  <div class="flow">
+    <div class="flow-item">gsk_environment_open(&amp;gskHandleEnv) — SSL 環境ハンドル生成</div>
+    <div class="flow-item">gsk_attribute_set_buffer(GSK_IBMI_APPLICATION_ID, GSKAPPID) — DCM APPID 設定</div>
+    <div class="flow-item">gsk_attribute_set_enum(GSK_SESSION_TYPE, GSK_CLIENT_SESSION) — クライアントモード</div>
+    <div class="flow-item">gsk_attribute_set_enum(GSK_CLIENT_AUTH_TYPE, GSK_CLIENT_AUTH_PASSTHRU) — 無効証明書許容 (v3.01)</div>
+    <div class="flow-item">gsk_attribute_set_numeric_value(GSK_V2_SESSION_TIMEOUT, 60)</div>
+    <div class="flow-item">gsk_attribute_set_numeric_value(GSK_V3_SESSION_TIMEOUT, 60)</div>
+    <div class="flow-item">gsk_attribute_set_numeric_value(GSK_IBMI_READ_TIMEOUT, 60000) — 60秒 (ms単位)</div>
+    <div class="flow-item">gsk_attribute_set_numeric_value(GSK_HANDSHAKE_TIMEOUT, 10)</div>
+    <div class="flow-item">gsk_environment_init(gskHandleEnv) — 環境初期化</div>
+    <div class="flow-item">gsk_secure_soc_open(gskHandleEnv, &amp;gskHandleSes) — セッションハンドル生成</div>
+    <div class="flow-item">gsk_attribute_set_numeric_value(gskHandleSes, GSK_FD, sd) — ソケット FD を紐付け</div>
+    <div class="flow-item">gsk_secure_soc_init(gskHandleSes) — SSL ハンドシェイク（失敗時 3秒待ちで最大 3 回リトライ）</div>
+  </div>
+
+  <div class="info"><span class="label">V3.01 変更点：</span><code>GSK_CLIENT_AUTH_PASSTHRU</code> を設定することで、自己署名証明書や有効期限切れ証明書でも接続を許容する。DCM に証明書が登録されていない場合の問題を回避できるが、中間者攻撃への耐性が低下するため、本番環境でのリスク評価が推奨される。</div>
+
+  
+  <h2 id="s11">11. SMTP 認証フロー (PLAIN / LOGIN)</h2>
+
+  <h3>11.1 PLAIN 認証 (initAuthPLAIN)</h3>
+  <p>認証文字列は <code>\0userid\0password</code> 形式（RFC 4616）。</p>
+  <pre>// BINstr[0] = 0x00 (NUL)
+// BINstr[1..usrlen] = ASCII ユーザー名
+// BINstr[usrlen+1] = 0x00 (NUL)  ← 実装では BINstr[2+usrlen] に格納
+// BINstr[usrlen+2..] = ASCII パスワード
+B64str = B64Encode(BINstr, usrlen + pwdlen + 2);
+sendSocket("AUTH PLAIN " + B64str);
+// 235 2.7.0 Authentication successful を期待</pre>
+
+  <div class="warn"><span class="label">実装上の注意：</span>RFC 4616 は <code>\0authzid\0authcid\0passwd</code> の 3 フィールドだが、本実装は authzid を省略した <code>\0userid\0password</code> の 2 フィールド形式。多くの SMTP サーバーはこの形式を受け入れる。v2.11 では末尾の余分な NUL を除去する修正が入っている。</div>
+
+  <h3>11.2 LOGIN 認証 (initAuthLOGIN)</h3>
+  <div class="flow">
+    <div class="flow-item">sendSocket("AUTH LOGIN") → 334 受信</div>
+    <div class="flow-item">BINstr = CnvToAsc(AuthUsr) → B64Encode → sendSocket → 334 受信</div>
+    <div class="flow-item">BINstr = CnvToAsc(AuthPwd) → B64Encode → sendSocket → 235 受信</div>
+  </div>
+
+  
+  <h2 id="s12">12. メール本文送信ロジック (sendSocket / sendSocket2)</h2>
+  <p>SMTPSend/SMTPSendAuth では一時ファイルを再オープンし 1 行ずつ読んで送信する。行の種別（ヘッダー / テキストボディ / Base64添付）によって関数を切り替える。</p>
+
+  <table>
+    <thead><tr><th>関数</th><th>対象データ</th><th>変換処理</th></tr></thead>
+    <tbody>
+      <tr><td><code>sendSocket()</code></td><td>SMTP コマンド / ヘッダー行 / Base64 添付データ</td><td>CnvToAsc() で EBCDIC→ASCII 変換後、末尾 CRLF 付加して send()/gsk_write()</td></tr>
+      <tr><td><code>sendSocket2()</code></td><td>テキストボディ行</td><td>SO(0x0E) を含む行は Convert()（icd）で CCSID 変換。含まない行は CnvToAsc()。先頭ピリオドの場合は RFC 規定に従い ".." に二重化。改行のみ行は sbyte=0 として CRLF のみ送信</td></tr>
+    </tbody>
+  </table>
+
+  <pre>// sendSocket: EBCDIC改行(0x0a)除去 → CRLF付加
+if (ASCstr[sbyte-1] == 0x0a) { ASCstr[sbyte-1] = 0; sbyte--; }
+memcpy(&amp;ASCstr[sbyte], CRLF, 3);  // CRLF = {0x0d, 0x0a, 0x00}
+sbyte += 2;</pre>
+
+  <h3>12.1 isBody / isBase64 フラグの遷移</h3>
+  <table>
+    <thead><tr><th>条件</th><th>フラグ変化</th><th>効果</th></tr></thead>
+    <tbody>
+      <tr><td>境界文字列行を検出</td><td>isBody=0, isBase64=0</td><td>次のパート先頭に戻る</td></tr>
+      <tr><td>"Content-Transfer-Encoding: base64" 行</td><td>isBase64=1</td><td>以降の本文を sendSocket（変換なし）で送る</td></tr>
+      <tr><td>空行（\n のみ）を検出</td><td>isBody=1</td><td>以降がボディ。sendSocket2 へ切り替え</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s13">13. MIME マルチパート構造</h2>
+  <p>添付ファイルが 1 件以上の場合、<code>SMTPMIME("multipart/mixed")</code> で boundary を設定し、以下の構造を一時ファイルに出力する。境界文字列は固定値。</p>
+
+  <pre>MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="4tnD49bUwcnTDkSdRW1Fy0azRXpEwEWURbpEjUSkRI1EkQ8="
+Content-Transfer-Encoding: 7bit
+X-Mailer: MAI/400 Version 3.00
+                              ← 空行 (SMTPBody)
+--4tnD49bUwcnTDkSdRW1Fy0azRXpEwEWURbpEjUSkRI1EkQ8=
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+
+  [ソースファイル本文 行ごとに SMTPWrite]
+
+--4tnD49bUwcnTDkSdRW1Fy0azRXpEwEWURbpEjUSkRI1EkQ8=
+Content-Type: application/octet-stream;
+ name="filename"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="filename"
+
+  [Base64 エンコード済みデータ 76文字/行]
+
+--4tnD49bUwcnTDkSdRW1Fy0azRXpEwEWURbpEjUSkRI1EkQ8=--  ← SMTPMpartClose</pre>
+
+  <div class="warn"><span class="label">制約：</span>境界文字列は固定値であるため、添付ファイルのバイナリデータ内に偶然この文字列が出現した場合、MIME パーサーが誤動作する可能性がある。実運用上は発生頻度が極めて低いが、理論上の欠陥として認識しておく必要がある。</div>
+
+  
+  <h2 id="s14">14. SRCTOMAIL メインプログラム制御フロー</h2>
+  <p><code>main()</code> は CL コマンドから 21 個のパラメーター（argv[1]〜argv[21]）を受け取り、以下の順に処理する。</p>
+
+  <div class="flow">
+    <div class="flow-item">argv から全パラメーターをローカル変数にコピー（PTOn, PTO, PFROM, PSERVER, PFILE, PMBR, PSUBJECT 等）</div>
+    <div class="flow-item">PSSL &gt; 0 の場合 SMTPRegDCM(PGSKAPPID, PSMTPPort) — DCM APPID 登録・SSL/SMTPS モード確定</div>
+    <div class="flow-item">EdtName() — PFILE(ライブラリ/ファイル名) + PMBR からレコード入力ファイル名文字列を生成</div>
+    <div class="flow-item">_Ropen(infile, "rr") — IBM i ネイティブ記録 I/O でソースファイルをオープン</div>
+    <div class="flow-item">_Ropnfbk() — オープンフィードバックからレコード件数・レコード長・isSRCF フラグを取得</div>
+    <div class="flow-item">SMTPSetDebug / SMTPSetSftSp / SMTPSetConvert(fccsid, tccsid, kana) — サービスプログラム初期設定</div>
+    <div class="flow-item">SMTPOpen(PSERVER, PSMTPPort) — 一時ファイル作成・iconv 初期化</div>
+    <div class="flow-item">SMTPFrom / SMTPRcpt(To/Cc/Bcc) / SMTPDate / SMTPSubj / SMTPOther / SMTPMsgID / SMTPMIME / SMTPBody — ヘッダー組み立て</div>
+    <div class="flow-item">PATTACHn &gt; 0 の場合 SMTPMpartText() — マルチパートのテキストパート開始</div>
+    <div class="flow-item">_Rreadn ループ — レコードを 1 行ずつ読み込み SMTPWrite でボディに追加（isSRCF=='Y' の場合 buf+12 でソース行先頭シーケンスをスキップ）</div>
+    <div class="flow-item">添付ファイルループ — SMTPMpartAttach × PATTACHn → SMTPMpartClose</div>
+    <div class="flow-item">PSMTPAuthUsr=="*NONE" → SMTPSend() / それ以外 → SMTPSendAuth()</div>
+    <div class="flow-item">SMTPClose() / _Rclose(fp) — クリーンアップ</div>
+  </div>
+
+  <h3>14.1 ソースファイル vs 通常 PF の判別</h3>
+  <p><code>isSRCF</code> フラグが <code>'Y'</code> の場合、ソースファイルのレコードには先頭 12 バイト（シーケンス番号 6 + 更新日 6）があるため <code>buf + 12</code> から本文を取得する。通常のデータベースファイルは <code>buf + 0</code> から取得する。</p>
+
+  <h3>14.2 宛先アドレス検証</h3>
+  <p>To/Cc/Bcc の各アドレスは SMTPValidAddr() で @ 文字の存在を確認する。検証失敗時は DspDIAGMSG で診断メッセージを出力するが、処理は継続する（ESC ではない）。</p>
+
+  
+  <h2 id="s15">15. エラーメッセージ処理</h2>
+  <p>メッセージ送信は QMHSNDPM API（msg_id=CPF9898）を使用する。メッセージタイプにより動作が異なる。</p>
+
+  <table>
+    <thead><tr><th>関数</th><th>メッセージタイプ</th><th>動作</th></tr></thead>
+    <tbody>
+      <tr><td><code>DspSTSMSG()</code></td><td>*STATUS</td><td>ステータス表示（DebugSW=1 の場合 *DIAG も送出）。処理継続</td></tr>
+      <tr><td><code>DspDIAGMSG()</code></td><td>*DIAG</td><td>診断メッセージ。処理継続</td></tr>
+      <tr><td><code>DspESCMSG()</code></td><td>*ESCAPE</td><td>_Rclose(fp) 後 QMHSNDPM → exit(0)。処理停止</td></tr>
+      <tr><td><code>DspEXTMSG()</code></td><td>*DIAG (CPF9899)</td><td>_Rclose(fp) 後 QMHSNDPM → exit(0)。処理停止（v2.16追加）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><span class="label">例外ハンドラー：</span>main() 冒頭の <code>#pragma exception_handler(_handler, 0, 0, _C2_MH_ESCAPE, _CTLA_HANDLE, "CPF9898")</code> により、自プログラムが送出した CPF9898 エスケープメッセージを自身でハンドルして正常終了させる設計になっている。これは DspESCMSG のエスケープメッセージを上位呼び出しスタックに伝播させないための処置である。</div>
+
+  
+  <h2 id="s16">16. ビルド手順 (MSRCTOMAIL.CLP)</h2>
+  <p>ビルドは CLP プログラム <code>MSRCTOMAIL</code> を実行することで自動化される。</p>
+
+  <table>
+    <thead><tr><th>ステップ</th><th>コマンド</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>CRTCMOD SMTPSRVS SYSIFCOPT(*IFSIO) TGTRLS(V7R1M0)</td><td>サービスプログラム用モジュール生成。*IFSIO でストリーム I/O を有効化</td></tr>
+      <tr><td>2</td><td>CRTCMOD SRCTOMAIL DBGVIEW(*ALL) SYSIFCOPT(*IFSIO) TGTRLS(V7R1M0)</td><td>メインプログラム用モジュール生成。DBGVIEW(*ALL) でデバッグ情報を全レベル保持</td></tr>
+      <tr><td>3</td><td>CRTSRVPGM MAI/SMTPSRVS SRCFILE(*CURLIB/QSRVSRC)</td><td>バインダーソース SMTPSRVS.BND の 27 シンボルをエクスポートしてサービスプログラム生成</td></tr>
+      <tr><td>4</td><td>CRTPGM MAI/SRCTOMAIL BNDSRVPGM((MAI/SMTPSRVS))</td><td>メインプログラム生成。SMTPSRVS をバインド</td></tr>
+      <tr><td>5</td><td>CRTPNLGRP MAI/SRCTOMAIL</td><td>ヘルプパネルグループ生成</td></tr>
+      <tr><td>6</td><td>CRTCMD MAI/SRCTOMAIL HLPPNLGRP(MAI/SRCTOMAIL)</td><td>CL コマンド生成</td></tr>
+      <tr><td>7</td><td>CHGOBJOWN × 4</td><td>*PGM/*SRVPGM/*CMD/*PNLGRP の所有者を QPGMR に変更し元所有者の権限を取り消す</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2 id="s17">17. 既知の制約と注意点</h2>
+
+  <table>
+    <thead><tr><th>項目</th><th>詳細</th></tr></thead>
+    <tbody>
+      <tr><td>タイムゾーン固定</td><td>SMTPDate() のタイムゾーンオフセットが <code>+0900</code> にハードコードされている。海外環境では Date ヘッダーが不正確になる</td></tr>
+      <tr><td>固定 MIME 境界</td><td>Boundary 文字列が固定値のため、添付データ内に同文字列が含まれる場合に MIME 解析が崩れる可能性がある</td></tr>
+      <tr><td>グローバル状態</td><td>全変数がモジュールグローバル。マルチスレッド環境・同一アドレス空間での複数同時実行は非対応</td></tr>
+      <tr><td>メモリ解放コメントアウト</td><td>SMTPClose() 内の free() 群がコメントアウトされており、B64str/BINstr/ASCstr/JISstr/RFCstr/EBCstr が解放されない。長時間稼働プロセスで繰り返し使用する場合はメモリリークに注意</td></tr>
+      <tr><td>recvSocket SSL 版</td><td>SSL 時の recvSocket は 1 回の gsk_read で最大 1024 バイトを受信。SMTP 応答が分割された場合に対応していない</td></tr>
+      <tr><td>CRAM-MD5/DIGEST-MD5 未実装</td><td>EHLO で検出されても使用できず、PLAIN/LOGIN も非対応の場合はエスケープエラーになる</td></tr>
+      <tr><td>試用版ライセンス期限</td><td>配布バイナリは 2026年12月31日までの使用期限付き試用版。ChkLicKey() で確認される</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="sep" />
+  <div class="footer">2026-06-28 IDELIB</div>
+</div>
+</body>
+</html>
