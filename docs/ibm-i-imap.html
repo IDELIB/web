@@ -1,0 +1,824 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBM i × IMAP チャットログ</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    background: #f7f8fa;
+    color: #1f2328;
+    padding: 24px 16px 48px;
+  }
+  .chat-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  h1.page-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+    color: #1f2328;
+  }
+  .bubble-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    align-items: flex-start;
+  }
+  .bubble-row.user { flex-direction: row-reverse; }
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+  .avatar.user-av { background: #3b82d4; }
+  .avatar.ai-av { background: #1f2328; font-size: 11px; }
+  .bubble {
+    max-width: 88%;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+  .bubble-row.user .bubble {
+    background: #3b82d4;
+    color: #fff;
+    border-color: #3b82d4;
+    border-radius: 12px 4px 12px 12px;
+  }
+  .bubble-row.ai .bubble {
+    border-radius: 4px 12px 12px 12px;
+  }
+  .bubble p { margin-bottom: 10px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble h2 { font-size: 15px; font-weight: 700; margin: 18px 0 8px; color: #1f2328; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+  .bubble h2:first-child { margin-top: 0; }
+  .bubble h3 { font-size: 14px; font-weight: 700; margin: 14px 0 6px; color: #1f2328; }
+  .bubble h3:first-child { margin-top: 0; }
+  .bubble h4 { font-size: 13px; font-weight: 700; margin: 12px 0 5px; color: #57606a; }
+  .bubble ul, .bubble ol { padding-left: 20px; margin-bottom: 10px; }
+  .bubble li { margin-bottom: 4px; }
+  .bubble code {
+    background: #f0f2f5;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    color: #c7254e;
+  }
+  .bubble pre {
+    background: #1f2328;
+    color: #e6edf3;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    overflow-x: auto;
+    margin: 10px 0;
+    line-height: 1.6;
+  }
+  .bubble strong { font-weight: 700; }
+  .bubble em { font-style: italic; color: #57606a; }
+  /* tables */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { background: #f0f2f5; font-weight: 700; text-align: left; padding: 7px 10px; border: 1px solid #e5e7eb; }
+  td { padding: 6px 10px; border: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .ok { color: #1a7f37; font-weight: 700; }
+  .ng { color: #cf222e; font-weight: 700; }
+  /* diagram */
+  .diagram {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; }
+  /* section divider */
+  .section-hr { border: none; border-top: 1px solid #e5e7eb; margin: 14px 0; }
+  .label-tag {
+    display: inline-block;
+    background: #f0f2f5;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 12px;
+    color: #57606a;
+    margin-bottom: 10px;
+  }
+  .highlight-box {
+    background: #f0f6ff;
+    border-left: 3px solid #3b82d4;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+  }
+</style>
+</head>
+<body>
+<div class="chat-wrap">
+  <h1 class="page-title">IBM i × IMAP — チャットログ</h1>
+
+  
+  <div class="bubble-row user">
+    <div class="avatar user-av">U</div>
+    <div class="bubble">IBMiをimapクライアントとして使う場合のユースケースを5個あげてみて</div>
+  </div>
+
+  <div class="bubble-row ai">
+    <div class="avatar ai-av">Bob</div>
+    <div class="bubble">
+      <h2>IBM i を IMAP クライアントとして使う場合のユースケース</h2>
+
+      <h3>1. バッチ処理結果の自動メール取得・処理</h3>
+      <p>夜間バッチやジョブスケジューラで実行されたバッチ処理の結果通知メールを、IBM i 側から IMAP で定期的に取得し、内容を解析してデータベース（DB2 for i）に自動登録する。</p>
+      <pre>外部システム → メール送信 → メールサーバー
+IBM i (RPG/CL) → IMAP接続 → メール取得 → DB2 for i に格納</pre>
+
+      <h3>2. EDI / 受発注データのメール受信自動化</h3>
+      <p>取引先から送られてくる受発注データ（CSV・XML添付ファイル）を含むメールを IMAP で取得し、IBM i 上の ERP・SCM システムに自動インポートする。手作業によるデータ入力を排除できる。</p>
+
+      <h3>3. 監視・アラートメールの受信と自動アクション</h3>
+      <p>外部監視ツールやクラウドサービスから送信されたアラートメールを IMAP で監視し、特定のキーワード（例：<code>CRITICAL</code>、<code>DOWN</code>）を検出した場合に IBM i 上のジョブを自動起動したり、オペレーターへの通知処理を行う。</p>
+
+      <div class="diagram">
+        <svg width="620" height="180">
+          
+          <rect x="10" y="10" width="110" height="30" rx="5" fill="#e5e7eb"></rect><text x="65" y="30" text-anchor="middle" font-size="12">外部監視ツール</text>
+          <rect x="200" y="10" width="110" height="30" rx="5" fill="#e5e7eb"></rect><text x="255" y="30" text-anchor="middle" font-size="12">メールサーバー</text>
+          <rect x="390" y="10" width="130" height="30" rx="5" fill="#054ada"></rect><text x="455" y="30" text-anchor="middle" font-size="12" fill="#fff">IBM i (IMAP Client)</text>
+          <rect x="390" y="130" width="130" height="30" rx="5" fill="#e5e7eb"></rect><text x="455" y="150" text-anchor="middle" font-size="12">IBM i ジョブ</text>
+          
+          <line x1="120" y1="25" x2="198" y2="25" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"></line>
+          <text x="159" y="20" text-anchor="middle" font-size="11" fill="#57606a">アラートメール送信</text>
+          <line x1="390" y1="25" x2="312" y2="25" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"></line>
+          <text x="351" y="20" text-anchor="middle" font-size="11" fill="#57606a">IMAP SEARCH</text>
+          <line x1="312" y1="45" x2="390" y2="70" stroke="#3b82d4" stroke-width="1.5" marker-end="url(#arr2)"></line>
+          <text x="355" y="65" text-anchor="middle" font-size="11" fill="#3b82d4">メール内容返却</text>
+          <line x1="455" y1="40" x2="455" y2="128" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"></line>
+          <text x="470" y="90" font-size="11" fill="#57606a">緊急ジョブ起動</text>
+          <defs>
+            <marker id="arr"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+            <marker id="arr2"><path d="M0,0 L0,6 L8,3 z" fill="#3b82d4"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>4. 帳票・レポートのメール配信確認・アーカイブ</h3>
+      <p>IBM i から送信した請求書・帳票メールについて、送信先のメールボックスを IMAP 経由で確認することで「配信済み」「未読」などのステータスをトラッキングし、DB2 for i の送信ログテーブルに記録・管理する。</p>
+
+      <h3>5. ワークフロー承認メールの自動処理</h3>
+      <p>承認依頼に対して担当者が返信したメール（例：件名に <code>[APPROVED]</code> や <code>[REJECTED]</code> を含む）を IMAP で定期取得し、IBM i 上のワークフローシステムと連携して承認ステータスを自動更新する。</p>
+
+      <hr class="section-hr" />
+      <h3>まとめ</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>ユースケース</th><th>主な効果</th></tr>
+        <tr><td>1</td><td>バッチ結果通知の自動取得</td><td>DB登録の自動化</td></tr>
+        <tr><td>2</td><td>EDI受発注メールの自動インポート</td><td>手入力排除</td></tr>
+        <tr><td>3</td><td>アラートメールによるジョブ自動起動</td><td>障害対応の迅速化</td></tr>
+        <tr><td>4</td><td>帳票配信ステータスのトラッキング</td><td>監査・管理強化</td></tr>
+        <tr><td>5</td><td>ワークフロー承認メールの自動処理</td><td>承認フロー効率化</td></tr>
+      </table></div>
+      <p style="margin-top:10px;font-size:13px;color:#57606a">IBM i の RPG や CL から IMAP を扱う場合、<code>QsyGetInetAddr</code> などの Socket API や OSS の <code>curl</code>（PASE環境）を活用するのが一般的なアプローチです。</p>
+    </div>
+  </div>
+
+  
+  <div class="bubble-row user">
+    <div class="avatar user-av">U</div>
+    <div class="bubble">それぞれのユースケースでPOP3/SMTPとの比較が欲しい</div>
+  </div>
+
+  <div class="bubble-row ai">
+    <div class="avatar ai-av">Bob</div>
+    <div class="bubble">
+      <h2>ユースケース別 IMAP vs POP3/SMTP 比較</h2>
+
+      <h3>1. バッチ処理結果の自動メール取得・処理</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP</th><th>POP3</th></tr>
+        <tr><td>メールの状態管理</td><td><span class="ok">✅</span> サーバー上で「既読/未読」を管理できる</td><td><span class="ng">❌</span> 取得したら基本的に削除</td></tr>
+        <tr><td>複数ジョブからの同時アクセス</td><td><span class="ok">✅</span> 複数プロセスが同じメールボックスを参照可能</td><td><span class="ng">❌</span> 同時接続に弱く排他制御が必要</td></tr>
+        <tr><td>再取得・冪等性</td><td><span class="ok">✅</span> フラグ管理で「処理済み」を記録し再取得しない制御が可能</td><td><span class="ng">❌</span> 削除しないと毎回同じメールを取得してしまう</td></tr>
+        <tr><td>実装複雑度</td><td>やや高い</td><td>シンプル</td></tr>
+      </table></div>
+      <div class="highlight-box"><strong>結論：</strong>バッチが失敗して再実行する場合、IMAPなら「未処理フラグ」で安全にリトライできる。POP3では取得済みメールの管理を自前で実装する必要がある。</div>
+
+      <h3>2. EDI / 受発注データのメール受信自動化</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP</th><th>POP3</th></tr>
+        <tr><td>フォルダ振り分け</td><td><span class="ok">✅</span> 取引先ごとのフォルダを監視できる</td><td><span class="ng">❌</span> フォルダ概念なし（全メールが一括）</td></tr>
+        <tr><td>特定送信元の選択取得</td><td><span class="ok">✅</span> <code>SEARCH FROM</code> コマンドでサーバー側フィルタリング</td><td><span class="ng">❌</span> 全件取得後にクライアント側でフィルタリング必要</td></tr>
+        <tr><td>添付ファイルのみ取得</td><td><span class="ok">✅</span> MIMEパート指定で添付だけ取得可能（帯域節約）</td><td><span class="ng">❌</span> メール全体を取得してから解析</td></tr>
+        <tr><td>誤取得時のリカバリ</td><td><span class="ok">✅</span> サーバー上にメールが残るため再処理可能</td><td><span class="ng">❌</span> 削除後はリカバリ不可</td></tr>
+      </table></div>
+      <div class="highlight-box"><strong>結論：</strong>複数取引先のメールを分類・選別して取得するEDI用途ではIMAPのフォルダ・検索機能が圧倒的に有利。</div>
+
+      
+      <div class="diagram">
+        <svg width="580" height="160">
+          <rect x="10" y="60" width="80" height="28" rx="5" fill="#e5e7eb"></rect><text x="50" y="79" text-anchor="middle" font-size="12">取引先A</text>
+          <rect x="10" y="100" width="80" height="28" rx="5" fill="#e5e7eb"></rect><text x="50" y="119" text-anchor="middle" font-size="12">取引先B</text>
+          <rect x="200" y="70" width="110" height="28" rx="5" fill="#e5e7eb"></rect><text x="255" y="89" text-anchor="middle" font-size="12">メールサーバー</text>
+          <rect x="380" y="70" width="120" height="28" rx="5" fill="#054ada"></rect><text x="440" y="89" text-anchor="middle" font-size="12" fill="#fff">IBM i IMAP</text>
+          <rect x="530" y="70" width="40" height="28" rx="5" fill="#e5e7eb"></rect><text x="550" y="89" text-anchor="middle" font-size="12">DB</text>
+          <line x1="90" y1="74" x2="198" y2="80" stroke="#57606a" stroke-width="1.5" marker-end="url(#a1)"></line>
+          <line x1="90" y1="114" x2="198" y2="90" stroke="#57606a" stroke-width="1.5" marker-end="url(#a1)"></line>
+          <line x1="312" y1="80" x2="378" y2="80" stroke="#57606a" stroke-width="1.5" marker-end="url(#a1)"></line>
+          <line x1="500" y1="84" x2="528" y2="84" stroke="#57606a" stroke-width="1.5" marker-end="url(#a1)"></line>
+          <text x="345" y="75" text-anchor="middle" font-size="11" fill="#57606a">フォルダ監視</text>
+          <defs><marker id="a1"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker></defs>
+        </svg>
+      </div>
+
+      <h3>3. 監視・アラートメールの受信と自動アクション</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP</th><th>POP3</th><th>SMTP受信</th></tr>
+        <tr><td>リアルタイム監視</td><td><span class="ok">✅</span> IMAP IDLE コマンドでプッシュ通知的な監視が可能</td><td><span class="ng">❌</span> ポーリングのみ</td><td><span class="ng">❌</span> 受信サーバーが必要</td></tr>
+        <tr><td>優先度別フォルダ監視</td><td><span class="ok">✅</span> <code>CRITICAL</code>フォルダだけ高頻度でポーリング可能</td><td><span class="ng">❌</span> 全件取得のみ</td><td>―</td></tr>
+        <tr><td>誤検知メールの保持</td><td><span class="ok">✅</span> サーバーに残るため後から確認・分析可能</td><td><span class="ng">❌</span> 削除すると証跡なし</td><td>―</td></tr>
+        <tr><td>IBM i 側にMTAが不要</td><td><span class="ok">✅</span> クライアントのみでOK</td><td><span class="ok">✅</span> クライアントのみでOK</td><td><span class="ng">❌</span> sendmail等のMTA設定が必要</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="500" height="200">
+          <text x="120" y="20" text-anchor="middle" font-size="12" font-weight="700">メールサーバー</text>
+          <text x="380" y="20" text-anchor="middle" font-size="12" font-weight="700">IBM i</text>
+          <line x1="120" y1="25" x2="120" y2="190" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="380" y1="25" x2="380" y2="190" stroke="#054ada" stroke-width="2"></line>
+          <rect x="340" y="35" width="80" height="22" rx="3" fill="#e8f0fe" stroke="#3b82d4"></rect>
+          <text x="380" y="50" text-anchor="middle" font-size="11">IMAP IDLE 接続中</text>
+          <line x1="120" y1="80" x2="378" y2="80" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga)"></line>
+          <text x="250" y="74" text-anchor="middle" font-size="11" fill="#1a7f37">新着通知（IDLE応答）</text>
+          <line x1="380" y1="100" x2="122" y2="100" stroke="#057" stroke-width="1.5" marker-end="url(#ba)"></line>
+          <text x="250" y="96" text-anchor="middle" font-size="11" fill="#057">FETCH（メール取得）</text>
+          <line x1="380" y1="120" x2="380" y2="155" stroke="#57606a" stroke-width="1.5" marker-end="url(#ga2)"></line>
+          <text x="430" y="142" font-size="11" fill="#57606a">キーワード判定</text>
+          <rect x="310" y="158" width="140" height="22" rx="3" fill="#fef9e7" stroke="#f4a300"></rect>
+          <text x="380" y="173" text-anchor="middle" font-size="11" fill="#b45309">緊急ジョブ起動 or ログ記録</text>
+          <defs>
+            <marker id="ga"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+            <marker id="ba"><path d="M0,0 L0,6 L8,3 z" fill="#057"></path></marker>
+            <marker id="ga2"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>4. 帳票・レポートの配信確認・アーカイブ</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP</th><th>POP3</th><th>SMTP（送信のみ）</th></tr>
+        <tr><td>送信済みフォルダの確認</td><td><span class="ok">✅</span> <code>Sent</code>フォルダをIMAP経由で参照可能</td><td><span class="ng">❌</span> Sentフォルダにアクセス不可</td><td><span class="ng">❌</span> 送信のみ</td></tr>
+        <tr><td>開封確認フラグの取得</td><td><span class="ok">✅</span> <code>\Seen</code> フラグで既読確認が可能</td><td><span class="ng">❌</span> フラグ管理なし</td><td><span class="ng">❌</span> 該当なし</td></tr>
+        <tr><td>アーカイブフォルダへの移動</td><td><span class="ok">✅</span> サーバー側でフォルダ移動可能</td><td><span class="ng">❌</span> フォルダ操作不可</td><td><span class="ng">❌</span> 該当なし</td></tr>
+        <tr><td>長期保存・監査対応</td><td><span class="ok">✅</span> サーバー上に保持・検索可能</td><td><span class="ng">❌</span> ローカル保存が必要</td><td><span class="ng">❌</span> 該当なし</td></tr>
+      </table></div>
+      <div class="highlight-box"><strong>結論：</strong>「送った帳票が読まれたか確認する」という要件はSMTPだけでは実現不可能。IMAPを組み合わせることで初めて配信ステータス管理が実現できる。</div>
+
+      <h3>5. ワークフロー承認メールの自動処理</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP</th><th>POP3</th></tr>
+        <tr><td>件名・本文での絞り込み</td><td><span class="ok">✅</span> <code>SEARCH SUBJECT</code> でサーバー側絞り込み</td><td><span class="ng">❌</span> 全件取得後にプログラム側でフィルタリング</td></tr>
+        <tr><td>複数担当者が同じ受信箱を参照</td><td><span class="ok">✅</span> Shared Mailbox を複数プロセスから同時参照可能</td><td><span class="ng">❌</span> 一方が取得すると他方は参照不可</td></tr>
+        <tr><td>承認済みメールの専用フォルダ移動</td><td><span class="ok">✅</span> 処理済みを<code>Processed</code>フォルダへ移動しトレーサビリティ確保</td><td><span class="ng">❌</span> フォルダ操作不可</td></tr>
+        <tr><td>二重処理の防止</td><td><span class="ok">✅</span> カスタムフラグ（<code>\Flagged</code>等）で処理中マーキング可能</td><td><span class="ng">❌</span> 取得=削除のため競合リスクあり</td></tr>
+      </table></div>
+
+      <hr class="section-hr" />
+      <h3>総括比較表</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>ユースケース</th><th>推奨プロトコル</th><th>主な理由</th></tr>
+        <tr><td>1. バッチ結果取得</td><td><strong>IMAP</strong></td><td>フラグによる処理済み管理・再実行安全性</td></tr>
+        <tr><td>2. EDI受発注自動化</td><td><strong>IMAP</strong></td><td>フォルダ監視・サーバー側検索・添付部分取得</td></tr>
+        <tr><td>3. アラート自動アクション</td><td><strong>IMAP</strong></td><td>IDLE通知・優先度別フォルダ監視</td></tr>
+        <tr><td>4. 帳票配信確認</td><td><strong>IMAP + SMTP</strong></td><td>送信はSMTP・確認はIMAPで補完</td></tr>
+        <tr><td>5. ワークフロー承認</td><td><strong>IMAP</strong></td><td>共有メールボックス・二重処理防止フラグ</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  
+  <div class="bubble-row user">
+    <div class="avatar user-av">U</div>
+    <div class="bubble">それぞれのケースで、メール以外の方法での実装と比較して、imapであることの必要性、優位性を3つ以上、提示してください</div>
+  </div>
+
+  <div class="bubble-row ai">
+    <div class="avatar ai-av">Bob</div>
+    <div class="bubble">
+      <h2>ユースケース別：IMAP vs メール以外の実装方法</h2>
+
+      <h3>1. バッチ処理結果の自動メール取得・処理</h3>
+      <p><em>メール以外の代替手段：DB共有テーブル・FTP/SFTP・REST API・MQ</em></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>IMAPである必要性・優位性</th><th>代替手段との比較</th></tr>
+        <tr><td>①</td><td><strong>既存メールインフラをそのまま活用できる</strong></td><td>DB共有やMQは追加インフラの構築・保守コストが発生する</td></tr>
+        <tr><td>②</td><td><strong>送信側に改修が不要</strong></td><td>REST APIやMQは送信側システムにも対応実装が必要</td></tr>
+        <tr><td>③</td><td><strong>人間の確認とシステム処理を同一チャネルで共存できる</strong></td><td>FTP/SFTPは人が内容を確認するのに別ツールが必要</td></tr>
+        <tr><td>④</td><td><strong>障害時の証跡がメールサーバー上に自動保存される</strong></td><td>FTPはファイル転送後の保持ポリシーを別途設計する必要がある</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="560" height="180">
+          <text x="140" y="14" text-anchor="middle" font-size="12" font-weight="700">IMAP方式</text>
+          <text x="420" y="14" text-anchor="middle" font-size="12" font-weight="700">API方式</text>
+          <rect x="10" y="25" width="90" height="26" rx="4" fill="#e5e7eb"></rect><text x="55" y="42" text-anchor="middle" font-size="11">外部システム</text>
+          <rect x="130" y="25" width="90" height="26" rx="4" fill="#e5e7eb"></rect><text x="175" y="42" text-anchor="middle" font-size="11">メールサーバー</text>
+          <rect x="130" y="80" width="90" height="26" rx="4" fill="#e5e7eb"></rect><text x="175" y="97" text-anchor="middle" font-size="11">担当者も確認可</text>
+          <rect x="240" y="25" width="70" height="26" rx="4" fill="#054ada"></rect><text x="275" y="42" text-anchor="middle" font-size="11" fill="#fff">IBM i</text>
+          <line x1="100" y1="38" x2="128" y2="38" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma)"></line>
+          <line x1="222" y1="38" x2="238" y2="38" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma)"></line>
+          <line x1="175" y1="51" x2="175" y2="78" stroke="#3b82d4" stroke-width="1.5" marker-end="url(#ma)"></line>
+          
+          <rect x="310" y="25" width="90" height="26" rx="4" fill="#e5e7eb"></rect><text x="355" y="42" text-anchor="middle" font-size="11">外部システム</text>
+          <rect x="440" y="25" width="70" height="26" rx="4" fill="#054ada"></rect><text x="475" y="42" text-anchor="middle" font-size="11" fill="#fff">IBM i</text>
+          <rect x="440" y="80" width="90" height="26" rx="4" fill="#fef2f2"></rect><text x="485" y="97" text-anchor="middle" font-size="11" fill="#cf222e">確認用UI必要</text>
+          <line x1="400" y1="38" x2="438" y2="38" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma)"></line>
+          <text x="419" y="33" text-anchor="middle" font-size="10" fill="#57606a">API呼び出し</text>
+          <line x1="355" y1="51" x2="440" y2="80" stroke="#cf222e" stroke-width="1.5" marker-end="url(#ra)"></line>
+          <defs>
+            <marker id="ma"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+            <marker id="ra"><path d="M0,0 L0,6 L8,3 z" fill="#cf222e"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>2. EDI / 受発注データのメール受信自動化</h3>
+      <p><em>メール以外の代替手段：AS2・SFTP・Web API・SMB</em></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>IMAPである必要性・優位性</th><th>代替手段との比較</th></tr>
+        <tr><td>①</td><td><strong>取引先側の対応コストがゼロに近い</strong></td><td>AS2やSFTPは取引先にも専用ソフト・証明書・設定が必要</td></tr>
+        <tr><td>②</td><td><strong>メールアドレスさえあればどの取引先とも統一手順で接続できる</strong></td><td>Web APIは取引先ごとに仕様が異なり個別実装が必要</td></tr>
+        <tr><td>③</td><td><strong>添付ファイルのMIMEパート指定取得でデータ部分だけを効率的に取得できる</strong></td><td>SMB共有はファイル全体の転送が前提でメタ情報の活用が困難</td></tr>
+        <tr><td>④</td><td><strong>フォルダ振り分けルールで取引先・データ種別を自動分類済みの状態で受信できる</strong></td><td>FTPは受信ディレクトリの命名規則を取引先と個別に取り決める必要がある</td></tr>
+      </table></div>
+
+      <h3>3. 監視・アラートメールの受信と自動アクション</h3>
+      <p><em>メール以外の代替手段：Webhook・AWS SNS・ログ監視エージェント・SNMP Trap</em></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>IMAPである必要性・優位性</th><th>代替手段との比較</th></tr>
+        <tr><td>①</td><td><strong>IMAP IDLEにより追加インフラなしでプッシュ型の即時通知を受信できる</strong></td><td>SNS/Webhookは受信側にHTTPエンドポイントの公開が必要でファイアウォール設定が複雑化</td></tr>
+        <tr><td>②</td><td><strong>アラートの履歴がメールサーバー上に自然に蓄積され監査・振り返りが容易</strong></td><td>SNS/SNMP Trapは受信後の保存設計を別途行わないと証跡が消える</td></tr>
+        <tr><td>③</td><td><strong>送信元の監視ツール側の改修が不要</strong></td><td>Webhookやログエージェントは監視ツール側にも対応設定が必要</td></tr>
+        <tr><td>④</td><td><strong>重要度別フォルダを監視頻度で区別できる</strong></td><td>SNMPトラップはTrap種別ごとの処理分岐をIBM i 側のみで設計する必要がある</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="500" height="130">
+          <text x="80" y="14" text-anchor="middle" font-size="12" font-weight="700">メールサーバー</text>
+          <text x="380" y="14" text-anchor="middle" font-size="12" font-weight="700">IBM i（IMAP IDLE中）</text>
+          <rect x="300" y="20" width="160" height="22" rx="3" fill="#e8f0fe" stroke="#3b82d4"></rect><text x="380" y="35" text-anchor="middle" font-size="11">ポート開放不要・FW変更不要</text>
+          <line x1="80" y1="20" x2="80" y2="120" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="380" y1="44" x2="380" y2="120" stroke="#054ada" stroke-width="2"></line>
+          <line x1="80" y1="70" x2="378" y2="70" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#g2)"></line>
+          <text x="230" y="64" text-anchor="middle" font-size="11" fill="#1a7f37">新着イベント通知（IDLE応答）</text>
+          <line x1="380" y1="90" x2="82" y2="90" stroke="#057" stroke-width="1.5" marker-end="url(#b2)"></line>
+          <text x="230" y="105" text-anchor="middle" font-size="11" fill="#057">FETCH → フォルダ別優先度処理</text>
+          <defs>
+            <marker id="g2"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+            <marker id="b2"><path d="M0,0 L0,6 L8,3 z" fill="#057"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>4. 帳票・レポートの配信確認・アーカイブ</h3>
+      <p><em>メール以外の代替手段：SendGrid等・Webポータル配信・S3/Blob Storage</em></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>IMAPである必要性・優位性</th><th>代替手段との比較</th></tr>
+        <tr><td>①</td><td><strong>SMTPで送信した同じチャネルでSentフォルダ・配信状態を確認でき、追加サービス不要</strong></td><td>SendGrid等の外部サービスは月額コスト・APIキー管理・外部依存が発生する</td></tr>
+        <tr><td>②</td><td><strong><code>\Seen</code>フラグで受信者が実際に開封したかをサーバー側から直接確認できる</strong></td><td>Webポータル配信はログイン率の確認にとどまり開封との区別が難しい</td></tr>
+        <tr><td>③</td><td><strong>処理済み帳票をArchiveフォルダへIMAPコマンドで移動することで送信台帳をサーバー上に自然に形成できる</strong></td><td>S3/Blobは別途ライフサイクル管理ポリシーとIAM設定が必要</td></tr>
+        <tr><td>④</td><td><strong>監査時に特定期間・特定宛先の帳票をSEARCH DATEで即時抽出できる</strong></td><td>ファイルストレージは命名規則が統一されていないと検索性が著しく低下する</td></tr>
+      </table></div>
+
+      <h3>5. ワークフロー承認メールの自動処理</h3>
+      <p><em>メール以外の代替手段：ServiceNow・kintone・Slackボット・Webフォーム</em></p>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>IMAPである必要性・優位性</th><th>代替手段との比較</th></tr>
+        <tr><td>①</td><td><strong>承認者はメールを返信するだけでよく、新しいツールの習得・ログインが不要</strong></td><td>ワークフローSaaSやSlackは承認者全員のアカウント発行・教育コストが発生する</td></tr>
+        <tr><td>②</td><td><strong><code>SEARCH SUBJECT</code>でサーバー側フィルタリングするため不要なメールをIBM i に転送せず帯域・処理を節約できる</strong></td><td>Webフォームは提出後のメール通知を別途設計しないと即時連携できない</td></tr>
+        <tr><td>③</td><td><strong>カスタムフラグ（<code>$Processing</code>等）で処理中マーキングができ、複数ジョブの二重取得を防止できる</strong></td><td>Slackボットはメッセージの冪等処理をアプリ層で独自実装する必要がある</td></tr>
+        <tr><td>④</td><td><strong>処理済みメールをフォルダ移動するだけで承認履歴がメールサーバー上に残り、コンプライアンス上の証跡になる</strong></td><td>SaaSは契約終了・サービス廃止時にデータポータビリティ問題が発生するリスクがある</td></tr>
+      </table></div>
+
+      <hr class="section-hr" />
+      <h3>総括：IMAPの横断的な優位性</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>優位性</th><th>内容</th></tr>
+        <tr><td><strong>既存インフラの再利用</strong></td><td>メールサーバーは組織にほぼ必ず存在し、追加インフラ不要</td></tr>
+        <tr><td><strong>送信側・受信者への無改修性</strong></td><td>相手はメールを送る/返すだけでよい</td></tr>
+        <tr><td><strong>サーバー側でのフィルタリング</strong></td><td>SEARCH/FLAGSにより不要データをIBM i に持ち込まない</td></tr>
+        <tr><td><strong>証跡の自然な蓄積</strong></td><td>フォルダ管理が監査ログを兼ねる</td></tr>
+        <tr><td><strong>POP3に対するフラグ・フォルダ管理</strong></td><td>基幹システムに求められる冪等性・排他制御をプロトコルレベルで担保</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  
+  <div class="bubble-row user">
+    <div class="avatar user-av">U</div>
+    <div class="bubble">ありがとうございます。逆に、それぞれのケースにおいて、デメリットとimapよりも推奨される実装があれば提示してください</div>
+  </div>
+
+  <div class="bubble-row ai">
+    <div class="avatar ai-av">Bob</div>
+    <div class="bubble">
+      <h2>ユースケース別：IMAPのデメリットと推奨される代替実装</h2>
+
+      <h3>1. バッチ処理結果の自動メール取得・処理</h3>
+      <h4>IMAPのデメリット</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>デメリット</th><th>内容</th></tr>
+        <tr><td>①</td><td><strong>リアルタイム性の限界</strong></td><td>IDLE非対応サーバーではポーリング間隔分の遅延が発生する</td></tr>
+        <tr><td>②</td><td><strong>メールサーバーへの依存</strong></td><td>メールサーバー障害時にバッチ処理全体が止まる単一障害点になる</td></tr>
+        <tr><td>③</td><td><strong>大量データの非効率性</strong></td><td>処理結果がGB単位のCSV等の場合、メール添付の容量制限（一般的に25MB以下）に引っかかる</td></tr>
+        <tr><td>④</td><td><strong>メール形式のパース負荷</strong></td><td>MIMEエンコード・デコード処理がIBM i 側に必要でRPG実装が複雑になる</td></tr>
+      </table></div>
+      <h4>推奨される代替実装 → IBM MQ / Apache Kafka</h4>
+      <div class="diagram">
+        <svg width="500" height="100">
+          <rect x="10" y="35" width="100" height="28" rx="4" fill="#e5e7eb"></rect><text x="60" y="53" text-anchor="middle" font-size="12">外部システム</text>
+          <rect x="185" y="35" width="100" height="28" rx="4" fill="#054ada"></rect><text x="235" y="53" text-anchor="middle" font-size="12" fill="#fff">IBM MQ</text>
+          <rect x="360" y="35" width="100" height="28" rx="4" fill="#054ada"></rect><text x="410" y="53" text-anchor="middle" font-size="12" fill="#fff">IBM i</text>
+          <line x1="110" y1="49" x2="183" y2="49" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma2)"></line>
+          <text x="147" y="44" text-anchor="middle" font-size="11" fill="#57606a">メッセージ送信</text>
+          <line x1="285" y1="49" x2="358" y2="49" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma2)"></line>
+          <text x="322" y="44" text-anchor="middle" font-size="11" fill="#57606a">保証付き配信</text>
+          <line x1="410" y1="63" x2="285" y2="72" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga3)"></line>
+          <text x="350" y="80" text-anchor="middle" font-size="11" fill="#1a7f37">処理完了ACK</text>
+          <defs>
+            <marker id="ma2"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+            <marker id="ga3"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>MQが優れる理由</th></tr>
+        <tr><td>信頼性</td><td>At-least-once / Exactly-once の配信保証がプロトコルレベルで担保される</td></tr>
+        <tr><td>スループット</td><td>バイナリストリームで大量データを高速転送できる</td></tr>
+        <tr><td>順序保証</td><td>メッセージの順序が保証され、バッチの依存関係を制御しやすい</td></tr>
+        <tr><td>IBM i との親和性</td><td>IBM MQ は IBM i ネイティブサポートがあり RPG からも直接呼び出せる</td></tr>
+      </table></div>
+
+      <h3>2. EDI / 受発注データのメール受信自動化</h3>
+      <h4>IMAPのデメリット</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>デメリット</th><th>内容</th></tr>
+        <tr><td>①</td><td><strong>セキュリティ強度が低い</strong></td><td>メールは経路上での改ざん・なりすましリスクがあり、電子署名なしでは送信元を保証できない</td></tr>
+        <tr><td>②</td><td><strong>配信保証がない</strong></td><td>SMTPはベストエフォート型であり、受信確認（MDN）は任意で強制できない</td></tr>
+        <tr><td>③</td><td><strong>容量制限</strong></td><td>大容量の受発注データ（画像付き仕様書等）は添付できない場合がある</td></tr>
+        <tr><td>④</td><td><strong>構造化データとの相性</strong></td><td>XML/JSONをメール本文に埋め込む設計はパースミスの温床になりやすい</td></tr>
+      </table></div>
+      <h4>推奨される代替実装 → AS2 または SFTP</h4>
+      <div class="diagram">
+        <svg width="500" height="110">
+          <rect x="10" y="40" width="100" height="28" rx="4" fill="#e5e7eb"></rect><text x="60" y="58" text-anchor="middle" font-size="12">取引先</text>
+          <rect x="360" y="40" width="100" height="28" rx="4" fill="#054ada"></rect><text x="410" y="58" text-anchor="middle" font-size="12" fill="#fff">IBM i</text>
+          <line x1="110" y1="54" x2="358" y2="54" stroke="#1a7f37" stroke-width="2" marker-end="url(#ga4)"></line>
+          <text x="235" y="44" text-anchor="middle" font-size="11" fill="#1a7f37">AS2: 署名＋暗号化＋MDN</text>
+          <line x1="358" y1="74" x2="110" y2="74" stroke="#3b82d4" stroke-width="1.5" marker-end="url(#ba3)"></line>
+          <text x="235" y="90" text-anchor="middle" font-size="11" fill="#3b82d4">受信確認MDN返却</text>
+          <defs>
+            <marker id="ga4"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+            <marker id="ba3"><path d="M0,0 L0,6 L8,3 z" fill="#3b82d4"></path></marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>AS2が優れる理由</th></tr>
+        <tr><td>否認防止</td><td>デジタル署名により送信者を暗号学的に証明できる</td></tr>
+        <tr><td>配信保証</td><td>MDN（Message Disposition Notification）で受信確認が強制できる</td></tr>
+        <tr><td>業界標準</td><td>流通・製造業のEDIでは事実上の標準であり取引先との合意が取りやすい</td></tr>
+        <tr><td>大容量対応</td><td>ファイルサイズ制限がメールより大幅に緩い</td></tr>
+      </table></div>
+
+      <h3>3. 監視・アラートメールの受信と自動アクション</h3>
+      <h4>IMAPのデメリット</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>デメリット</th><th>内容</th></tr>
+        <tr><td>①</td><td><strong>レイテンシ</strong></td><td>IDLE対応でも数秒〜十数秒の遅延が発生し、ミリ秒単位の即時対応が必要な障害検知には不向き</td></tr>
+        <tr><td>②</td><td><strong>メールサーバーが単一障害点</strong></td><td>アラートを検知すべき障害がメールサーバー自体の障害だった場合、通知が届かない</td></tr>
+        <tr><td>③</td><td><strong>誤検知・スパムの混入リスク</strong></td><td>メールボックスには監視以外のメールも届くため誤処理のリスクがある</td></tr>
+        <tr><td>④</td><td><strong>スケーラビリティ</strong></td><td>監視対象が増えIMAP SEARCHの頻度が上がると、メールサーバーに負荷をかける</td></tr>
+      </table></div>
+      <h4>推奨される代替実装 → SNMP Trap または Webhook</h4>
+      <div class="diagram">
+        <svg width="500" height="130">
+          <text x="100" y="14" text-anchor="middle" font-size="12" font-weight="700">監視ツール</text>
+          <text x="380" y="14" text-anchor="middle" font-size="12" font-weight="700">IBM i</text>
+          <line x1="100" y1="20" x2="100" y2="120" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="380" y1="20" x2="380" y2="120" stroke="#054ada" stroke-width="2"></line>
+          <line x1="100" y1="60" x2="378" y2="60" stroke="#cf222e" stroke-width="2" marker-end="url(#ra2)"></line>
+          <text x="240" y="54" text-anchor="middle" font-size="11" fill="#cf222e">SNMP Trap（UDP 162番ポート）</text>
+          <text x="240" y="72" text-anchor="middle" font-size="11" fill="#57606a">ミリ秒単位で受信</text>
+          <line x1="380" y1="85" x2="380" y2="110" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma3)"></line>
+          <text x="460" y="100" font-size="11" fill="#57606a">OID解析→即時ジョブ起動</text>
+          <defs>
+            <marker id="ra2"><path d="M0,0 L0,6 L8,3 z" fill="#cf222e"></path></marker>
+            <marker id="ma3"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>4. 帳票・レポートの配信確認・アーカイブ</h3>
+      <h4>IMAPのデメリット</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>デメリット</th><th>内容</th></tr>
+        <tr><td>①</td><td><strong><code>\Seen</code>フラグの信頼性が低い</strong></td><td>メールクライアントによっては受信と同時に既読フラグが立ち、実際の開封と区別できない</td></tr>
+        <tr><td>②</td><td><strong>長期アーカイブに不向き</strong></td><td>メールサーバーのストレージ容量は有限で、大量帳票の長期保存には向かない</td></tr>
+        <tr><td>③</td><td><strong>検索性の限界</strong></td><td>IMAP SEARCHはフルテキスト検索非対応のサーバーが多く、帳票内容での検索ができない</td></tr>
+        <tr><td>④</td><td><strong>コンプライアンス要件への対応</strong></td><td>法定保存期間（7年等）の要件をメールサーバーだけで満たすのは運用上困難</td></tr>
+      </table></div>
+      <h4>推奨される代替実装 → 文書管理システム（DMS）またはS3互換 ＋ 配信ログDB</h4>
+      <div class="diagram">
+        <svg width="560" height="160">
+          <rect x="10" y="60" width="80" height="28" rx="4" fill="#054ada"></rect><text x="50" y="78" text-anchor="middle" font-size="11" fill="#fff">IBM i</text>
+          <rect x="140" y="30" width="80" height="28" rx="4" fill="#e5e7eb"></rect><text x="180" y="48" text-anchor="middle" font-size="11">PDF/CSV</text>
+          <rect x="270" y="10" width="80" height="28" rx="4" fill="#ff9900"></rect><text x="310" y="28" text-anchor="middle" font-size="11">S3</text>
+          <rect x="270" y="60" width="80" height="28" rx="4" fill="#e5e7eb"></rect><text x="310" y="78" text-anchor="middle" font-size="11">Webポータル</text>
+          <rect x="400" y="60" width="80" height="28" rx="4" fill="#054ada"></rect><text x="440" y="78" text-anchor="middle" font-size="11" fill="#fff">配信ログDB</text>
+          <rect x="400" y="110" width="80" height="28" rx="4" fill="#054ada"></rect><text x="440" y="128" text-anchor="middle" font-size="11" fill="#fff">IBM i クエリ</text>
+          <line x1="90" y1="74" x2="138" y2="50" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma4)"></line>
+          <line x1="220" y1="38" x2="268" y2="22" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma4)"></line>
+          <line x1="220" y1="50" x2="268" y2="68" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma4)"></line>
+          <line x1="350" y1="74" x2="398" y2="74" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma4)"></line>
+          <text x="374" y="68" text-anchor="middle" font-size="10" fill="#57606a">開封イベント</text>
+          <line x1="440" y1="88" x2="440" y2="108" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma4)"></line>
+          <defs><marker id="ma4"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker></defs>
+        </svg>
+      </div>
+
+      <h3>5. ワークフロー承認メールの自動処理</h3>
+      <h4>IMAPのデメリット</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>#</th><th>デメリット</th><th>内容</th></tr>
+        <tr><td>①</td><td><strong>承認意思の曖昧性</strong></td><td>件名・本文のフリーテキスト解析に依存するため、誤記・表記ゆれで承認を取りこぼすリスクがある</td></tr>
+        <tr><td>②</td><td><strong>否認防止ができない</strong></td><td>メール送信者の詐称が可能で、誰が承認したかを暗号学的に証明できない</td></tr>
+        <tr><td>③</td><td><strong>並列承認・条件分岐が困難</strong></td><td>複数承認者・段階承認・差し戻しフローをメールのみで実装すると状態管理が複雑化する</td></tr>
+        <tr><td>④</td><td><strong>モバイル対応の限界</strong></td><td>承認者がスマートフォンから返信する場合、引用文の削除漏れ等でパース失敗するリスクがある</td></tr>
+      </table></div>
+      <h4>推奨される代替実装 → ワークフローAPI / Microsoft Teams ボット</h4>
+      <div class="diagram">
+        <svg width="560" height="200">
+          <text x="60" y="14" text-anchor="middle" font-size="12" font-weight="700">IBM i</text>
+          <text x="240" y="14" text-anchor="middle" font-size="12" font-weight="700">ワークフローAPI</text>
+          <text x="460" y="14" text-anchor="middle" font-size="12" font-weight="700">承認者スマートフォン</text>
+          <line x1="60" y1="20" x2="60" y2="190" stroke="#054ada" stroke-width="2"></line>
+          <line x1="240" y1="20" x2="240" y2="190" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="460" y1="20" x2="460" y2="190" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="60" y1="50" x2="238" y2="50" stroke="#057" stroke-width="1.5" marker-end="url(#ba4)"></line>
+          <text x="150" y="44" text-anchor="middle" font-size="11" fill="#057">承認依頼 POST /approvals</text>
+          <line x1="240" y1="70" x2="458" y2="70" stroke="#057" stroke-width="1.5" marker-end="url(#ba4)"></line>
+          <text x="350" y="64" text-anchor="middle" font-size="11" fill="#057">プッシュ通知</text>
+          <line x1="458" y1="100" x2="242" y2="100" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga5)"></line>
+          <text x="350" y="94" text-anchor="middle" font-size="11" fill="#1a7f37">ボタンタップ（承認/否認）</text>
+          <line x1="238" y1="130" x2="62" y2="130" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga5)"></line>
+          <text x="150" y="124" text-anchor="middle" font-size="11" fill="#1a7f37">Webhook通知（構造化JSON）</text>
+          <line x1="60" y1="150" x2="60" y2="175" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma5)"></line>
+          <text x="130" y="165" font-size="11" fill="#57606a">ステータス更新</text>
+          <defs>
+            <marker id="ba4"><path d="M0,0 L0,6 L8,3 z" fill="#057"></path></marker>
+            <marker id="ga5"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+            <marker id="ma5"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <hr class="section-hr" />
+      <h3>総括：ユースケース別 推奨実装まとめ</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>ユースケース</th><th>IMAPの主なデメリット</th><th>推奨代替実装</th><th>切替えの判断基準</th></tr>
+        <tr><td>1. バッチ結果取得</td><td>容量制限・MQより信頼性が低い</td><td><strong>IBM MQ / Kafka</strong></td><td>データ量が多い・配信保証が必要な場合</td></tr>
+        <tr><td>2. EDI受発注</td><td>署名なし・配信保証なし</td><td><strong>AS2 / SFTP</strong></td><td>否認防止・コンプライアンスが必要な場合</td></tr>
+        <tr><td>3. アラート監視</td><td>遅延・メールサーバーが単一障害点</td><td><strong>SNMP Trap / Webhook</strong></td><td>ミリ秒単位の即時性が求められる場合</td></tr>
+        <tr><td>4. 帳票アーカイブ</td><td>開封確認の精度・長期保存</td><td><strong>S3 ＋ 配信ログDB</strong></td><td>法定保存・全文検索が必要な場合</td></tr>
+        <tr><td>5. ワークフロー承認</td><td>意思の曖昧性・否認防止不可</td><td><strong>ワークフローAPI / Teamsボット</strong></td><td>複雑フロー・法的証拠能力が必要な場合</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  
+  <div class="bubble-row user">
+    <div class="avatar user-av">U</div>
+    <div class="bubble">ありがとうございます。AI活用の観点で、ユースケースの追加や実装面の追加を検討してみてください</div>
+  </div>
+
+  <div class="bubble-row ai">
+    <div class="avatar ai-av">Bob</div>
+    <div class="bubble">
+      <h2>AI活用による拡張：IBM i × IMAP の新ユースケースと実装強化</h2>
+
+      <h3>追加ユースケース</h3>
+
+      <h3>6. 受信メール内容のAI自動分類・ルーティング</h3>
+      <p>大量の問い合わせ・申請メールをAIが内容を解析して自動的に担当部門へ振り分ける。</p>
+      <p><strong>IMAPの役割：</strong>メールボックスの監視・取得・フォルダ移動</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>処理</th><th>AI技術</th><th>内容</th></tr>
+        <tr><td>件名・本文の意図分類</td><td>テキスト分類モデル（LLM）</td><td>「請求」「苦情」「問い合わせ」等に自動分類</td></tr>
+        <tr><td>優先度スコアリング</td><td>感情分析（Sentiment Analysis）</td><td>緊急度・感情を数値化して対応順序を決定</td></tr>
+        <tr><td>担当者レコメンド</td><td>過去対応履歴との類似検索（RAG）</td><td>類似案件の担当者・解決策を提示</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="580" height="200">
+          <rect x="10" y="80" width="90" height="28" rx="4" fill="#e5e7eb"></rect><text x="55" y="98" text-anchor="middle" font-size="11">メールサーバー</text>
+          <rect x="155" y="80" width="70" height="28" rx="4" fill="#054ada"></rect><text x="190" y="98" text-anchor="middle" font-size="11" fill="#fff">IBM i</text>
+          <rect x="280" y="50" width="100" height="28" rx="4" fill="#10a37f"></rect><text x="330" y="68" text-anchor="middle" font-size="11" fill="#fff">LLM API</text>
+          <rect x="280" y="100" width="100" height="28" rx="4" fill="#7c5cd8"></rect><text x="330" y="118" text-anchor="middle" font-size="11" fill="#fff">分類ラベル+スコア</text>
+          <rect x="440" y="50" width="100" height="28" rx="4" fill="#e5e7eb"></rect><text x="490" y="68" text-anchor="middle" font-size="11">フォルダ振り分け</text>
+          <rect x="440" y="100" width="100" height="28" rx="4" fill="#054ada"></rect><text x="490" y="118" text-anchor="middle" font-size="11" fill="#fff">DB2 for i</text>
+          <rect x="440" y="150" width="100" height="28" rx="4" fill="#e5e7eb"></rect><text x="490" y="168" text-anchor="middle" font-size="11">Slack/Teams通知</text>
+          <line x1="100" y1="94" x2="153" y2="94" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma6)"></line>
+          <text x="127" y="88" text-anchor="middle" font-size="10" fill="#57606a">IMAP FETCH</text>
+          <line x1="225" y1="88" x2="278" y2="65" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma6)"></line>
+          <line x1="380" y1="65" x2="438" y2="62" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma6)"></line>
+          <line x1="380" y1="114" x2="438" y2="114" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma6)"></line>
+          <line x1="490" y1="128" x2="490" y2="148" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma6)"></line>
+          <defs><marker id="ma6"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker></defs>
+        </svg>
+      </div>
+
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>IMAP＋AI</th><th>Webフォーム＋AI</th></tr>
+        <tr><td>送信者の負担</td><td>ゼロ（普通のメール）</td><td>フォーム入力が必要</td></tr>
+        <tr><td>既存フローの継続</td><td>変更不要</td><td>運用変更が必要</td></tr>
+        <tr><td>非構造化文の処理</td><td>AIが吸収</td><td>フォーム設計で吸収</td></tr>
+      </table></div>
+
+      <h3>7. 添付ファイルのAI自動解析・データ抽出</h3>
+      <p>請求書・納品書・契約書などPDF/画像の添付ファイルをAIで解析し、IBM i のDB2に自動登録する。</p>
+      <p><strong>IMAPの役割：</strong>添付ファイルのMIMEパート指定取得（本文不要）</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>処理</th><th>AI技術</th><th>内容</th></tr>
+        <tr><td>帳票レイアウト解析</td><td>OCR ＋ Document AI</td><td>請求金額・日付・品目を座標ベースで抽出</td></tr>
+        <tr><td>非定型帳票への対応</td><td>LLMによる構造化</td><td>フォーマットが毎回異なる帳票でも項目を推論抽出</td></tr>
+        <tr><td>抽出精度の自己評価</td><td>Confidence Score</td><td>低信頼度の項目は人間レビューキューに回す</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="580" height="200">
+          <text x="70" y="14" text-anchor="middle" font-size="11" font-weight="700">IBM i</text>
+          <text x="230" y="14" text-anchor="middle" font-size="11" font-weight="700">メールサーバー</text>
+          <text x="390" y="14" text-anchor="middle" font-size="11" font-weight="700">Document AI</text>
+          <text x="530" y="14" text-anchor="middle" font-size="11" font-weight="700">DB2 / Human Queue</text>
+          <line x1="70" y1="20" x2="70" y2="185" stroke="#054ada" stroke-width="2"></line>
+          <line x1="230" y1="20" x2="230" y2="185" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="390" y1="20" x2="390" y2="185" stroke="#10a37f" stroke-width="2"></line>
+          <line x1="530" y1="20" x2="530" y2="185" stroke="#e5e7eb" stroke-width="2"></line>
+          <line x1="70" y1="50" x2="228" y2="50" stroke="#057" stroke-width="1.5" marker-end="url(#ba5)"></line>
+          <text x="150" y="44" text-anchor="middle" font-size="10" fill="#057">FETCH BODY[2]（添付のみ）</text>
+          <line x1="70" y1="80" x2="388" y2="80" stroke="#057" stroke-width="1.5" marker-end="url(#ba5)"></line>
+          <text x="230" y="74" text-anchor="middle" font-size="10" fill="#057">PDF送信</text>
+          <line x1="388" y1="110" x2="72" y2="110" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga6)"></line>
+          <text x="230" y="104" text-anchor="middle" font-size="10" fill="#1a7f37">抽出データ＋Confidence Score</text>
+          <line x1="70" y1="140" x2="528" y2="140" stroke="#057" stroke-width="1.5" marker-end="url(#ba5)"></line>
+          <text x="300" y="134" text-anchor="middle" font-size="10" fill="#057">Score&gt;0.95 → 自動登録 / 以下 → レビューキュー</text>
+          <defs>
+            <marker id="ba5"><path d="M0,0 L0,6 L8,3 z" fill="#057"></path></marker>
+            <marker id="ga6"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>8. AI生成による自動返信・初期対応</h3>
+      <p>受信メールの内容をAIが解析し、FAQ・過去対応履歴を参照して初期返信メールを自動生成・送信する。</p>
+      <p><strong>IMAPの役割：</strong>受信メール取得 ＋ 送信済みフォルダへのアーカイブ確認</p>
+      <div class="tbl-wrap"><table>
+        <tr><th>処理</th><th>AI技術</th><th>内容</th></tr>
+        <tr><td>回答生成</td><td>RAG（Retrieval-Augmented Generation）</td><td>社内FAQや過去対応メールをベクトル検索して回答を生成</td></tr>
+        <tr><td>トーン調整</td><td>LLMプロンプトエンジニアリング</td><td>ビジネス文体・丁寧度を送信者の属性に応じて調整</td></tr>
+        <tr><td>ハルシネーション検出</td><td>LLM-as-a-Judge</td><td>生成した返信の正確性を別のLLMが検証してから送信</td></tr>
+      </table></div>
+
+      
+      <div class="diagram">
+        <svg width="580" height="130">
+          <rect x="10" y="45" width="80" height="28" rx="4" fill="#e5e7eb"></rect><text x="50" y="63" text-anchor="middle" font-size="11">受信メール</text>
+          <rect x="130" y="45" width="70" height="28" rx="4" fill="#054ada"></rect><text x="165" y="63" text-anchor="middle" font-size="11" fill="#fff">IBM i</text>
+          <rect x="240" y="10" width="80" height="28" rx="4" fill="#7c5cd8"></rect><text x="280" y="28" text-anchor="middle" font-size="11" fill="#fff">ベクトルDB</text>
+          <rect x="240" y="60" width="80" height="28" rx="4" fill="#10a37f"></rect><text x="280" y="78" text-anchor="middle" font-size="11" fill="#fff">LLM 返信生成</text>
+          <rect x="360" y="60" width="80" height="28" rx="4" fill="#f4a300"></rect><text x="400" y="78" text-anchor="middle" font-size="11">LLM-as-Judge</text>
+          <rect x="480" y="45" width="80" height="28" rx="4" fill="#1a7f37"></rect><text x="520" y="63" text-anchor="middle" font-size="11" fill="#fff">SMTP送信</text>
+          <rect x="480" y="90" width="80" height="28" rx="4" fill="#e5e7eb"></rect><text x="520" y="108" text-anchor="middle" font-size="11">担当者確認</text>
+          <line x1="90" y1="59" x2="128" y2="59" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma7)"></line>
+          <line x1="165" y1="45" x2="265" y2="30" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma7)"></line>
+          <line x1="165" y1="70" x2="238" y2="74" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma7)"></line>
+          <line x1="320" y1="74" x2="358" y2="74" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma7)"></line>
+          <line x1="440" y1="68" x2="478" y2="57" stroke="#1a7f37" stroke-width="1.5" marker-end="url(#ga7)"></line>
+          <text x="460" y="55" text-anchor="middle" font-size="10" fill="#1a7f37">OK</text>
+          <line x1="440" y1="82" x2="478" y2="98" stroke="#cf222e" stroke-width="1.5" marker-end="url(#ra3)"></line>
+          <text x="460" y="99" text-anchor="middle" font-size="10" fill="#cf222e">NG</text>
+          <defs>
+            <marker id="ma7"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+            <marker id="ga7"><path d="M0,0 L0,6 L8,3 z" fill="#1a7f37"></path></marker>
+            <marker id="ra3"><path d="M0,0 L0,6 L8,3 z" fill="#cf222e"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <hr class="section-hr" />
+      <h3>既存ユースケースへのAI実装強化</h3>
+
+      <h4>UC1強化：バッチ結果の異常検知AI</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>追加AI機能</th><th>内容</th></tr>
+        <tr><td><strong>異常スコアリング</strong></td><td>過去のバッチ結果メールと比較し、処理件数・エラー率の統計的異常を検出</td></tr>
+        <tr><td><strong>根本原因推定</strong></td><td>エラーログをLLMに渡し「過去の類似障害と原因・対処法」を自動サジェスト</td></tr>
+        <tr><td><strong>予測アラート</strong></td><td>トレンド分析で「次回バッチで閾値超過の可能性」を事前通知</td></tr>
+      </table></div>
+
+      <h4>UC3強化：アラートの重複排除・ノイズフィルタリングAI</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>追加AI機能</th><th>内容</th></tr>
+        <tr><td><strong>アラート相関分析</strong></td><td>同時多発アラートを「根本障害1件」に集約する因果推定</td></tr>
+        <tr><td><strong>ノイズ分類</strong></td><td>過去に無視されたアラートパターンをMLで学習し自動抑制</td></tr>
+        <tr><td><strong>対応優先度スコア</strong></td><td>業務影響度・過去対応時間からSLA違反リスクをスコアリング</td></tr>
+      </table></div>
+
+      <h4>UC5強化：ワークフロー承認のリスク判定AI</h4>
+      <div class="tbl-wrap"><table>
+        <tr><th>追加AI機能</th><th>内容</th></tr>
+        <tr><td><strong>承認内容のリスクスコア</strong></td><td>金額・取引先・条件を過去データと照合し異常な承認依頼を検出</td></tr>
+        <tr><td><strong>類似案件の提示</strong></td><td>過去の類似承認案件・却下案件をRAGで検索して提示</td></tr>
+        <tr><td><strong>コンプライアンスチェック</strong></td><td>社内規程・法令との整合性をLLMが自動確認してフラグ付け</td></tr>
+      </table></div>
+
+      <hr class="section-hr" />
+      <h3>全体アーキテクチャ（IBM i 中心）</h3>
+      <div class="diagram">
+        <svg width="580" height="220">
+          
+          <rect x="220" y="80" width="120" height="40" rx="6" fill="#054ada"></rect><text x="280" y="105" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">IBM i</text>
+          
+          <rect x="30" y="80" width="110" height="36" rx="5" fill="#e5e7eb"></rect><text x="85" y="102" text-anchor="middle" font-size="11">メールサーバー</text>
+          
+          <rect x="220" y="10" width="280" height="52" rx="6" fill="#f0f4ff" stroke="#3b82d4"></rect>
+          <text x="360" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82d4">AI Layer</text>
+          <text x="250" y="45" text-anchor="middle" font-size="10" fill="#57606a">LLM API</text>
+          <text x="330" y="45" text-anchor="middle" font-size="10" fill="#57606a">ベクトルDB</text>
+          <text x="410" y="45" text-anchor="middle" font-size="10" fill="#57606a">MLモデル</text>
+          <text x="490" y="45" text-anchor="middle" font-size="10" fill="#57606a">Document AI</text>
+          
+          <rect x="390" y="80" width="90" height="36" rx="5" fill="#054ada"></rect><text x="435" y="102" text-anchor="middle" font-size="11" fill="#fff">DB2 for i</text>
+          
+          <rect x="390" y="140" width="90" height="36" rx="5" fill="#e5e7eb"></rect><text x="435" y="162" text-anchor="middle" font-size="11">Slack/Teams</text>
+          
+          <rect x="220" y="160" width="120" height="36" rx="5" fill="#fef9e7" stroke="#f4a300"></rect><text x="280" y="182" text-anchor="middle" font-size="11" fill="#b45309">担当者レビューUI</text>
+          
+          <line x1="140" y1="98" x2="218" y2="98" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma8)"></line>
+          <text x="180" y="92" text-anchor="middle" font-size="10" fill="#57606a">IMAP</text>
+          <line x1="280" y1="80" x2="280" y2="62" stroke="#3b82d4" stroke-width="1.5" marker-end="url(#ba6)"></line>
+          <line x1="340" y1="100" x2="388" y2="100" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma8)"></line>
+          <line x1="435" y1="116" x2="435" y2="138" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma8)"></line>
+          <line x1="280" y1="120" x2="280" y2="158" stroke="#57606a" stroke-width="1.5" marker-end="url(#ma8)"></line>
+          <defs>
+            <marker id="ma8"><path d="M0,0 L0,6 L8,3 z" fill="#57606a"></path></marker>
+            <marker id="ba6"><path d="M0,0 L0,6 L8,3 z" fill="#3b82d4"></path></marker>
+          </defs>
+        </svg>
+      </div>
+
+      <h3>AI活用時の注意点と判断基準</h3>
+      <div class="tbl-wrap"><table>
+        <tr><th>観点</th><th>内容</th></tr>
+        <tr><td><strong>ハルシネーション対策</strong></td><td>自動実行前に Confidence Score / LLM-as-a-Judge で品質ゲートを設ける</td></tr>
+        <tr><td><strong>人間のオーバーライド</strong></td><td>AIが低信頼と判断した処理は必ず人間レビューキューに回す設計にする</td></tr>
+        <tr><td><strong>個人情報・機密情報</strong></td><td>メール本文を外部LLM APIに送る場合はPII除去・オンプレモデルの検討が必要</td></tr>
+        <tr><td><strong>IBM i との親和性</strong></td><td>watsonx.ai はIBM製品のため IBM i 環境との統合サポートが手厚い</td></tr>
+        <tr><td><strong>段階的導入</strong></td><td>まず「分類・提案」のみAIが行い、実行判断は人間という形から始めるのが安全</td></tr>
+      </table></div>
+
+      <div class="highlight-box">IMAPは <strong>「非構造化テキストが届く入り口」</strong> として機能し、そこにAIを組み合わせることで、従来は人手が必要だった解釈・判断・応答生成をIBM i の基幹処理フローに自然に組み込めるのが最大の価値です。</div>
+    </div>
+  </div>
+
+</div>
+<footer>Made with IBM Bob</footer>
+</body>
+</html>
