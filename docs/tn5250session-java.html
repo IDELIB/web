@@ -1,0 +1,595 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TN5250Session.java 技術解説書</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 32px 16px 64px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  h2 { font-size: 17px; font-weight: 700; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; }
+  h3 { font-size: 14px; font-weight: 700; margin: 22px 0 8px; color: #3b82d4; }
+  h4 { font-size: 13px; font-weight: 600; margin: 14px 0 4px; color: #57606a; }
+
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 10px 20px; }
+  li { margin-bottom: 4px; }
+
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 28px; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px;
+    margin-right: 4px; vertical-align: middle;
+  }
+  .blue   { background:#dbeafe; color:#1d4ed8; }
+  .green  { background:#dcfce7; color:#15803d; }
+  .amber  { background:#fef3c7; color:#92400e; }
+  .red    { background:#fee2e2; color:#b91c1c; }
+  .purple { background:#ede9fe; color:#6d28d9; }
+  .gray   { background:#f3f4f6; color:#374151; }
+
+  code {
+    font-family: "SF Mono","Fira Code",monospace;
+    font-size: 12px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    font-family: "SF Mono","Fira Code",monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .ln { color: #a0aec0; user-select: none; margin-right: 12px; display: inline-block; min-width: 28px; text-align: right; }
+
+  .card {
+    border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 16px 20px; margin: 12px 0; background: #f7f8fa;
+  }
+  .card-title { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:10px 0 16px; }
+  th { background:#f7f8fa; border:1px solid #e5e7eb; padding:7px 10px; text-align:left; font-weight:600; }
+  td { border:1px solid #e5e7eb; padding:7px 10px; vertical-align:top; }
+  tr:nth-child(even) td { background:#fafafa; }
+
+  .note { border-left:3px solid #3b82d4; padding:8px 14px; background:#eff6ff; border-radius:0 4px 4px 0; margin:10px 0; font-size:13px; color:#1e3a5f; }
+  .warn { border-left:3px solid #f59e0b; padding:8px 14px; background:#fffbeb; border-radius:0 4px 4px 0; margin:10px 0; font-size:13px; color:#78350f; }
+  .danger { border-left:3px solid #ef4444; padding:8px 14px; background:#fef2f2; border-radius:0 4px 4px 0; margin:10px 0; font-size:13px; color:#7f1d1d; }
+
+  .flow { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:12px 0; font-size:13px; }
+  .fbox { border:1px solid #e5e7eb; border-radius:6px; padding:6px 12px; background:#fff; font-weight:600; }
+  .farrow { color:#57606a; font-size:16px; }
+
+  .arch { border:1px solid #e5e7eb; border-radius:8px; padding:20px; margin:14px 0; background:#fff; }
+  .arow { display:flex; justify-content:center; align-items:stretch; gap:0; margin:6px 0; }
+  .ablock {
+    border:1.5px solid #94a3b8; border-radius:6px;
+    padding:10px 18px; text-align:center;
+    min-width:140px; font-size:12px; line-height:1.4; background:#f8fafc;
+  }
+  .ablock strong { display:block; font-size:13px; margin-bottom:2px; }
+  .ablock.ab  { background:#dbeafe; border-color:#3b82d4; }
+  .ablock.ag  { background:#dcfce7; border-color:#16a34a; }
+  .ablock.ap  { background:#ede9fe; border-color:#7c5cd8; }
+  .ablock.aa  { background:#fef3c7; border-color:#d97706; }
+  .avert { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2px 0; color:#57606a; font-size:18px; }
+  .alabel { font-size:10px; color:#57606a; }
+
+  .method-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .method-header {
+    background: #f7f8fa;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .method-name {
+    font-family: "SF Mono","Fira Code",monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2328;
+  }
+  .method-body { padding: 14px 16px; }
+  .method-body p { margin-bottom: 6px; }
+
+  footer { margin-top:48px; padding-top:16px; border-top:1px solid #e5e7eb; text-align:center; font-size:12px; color:#57606a; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>TN5250Session.java 技術解説書</h1>
+<p class="subtitle">
+  <code>MCP/TN5250Session.java</code>  | 
+  <span class="badge blue">Java</span>
+  <span class="badge green">IBM ECL</span>
+  <span class="badge purple">TN5250 / IBM i</span>
+  <span class="badge gray">MCP Sub-Process</span>
+</p>
+
+
+<!-- ============================================================ -->
+<h2>1. 概要</h2>
+<p>
+  <code>TN5250Session</code> は <strong>IBM Host Access Class Library (HACL / ECL)</strong> を使って
+  IBM i (AS/400) の TN5250 端末セッションを制御する Java プログラムです。
+  <code>index.ts</code>（Node.js MCP サーバー）に<strong>子プロセスとして起動</strong>され、
+  stdin から受け取るテキストコマンドに従って画面操作を行い、結果を stdout へ出力します。
+</p>
+
+<div class="arch">
+  <div class="arow"><div class="ablock ab"><strong>index.ts</strong>Node.js / MCP Server</div></div>
+  <div class="arow"><div class="avert">↕<span class="alabel">stdin (コマンド) / stdout (テキスト応答)</span></div></div>
+  <div class="arow"><div class="ablock ag"><strong>TN5250Session.java</strong>java -jar TN5250Session.jar</div></div>
+  <div class="arow"><div class="avert">↕<span class="alabel">IBM ECL API (HACL)</span></div></div>
+  <div class="arow"><div class="ablock aa"><strong>ECLSession / ECLPS</strong>com.ibm.eNetwork.ECL.*</div></div>
+  <div class="arow"><div class="avert">↕<span class="alabel">TCP TN5250 / Telnet (port 23)</span></div></div>
+  <div class="arow"><div class="ablock ap"><strong>IBM i ホスト</strong>AS/400 サーバー</div></div>
+</div>
+
+
+<!-- ============================================================ -->
+<h2>2. 前提ソフトウェア</h2>
+
+<table>
+  <tr><th>ソフトウェア</th><th>バージョン</th><th>役割</th><th>入手先</th></tr>
+  <tr>
+    <td><strong>Java Development Kit (JDK) または<br>Java Runtime Environment (JRE)</strong></td>
+    <td>8 以上（推奨: 11 または 17 LTS）</td>
+    <td>
+      <strong>実行時：</strong><code>java -jar TN5250Session.jar</code> で起動するために JRE が必要。<br>
+      <strong>再ビルド時：</strong><code>javac</code> によるコンパイルに JDK が必要。
+    </td>
+    <td><a href="https://adoptium.net">https://adoptium.net</a></td>
+  </tr>
+  <tr>
+    <td><strong>IBM Host Access Class Library (HACL / ECL)</strong></td>
+    <td>—</td>
+    <td>
+      <code>com.ibm.eNetwork.ECL.*</code> パッケージ群。<code>ECLSession</code>・<code>ECLPS</code>・<code>ECLOIA</code>・<code>ECLField</code> 等を提供。
+      <strong>別途 IBM から入手が必須。</strong><code>../../jars/</code> に HACL JAR（<code>eNetwork.jar</code> 等）を配置し、<code>build-tn5250-jar.sh</code> でビルドすることで <code>TN5250Session.jar</code> に組み込まれる。
+    </td>
+    <td>IBM 提供（<strong>必須</strong>・別途入手）</td>
+  </tr>
+  <tr>
+    <td><strong>TN5250Session.jar</strong></td>
+    <td>本リポジトリ同梱（<code>MCP/tn5250-server/lib/TN5250Session.jar</code>）</td>
+    <td>本ファイル（<code>TN5250Session.java</code>）と HACL を合わせてビルドした実行可能 JAR。<code>index.ts</code> から子プロセスとして起動される。HACL を別途入手してから <code>build-tn5250-jar.sh</code> でビルドする必要がある。</td>
+    <td>本リポジトリ同梱（要ビルド）</td>
+  </tr>
+  <tr>
+    <td><strong>IBM i (AS/400) ホスト</strong></td>
+    <td>OS/400 または IBM i 任意バージョン</td>
+    <td>TN5250 / Telnet（デフォルト: TCP 23番ポート）で接続可能な IBM i サーバー。SSL 接続の場合は Telnet SSL ポート（992 等）が開放されていること。</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td><strong>MCP クライアント</strong><br>（IBM Bob または Claude Code）</td>
+    <td>IBM Bob v1.0 / v2.0<br>Claude Code</td>
+    <td>本プログラムは <code>stdin/stdout</code> 経由でコマンドを受け取る設計のため、<code>stdio</code> トランスポート対応の MCP クライアントであれば動作可能。</td>
+    <td>—</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>動作確認済み環境：</strong><br>
+  macOS Tahoe 26.5.1 (Apple M1 Pro) / IBM Bob v1.0, v2.0<br>
+  macOS Tahoe 26.5.1 (Apple M1 Pro) / Claude Code
+</div>
+
+<div class="warn">
+  <strong>HACL JAR は別途 IBM から入手してください。</strong><br>
+  <code>../../jars/</code> ディレクトリに HACL JAR ファイル（<code>eNetwork.jar</code> 等）を配置してから、以下を実行してください。
+  <pre style="margin-top:8px">cd MCP
+bash build-tn5250-jar.sh
+# → MCP/TN5250Session.jar が生成される
+cp TN5250Session.jar tn5250-server/lib/TN5250Session.jar</pre>
+</div>
+
+<h3>使用している JDK 標準ライブラリ</h3>
+<table>
+  <tr><th>パッケージ / クラス</th><th>用途</th></tr>
+  <tr><td><code>java.util.logging.Logger</code></td><td>エラー・警告ログ（stdout/stderr を汚染しないため）</td></tr>
+  <tr><td><code>java.util.Properties</code></td><td>ECLSession への接続プロパティ設定</td></tr>
+  <tr><td><code>java.util.Scanner</code></td><td>stdin からのコマンド行読み取り（対話ループ）</td></tr>
+  <tr><td><code>java.security.cert.X509Certificate</code></td><td>SSL 証明書検証スキップ用 TrustManager の実装</td></tr>
+  <tr><td><code>javax.net.ssl.SSLContext / TrustManager / X509TrustManager</code></td><td>自己署名証明書を許容する SSL コンテキスト設定</td></tr>
+  <tr><td><code>javax.net.ssl.HttpsURLConnection</code></td><td>デフォルト SSL ソケットファクトリへの適用</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>3. クラス構造</h2>
+<pre><code>public class TN5250Session <strong>implements ECLPSNotify</strong> {
+    private ECLSession eSession;   // ECL セッション本体
+    private ECLPS      ps;         // Presentation Space（画面バッファ）
+    private ECLOIA     oia;        // Operator Information Area（入力待ちステータス）
+    private int        rows;       // 画面の行数
+    private int        cols;       // 画面の列数
+}</code></pre>
+
+<h4>ECLPSNotify インターフェース</h4>
+<p>PS（画面バッファ）の変化イベントを受け取るリスナーインターフェース。
+今バージョンでは 3 メソッドとも空実装（<code>displayScreen()</code> が都度 <code>GetSize()</code> で動的取得するため不要）。</p>
+<table>
+  <tr><th>メソッド</th><th>実装</th></tr>
+  <tr><td><code>NotifyEvent(ECLPS)</code></td><td>空実装</td></tr>
+  <tr><td><code>NotifyStop(ECLPS, int)</code></td><td>空実装</td></tr>
+  <tr><td><code>NotifyError(ECLPS, ECLErr)</code></td><td>空実装</td></tr>
+</table>
+
+
+<h2>4. メイン実行フロー（34〜78行）</h2>
+
+<pre><span class="ln">56</span>TN5250Session session = new TN5250Session();
+<span class="ln">60</span>session.connect(host, port, codePage, ssl, screenSize);
+<span class="ln">63</span>session.signOn(user, password);
+<span class="ln">66</span>session.interactiveMode();   // ← ここで stdin ループに入る
+<span class="ln">69</span>session.disconnect();</pre>
+
+<div class="flow">
+  <div class="fbox">① 引数解析</div><span class="farrow">→</span>
+  <div class="fbox">② connect()</div><span class="farrow">→</span>
+  <div class="fbox">③ signOn()</div><span class="farrow">→</span>
+  <div class="fbox">④ interactiveMode() ループ</div><span class="farrow">→</span>
+  <div class="fbox">⑤ disconnect()</div>
+</div>
+
+<h4>コマンドライン引数</h4>
+<table>
+  <tr><th>インデックス</th><th>引数名</th><th>デフォルト</th><th>説明</th></tr>
+  <tr><td>args[0]</td><td>host</td><td>必須</td><td>IBM i ホスト名または IP アドレス</td></tr>
+  <tr><td>args[1]</td><td>port</td><td>必須</td><td>Telnet ポート番号</td></tr>
+  <tr><td>args[2]</td><td>user</td><td>必須</td><td>サインオンユーザー名</td></tr>
+  <tr><td>args[3]</td><td>password</td><td>必須</td><td>パスワード</td></tr>
+  <tr><td>args[4]</td><td>codePage</td><td>"930"</td><td>文字コードページ（930 = 日本語 EBCDIC）</td></tr>
+  <tr><td>args[5]</td><td>ssl</td><td>"false"</td><td>"true" で SSL/TLS 接続を使用</td></tr>
+  <tr><td>args[6]</td><td>screenSize</td><td>"24x80"</td><td>画面サイズ（24x80 または 27x132）</td></tr>
+</table>
+
+
+<h2>5. メソッド詳解</h2>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">connect(host, port, codePage, ssl, screenSize)</span>
+    <span style="font-size:12px;color:#57606a">83〜157行</span>
+  </div>
+  <div class="method-body">
+    <p>IBM i ホストへの TN5250 接続を確立し、入力待ち状態になるまで待機します。</p>
+
+    <h4>SSL 設定（86〜98行）</h4>
+    <pre><span class="ln">88</span>TrustManager[] trustAll = new TrustManager[] {
+<span class="ln">89</span>    new X509TrustManager() {
+<span class="ln">90</span>        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+<span class="ln">91</span>        public void checkClientTrusted(X509Certificate[] c, String a) {}
+<span class="ln">92</span>        public void checkServerTrusted(X509Certificate[] c, String a) {}
+<span class="ln">93</span>    }
+<span class="ln">94</span>};</pre>
+    <div class="danger">
+      <strong>証明書検証を完全スキップする TrustManager を設定しています。</strong>
+      自己署名証明書を持つ IBM i 環境向けの実装です。本番環境では中間者攻撃 (MITM) のリスクがあるため、正式な証明書チェーンの検証を推奨します。
+    </div>
+
+    <h4>ECLSession プロパティ設定（101〜119行）</h4>
+    <table>
+      <tr><th>プロパティ</th><th>値</th><th>意味</th></tr>
+      <tr><td><code>SESSION_HOST</code></td><td>host</td><td>接続先ホスト名</td></tr>
+      <tr><td><code>SESSION_HOST_PORT</code></td><td>port</td><td>Telnet ポート番号</td></tr>
+      <tr><td><code>SESSION_TYPE</code></td><td>SESSION_TYPE_5250_STR</td><td>5250 端末エミュレーション</td></tr>
+      <tr><td><code>SESSION_SSL</code></td><td>ON / OFF</td><td>SSL/TLS の有効化</td></tr>
+      <tr><td><code>SESSION_FIPS_MODE</code></td><td>OFF</td><td>FIPS 無効（arm64 Mac 対応）</td></tr>
+      <tr><td><code>SESSION_SSL_USE_JSSE</code></td><td>ON</td><td>Java 標準 SSL を使用</td></tr>
+      <tr><td><code>SESSION_SSL_SERVER_AUTHENTICATION</code></td><td>OFF</td><td>証明書検証スキップ</td></tr>
+      <tr><td><code>SESSION_CODE_PAGE</code></td><td>codePage</td><td>文字コードページ</td></tr>
+      <tr><td><code>SESSION_PS_SIZE</code></td><td>24x80 or 27x132</td><td>画面サイズ</td></tr>
+      <tr><td><code>SESSION_USE_BIND_SCREEN_SIZE</code></td><td>ON</td><td>サーバー指定サイズを優先（132桁対応）</td></tr>
+    </table>
+
+    <h4>入力待ち確認ループ（143〜153行）</h4>
+    <pre><span class="ln">143</span>for (int i = 0; i &lt; 3; i++) {
+<span class="ln">144</span>    inputReady = oia.WaitForInput(5000);  // 最大5秒待機
+<span class="ln">145</span>    if (inputReady) break;
+<span class="ln">147</span>    Thread.sleep(1000);
+<span class="ln">148</span>}</pre>
+    <div class="note">
+      <code>OIA.WaitForInput()</code> を最大3回リトライ（合計最大18秒）。
+      ネットワーク遅延やホスト側の処理遅延に対する堅牢性を確保しています。
+    </div>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">signOn(user, password)</span>
+    <span style="font-size:12px;color:#57606a">162〜179行</span>
+  </div>
+  <div class="method-body">
+    <p>サインオン画面にユーザー名とパスワードを送信します。</p>
+    <pre><span class="ln">169</span>ps.SendKeys(user + "[tab]" + password + "[enter]");</pre>
+    <p>
+      <code>[tab]</code> でパスワードフィールドへ移動し、<code>[enter]</code> でサインオンを実行します。
+      この1回の <code>SendKeys</code> 呼び出しで、ユーザー名入力・タブ移動・パスワード入力・Enter 送信をまとめて行います。
+    </p>
+    <div class="warn">
+      ユーザー名とパスワードは引数経由で渡されます。Node.js 側（<code>index.ts</code>）がコマンドライン引数として渡すため、
+      プロセスリストに表示される可能性があります。本番環境での運用時は注意が必要です。
+    </div>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">interactiveMode()</span>
+    <span style="font-size:12px;color:#57606a">211〜259行</span>
+  </div>
+  <div class="method-body">
+    <p>
+      <code>Scanner(System.in)</code> で標準入力を読み続けるイベントループです。
+      Node.js 側がここに1行コマンドを書き込むことで操作を行います。
+    </p>
+    <h4>コマンド対応表</h4>
+    <table>
+      <tr><th>コマンド</th><th>短縮形</th><th>呼び出しメソッド</th><th>説明</th></tr>
+      <tr><td><code>quit</code></td><td><code>q</code></td><td>—（ループ脱出）</td><td>対話モード終了</td></tr>
+      <tr><td><code>help</code></td><td><code>h</code></td><td><code>displayHelp()</code></td><td>コマンド一覧表示</td></tr>
+      <tr><td><code>help keys</code></td><td>—</td><td><code>displayKeyHelp()</code></td><td>5250キー一覧表示</td></tr>
+      <tr><td><code>screen</code></td><td><code>sc</code></td><td><code>displayScreen()</code></td><td>現在の画面テキスト取得</td></tr>
+      <tr><td><code>fields</code></td><td><code>f</code></td><td><code>displayFieldInfo()</code></td><td>全フィールド情報取得</td></tr>
+      <tr><td><code>inputs</code></td><td><code>i</code></td><td><code>displayInputFields()</code></td><td>入力可能フィールドのみ取得</td></tr>
+      <tr><td><code>send &lt;keys&gt;</code></td><td><code>s &lt;keys&gt;</code></td><td><code>sendKeys(keys)</code></td><td>キー送信</td></tr>
+    </table>
+    <div class="note">
+      Node.js から送られるコマンド例：<code>send WRKSYSSTS[enter]\n</code> → <code>parts[0]="send"</code>、<code>parts[1]="WRKSYSSTS[enter]"</code> と分割されます。
+    </div>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">sendKeys(keys)</span>
+    <span style="font-size:12px;color:#57606a">264〜299行</span>
+  </div>
+  <div class="method-body">
+    <p>キー文字列を変換して <code>ps.SendKeys()</code> に渡し、画面更新を待機します。</p>
+    <div class="flow">
+      <div class="fbox">OIA.WaitForInput(5000)</div><span class="farrow">→</span>
+      <div class="fbox">convertFunctionKeys()</div><span class="farrow">→</span>
+      <div class="fbox">ps.SendKeys()</div><span class="farrow">→</span>
+      <div class="fbox">sleep(500)</div><span class="farrow">→</span>
+      <div class="fbox">OIA.WaitForInput(10000)</div><span class="farrow">→</span>
+      <div class="fbox">displayScreen()</div>
+    </div>
+    <h4>例外処理の2段階設計</h4>
+    <table>
+      <tr><th>例外クラス</th><th>想定原因</th><th>対応</th></tr>
+      <tr><td><code>com.ibm.eNetwork.ECL.ECLErr</code></td><td>無効なキーシーケンス</td><td>警告メッセージ＋ログ（WARNING）</td></tr>
+      <tr><td><code>Exception</code></td><td>その他の予期しないエラー</td><td>エラーメッセージ＋ログ（SEVERE）</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">displayScreen()</span>
+    <span style="font-size:12px;color:#57606a">304〜337行</span>
+  </div>
+  <div class="method-body">
+    <p>PS（Presentation Space）から全行を読み取り、制御文字を除去してテキストで出力します。</p>
+    <pre><span class="ln">308</span>int psSize = ps.GetSize();
+<span class="ln">309</span>int currentCols = (currentRows &gt; 0 &amp;&amp; psSize &gt; 0) ? psSize / currentRows : ps.GetSizeCols();</pre>
+    <div class="note">
+      <strong>132桁対応の工夫：</strong><code>GetSizeCols()</code> が画面切り替え直後に古い値を返すことがあるため、
+      総文字数 <code>GetSize()</code> を行数で割ることで正確な列数を算出しています。
+    </div>
+
+    <h4>制御文字フィルタリング（324行）</h4>
+    <pre><span class="ln">324</span>if (c == 0x20 || (c &gt;= 0x21 &amp;&amp; c &lt;= 0x7E) || c &gt;= 0xA0) {
+<span class="ln">325</span>    cleaned.append(c);      // 保持
+<span class="ln">326</span>} else {
+<span class="ln">327</span>    cleaned.append(' ');    // 置換（スペース）
+<span class="ln">328</span>}</pre>
+    <table>
+      <tr><th>コードポイント範囲</th><th>内容</th><th>処理</th></tr>
+      <tr><td>0x20</td><td>スペース</td><td>保持</td></tr>
+      <tr><td>0x21〜0x7E</td><td>印字可能 ASCII</td><td>保持</td></tr>
+      <tr><td>0xA0〜0xFFFF</td><td>マルチバイト文字（日本語等）</td><td>保持</td></tr>
+      <tr><td>0x00〜0x1F</td><td>制御文字</td><td>スペースに置換</td></tr>
+      <tr><td>0x7F〜0x9F</td><td>5250 属性バイト・拡張制御文字</td><td>スペースに置換</td></tr>
+    </table>
+    <p>画面の枠として <code>=</code> 文字の区切り線をヘッダー・フッターとして出力します（列幅分）。</p>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">displayFieldInfo()</span>
+    <span style="font-size:12px;color:#57606a">342〜392行</span>
+  </div>
+  <div class="method-body">
+    <p><code>ps.GetFieldList()</code> で全フィールドを取得し、各フィールドの詳細をテキスト出力します。</p>
+    <pre><span class="ln">346</span>ECLFieldList fieldList = ps.GetFieldList();
+<span class="ln">351</span>ECLField field = fieldList.GetFirstField();
+<span class="ln">385</span>field = fieldList.GetNextField(field);  // リスト走査</pre>
+    <h4>出力項目（フィールドごと）</h4>
+    <ul>
+      <li>タイプ（Protected / Input-capable）</li>
+      <li>開始位置（行・列）・終了位置（行・列）</li>
+      <li>長さ・内容文字列</li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">displayInputFields()</span>
+    <span style="font-size:12px;color:#57606a">397〜452行</span>
+  </div>
+  <div class="method-body">
+    <p>全フィールドから<strong>入力可能フィールドだけをフィルタ</strong>して出力します。</p>
+    <pre><span class="ln">408</span>int attr = field.GetAttribute();
+<span class="ln">409</span>boolean isInput = (attr &amp; 0x20) == 0;  // 保護ビット(bit5)が0なら入力可能</pre>
+    <div class="note">
+      <strong>5250 フィールド属性バイト：</strong>
+      ビット 5 (0x20) が <code>1</code> なら「保護フィールド」（変更不可）、
+      <code>0</code> なら「入力可能フィールド」です。これは TN5250 プロトコル仕様に準拠した判定です。
+    </div>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">convertFunctionKeys(keys)</span>
+    <span style="font-size:12px;color:#57606a">546〜567行</span>
+  </div>
+  <div class="method-body">
+    <p>ユーザーが入力したキー文字列を ECL の <code>SendKeys</code> が受け付ける正式記法に変換します。</p>
+    <h4>変換ルール</h4>
+    <table>
+      <tr><th>入力</th><th>変換後</th><th>説明</th></tr>
+      <tr><td><code>[f1]〜[f24]</code></td><td><code>[pf1]〜[pf24]</code></td><td>ECL は [pf] 記法を要求</td></tr>
+      <tr><td><code>[]</code> または <code>[e]</code></td><td><code>[enter]</code></td><td>Enter キー省略形</td></tr>
+      <tr><td><code>[t]</code></td><td><code>[tab]</code></td><td>Tab キー省略形</td></tr>
+      <tr><td><code>[bt]</code></td><td><code>[backtab]</code></td><td>BackTab キー省略形</td></tr>
+      <tr><td><code>[bs]</code></td><td><code>[backspace]</code></td><td>Backspace キー省略形</td></tr>
+      <tr><td><code>[del]</code></td><td><code>[delete]</code></td><td>Delete キー省略形</td></tr>
+      <tr><td><code>[h]</code></td><td><code>[home]</code></td><td>Home キー省略形</td></tr>
+      <tr><td><code>[ins]</code></td><td><code>[insert]</code></td><td>Insert キー省略形</td></tr>
+      <tr><td><code>[alt]</code></td><td><code>[altview]</code></td><td>Altview キー省略形</td></tr>
+    </table>
+    <p>変換は <code>(?i)</code> フラグ付き正規表現で大文字小文字を区別しません（例: <code>[F3]</code> も <code>[pf3]</code> に変換）。</p>
+  </div>
+</div>
+
+
+<div class="method-card">
+  <div class="method-header">
+    <span class="badge blue">private</span>
+    <span class="method-name">disconnect()</span>
+    <span style="font-size:12px;color:#57606a">200〜206行</span>
+  </div>
+  <div class="method-body">
+    <pre><span class="ln">202</span>if (ps != null) ps.UnregisterPSEvent(this);  // リスナー解除
+<span class="ln">203</span>eSession.StopCommunication();               // TN5250 接続終了</pre>
+    <p>PSイベントリスナーを解除してからセッションを停止することで、
+    切断後にゴーストイベントが発火するのを防いでいます。</p>
+  </div>
+</div>
+
+
+<h2>6. 使用している ECL API</h2>
+<table>
+  <tr><th>クラス</th><th>メソッド</th><th>用途</th></tr>
+  <tr><td rowspan="4"><code>ECLSession</code></td><td><code>new ECLSession(Properties)</code></td><td>セッション作成・接続設定</td></tr>
+  <tr><td><code>StartCommunication()</code></td><td>TN5250 接続開始</td></tr>
+  <tr><td><code>StopCommunication()</code></td><td>TN5250 接続終了</td></tr>
+  <tr><td><code>GetPS() / GetOIA()</code></td><td>PS・OIA オブジェクト取得</td></tr>
+  <tr><td rowspan="7"><code>ECLPS</code></td><td><code>RegisterPSEvent(listener)</code></td><td>PS 変化イベントリスナー登録</td></tr>
+  <tr><td><code>UnregisterPSEvent(listener)</code></td><td>リスナー解除</td></tr>
+  <tr><td><code>SendKeys(keys)</code></td><td>キー文字列送信</td></tr>
+  <tr><td><code>GetSizeRows() / GetSizeCols()</code></td><td>画面の行数・列数取得</td></tr>
+  <tr><td><code>GetSize()</code></td><td>画面の総文字数取得</td></tr>
+  <tr><td><code>GetString(buf, len, pos, len)</code></td><td>指定位置から文字列取得</td></tr>
+  <tr><td><code>GetFieldList()</code></td><td>フィールドリスト取得</td></tr>
+  <tr><td><code>ECLOIA</code></td><td><code>WaitForInput(timeout)</code></td><td>入力可能状態になるまで待機</td></tr>
+  <tr><td rowspan="5"><code>ECLField</code></td><td><code>GetStartRow() / GetStartCol()</code></td><td>フィールド開始位置</td></tr>
+  <tr><td><code>GetEndRow() / GetEndCol()</code></td><td>フィールド終了位置</td></tr>
+  <tr><td><code>GetLength()</code></td><td>フィールド文字数</td></tr>
+  <tr><td><code>GetAttribute()</code></td><td>属性バイト（保護/入力可能の判定）</td></tr>
+  <tr><td><code>GetString(buf, len)</code></td><td>フィールド内容取得</td></tr>
+  <tr><td><code>ECLFieldList</code></td><td><code>GetFirstField() / GetNextField()</code></td><td>フィールドリスト走査</td></tr>
+</table>
+
+
+<h2>7. エラーハンドリング設計</h2>
+<div class="card">
+  <div class="card-title">セキュリティを意識した例外処理の一貫したパターン</div>
+  <p>すべての例外キャッチ箇所で <strong>スタックトレースを stdout/stderr に直接出力しない</strong> 設計になっています。</p>
+  <ul>
+    <li>ユーザー向けには「Please contact the system administrator.」のような汎用メッセージを出力</li>
+    <li>詳細は <code>java.util.logging.Logger</code> に記録（ログファイルのみ）</li>
+    <li>これにより、MCP 経由で AI がエラー詳細（内部パスやスタック）を取得できない設計</li>
+  </ul>
+</div>
+<table>
+  <tr><th>場所</th><th>ログレベル</th><th>想定状況</th></tr>
+  <tr><td>main() catch</td><td>SEVERE</td><td>接続・サインオン・全般的な例外</td></tr>
+  <tr><td>sendKeys() ECLErr catch</td><td>WARNING</td><td>無効なキーシーケンス</td></tr>
+  <tr><td>sendKeys() Exception catch</td><td>SEVERE</td><td>その他の予期しない例外</td></tr>
+  <tr><td>interactiveMode() catch</td><td>SEVERE</td><td>コマンド実行中の例外</td></tr>
+  <tr><td>displayScreen() catch</td><td>WARNING</td><td>画面取得エラー</td></tr>
+  <tr><td>displayFieldInfo() catch</td><td>SEVERE</td><td>フィールドリスト取得エラー</td></tr>
+</table>
+
+
+<h2>8. Node.js (index.ts) との通信プロトコル</h2>
+<div class="card">
+  <div class="card-title">stdin/stdout による独自テキストプロトコル</div>
+  <table>
+    <tr><th>方向</th><th>内容</th><th>例</th></tr>
+    <tr><td>Node.js → Java (stdin)</td><td>1行テキストコマンド</td><td><code>send WRKSYSSTS[enter]\n</code></td></tr>
+    <tr><td>Java → Node.js (stdout)</td><td>複数行テキスト応答</td><td>画面テキスト・フィールド情報など</td></tr>
+    <tr><td>Java → Node.js (stderr)</td><td>エラー・警告メッセージ</td><td><code>Warning: Input not available</code></td></tr>
+  </table>
+  <p>Node.js 側は <strong>time-based polling</strong>（待機時間後にバッファを読む）で応答を収集します。
+  コマンド終了を示すデリミタはないため、wait_ms の設定が応答の完全性に影響します。</p>
+</div>
+
+
+<h2>9. コード統計</h2>
+<table>
+  <tr><th>項目</th><th>値</th></tr>
+  <tr><td>総行数</td><td>579 行</td></tr>
+  <tr><td>クラス数</td><td>1（TN5250Session）</td></tr>
+  <tr><td>実装インターフェース</td><td>ECLPSNotify</td></tr>
+  <tr><td>public メソッド</td><td>1（main）</td></tr>
+  <tr><td>private メソッド</td><td>10</td></tr>
+  <tr><td>外部ライブラリ</td><td>IBM HACL / ECL（com.ibm.eNetwork.ECL.*）</td></tr>
+  <tr><td>JDK 標準ライブラリ</td><td>java.util.logging, java.security, javax.net.ssl, java.util.Scanner</td></tr>
+</table>
+
+<footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

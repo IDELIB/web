@@ -1,0 +1,577 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>tn5250-server 技術解説書</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 32px 16px 64px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  h2 { font-size: 17px; font-weight: 700; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; }
+  h3 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #3b82d4; }
+  h4 { font-size: 13px; font-weight: 600; margin: 14px 0 4px; color: #57606a; }
+
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 10px 20px; }
+  li { margin-bottom: 4px; }
+
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 28px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red   { background: #fee2e2; color: #b91c1c; }
+  .badge-purple{ background: #ede9fe; color: #6d28d9; }
+
+  code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .line-ref { color: #57606a; user-select: none; margin-right: 12px; }
+
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    background: #f7f8fa;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0 16px;
+  }
+  th {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    border: 1px solid #e5e7eb;
+    padding: 7px 10px;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .flow-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    font-weight: 600;
+  }
+  .flow-arrow { color: #57606a; font-size: 16px; }
+
+  .note {
+    border-left: 3px solid #3b82d4;
+    padding: 8px 14px;
+    background: #eff6ff;
+    border-radius: 0 4px 4px 0;
+    margin: 10px 0;
+    font-size: 13px;
+    color: #1e3a5f;
+  }
+  .warn {
+    border-left: 3px solid #f59e0b;
+    padding: 8px 14px;
+    background: #fffbeb;
+    border-radius: 0 4px 4px 0;
+    margin: 10px 0;
+    font-size: 13px;
+    color: #78350f;
+  }
+
+  /* Architecture diagram */
+  .arch {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 14px 0;
+    background: #fff;
+  }
+  .arch-row {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
+    margin: 6px 0;
+  }
+  .arch-block {
+    border: 1.5px solid #94a3b8;
+    border-radius: 6px;
+    padding: 10px 18px;
+    text-align: center;
+    min-width: 130px;
+    font-size: 12px;
+    line-height: 1.4;
+    background: #f8fafc;
+  }
+  .arch-block strong { display: block; font-size: 13px; margin-bottom: 2px; }
+  .arch-block.accent { background: #dbeafe; border-color: #3b82d4; }
+  .arch-block.green  { background: #dcfce7; border-color: #16a34a; }
+  .arch-block.purple { background: #ede9fe; border-color: #7c5cd8; }
+  .arch-vert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0;
+    color: #57606a;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .arch-label {
+    font-size: 10px;
+    color: #57606a;
+    margin: 0 4px;
+  }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>tn5250-server 技術解説書</h1>
+  <p class="subtitle">
+    <code>MCP/tn5250-server/src/index.ts</code>  | 
+    <span class="badge badge-blue">TypeScript</span>
+    <span class="badge badge-green">MCP Server</span>
+    <span class="badge badge-purple">IBM i / AS/400</span>
+    v0.1.0
+  </p>
+
+  
+  <!-- ============================================================ -->
+  <h2>1. 概要</h2>
+  <p>
+    このファイルは <strong>IBM i (AS/400) の TN5250 端末エミュレーション</strong> を
+    <strong>MCP (Model Context Protocol) ツール</strong> として AI から操作可能にする
+    Node.js サーバーの全実装です。
+  </p>
+  <p>
+    内部では <code>TN5250Session.jar</code> という Java プログラムをサブプロセスとして起動し、
+    標準入力 (stdin) へコマンドを送信、標準出力 (stdout/stderr) から画面テキストを受信するという
+    <strong>プロセス間通信（IPC）</strong> 方式を採用しています。
+  </p>
+
+  
+  <!-- ============================================================ -->
+  <h2>2. 前提ソフトウェア</h2>
+
+  <table>
+    <tr><th>ソフトウェア</th><th>バージョン</th><th>役割</th><th>入手先</th></tr>
+    <tr>
+      <td><strong>Node.js</strong></td>
+      <td>18 以上</td>
+      <td>MCP サーバー本体のランタイム。<code>index.ts</code> をコンパイル後の <code>build/index.js</code> を実行する。</td>
+      <td><a href="https://nodejs.org">https://nodejs.org</a></td>
+    </tr>
+    <tr>
+      <td><strong>npm</strong></td>
+      <td>Node.js に同梱</td>
+      <td>依存パッケージ（<code>@modelcontextprotocol/sdk</code>、<code>zod</code>）のインストールと <code>npm run build</code> によるビルドに使用する。</td>
+      <td>Node.js に同梱</td>
+    </tr>
+    <tr>
+      <td><strong>TypeScript</strong></td>
+      <td>5.7 以上（devDependency）</td>
+      <td><code>src/index.ts</code> を ES2022 / Node16 モジュール形式にトランスパイルする。<code>npm run build</code> で自動実行。</td>
+      <td><code>npm install</code> で自動取得</td>
+    </tr>
+    <tr>
+      <td><strong>Java Runtime Environment (JRE)</strong></td>
+      <td>8 以上（推奨: 11 または 17 LTS）</td>
+      <td><code>TN5250Session.jar</code> を <code>java -jar</code> で起動するために必要。PATH が通っていること。</td>
+      <td><a href="https://adoptium.net">https://adoptium.net</a></td>
+    </tr>
+    <tr>
+      <td><strong>TN5250Session.jar</strong></td>
+      <td>本リポジトリ同梱（<code>lib/TN5250Session.jar</code>）</td>
+      <td>IBM HACL (Host Access Class Library / ECL) と組み合わせてビルドした Java ラッパー。IBM i への TN5250/Telnet 接続を担う。HACL を別途入手し <code>MCP/build-tn5250-jar.sh</code> で再ビルドが必要。</td>
+      <td>本リポジトリ同梱（要ビルド）</td>
+    </tr>
+    <tr>
+      <td><strong>IBM Host Access Class Library (HACL / ECL)</strong></td>
+      <td>—</td>
+      <td><code>TN5250Session.jar</code> のビルドに必須。<strong>別途 IBM から入手し</strong> <code>../../jars/</code> に配置したうえで <code>build-tn5250-jar.sh</code> を実行する。</td>
+      <td>IBM 提供（<strong>必須</strong>・別途入手）</td>
+    </tr>
+    <tr>
+      <td><strong>IBM Bob</strong></td>
+      <td>v1.0、v2.0</td>
+      <td>MCP ホストとして本サーバーを <code>stdio</code> トランスポートでサブプロセス起動し、JSON-RPC で通信する。<code>.bob/mcp.json</code> への設定追記が必要。</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>Claude Code</strong></td>
+      <td>—</td>
+      <td>MCP ホストとして本サーバーを <code>stdio</code> トランスポートで起動可能。<code>stdio</code> 準拠のため Bob 以外の MCP クライアントからも利用できる。</td>
+      <td>—</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <strong>動作確認済み環境：</strong><br>
+    macOS Tahoe 26.5.1 (Apple M1 Pro) / IBM Bob v1.0, v2.0<br>
+    macOS Tahoe 26.5.1 (Apple M1 Pro) / Claude Code<br>
+    <code>java</code> コマンドが PATH に通っていない場合、サーバー起動時に <code>java not found</code> エラーとなります。
+  </div>
+
+  <h3>npm パッケージ依存関係</h3>
+  <table>
+    <tr><th>パッケージ</th><th>バージョン制約</th><th>種別</th><th>用途</th></tr>
+    <tr><td><code>@modelcontextprotocol/sdk</code></td><td>^1.0.4</td><td>dependencies</td><td>MCP サーバー基盤。<code>McpServer</code> / <code>StdioServerTransport</code> を提供。</td></tr>
+    <tr><td><code>zod</code></td><td>^3.23.8</td><td>dependencies</td><td>ツール入力パラメータのランタイム型検証・デフォルト値設定。</td></tr>
+    <tr><td><code>typescript</code></td><td>^5.7.2</td><td>devDependencies</td><td>TypeScript → JavaScript トランスパイラ。ビルド時のみ使用。</td></tr>
+    <tr><td><code>@types/node</code></td><td>^22.10.2</td><td>devDependencies</td><td>Node.js 型定義。TypeScript コンパイル時に使用。</td></tr>
+  </table>
+
+  <div class="card">
+    <div class="card-title">インストールコマンド</div>
+    <pre>cd MCP/tn5250-server
+npm install       # 依存パッケージ取得
+npm run build     # TypeScript コンパイル → build/index.js 生成</pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-block accent"><strong>AI / MCP Client</strong>LLM エージェント<br />（Claude など）</div>
+    </div>
+    <div class="arch-row"><div class="arch-vert">↕<span class="arch-label">stdio (JSON-RPC)</span></div></div>
+    <div class="arch-row">
+      <div class="arch-block accent"><strong>McpServer</strong>index.ts<br />Node.js プロセス</div>
+    </div>
+    <div class="arch-row"><div class="arch-vert">↕<span class="arch-label">stdin/stdout pipe</span></div></div>
+    <div class="arch-row">
+      <div class="arch-block green"><strong>TN5250Session.jar</strong>Java プロセス（子）</div>
+    </div>
+    <div class="arch-row"><div class="arch-vert">↕<span class="arch-label">TCP TN5250 / Telnet</span></div></div>
+    <div class="arch-row">
+      <div class="arch-block purple"><strong>IBM i ホスト</strong>AS/400 サーバー</div>
+    </div>
+  </div>
+
+  
+  <h2>3. 依存ライブラリとインポート（1〜8行）</h2>
+  <pre><span class="line-ref">1</span>#!/usr/bin/env node
+<span class="line-ref">2</span>import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+<span class="line-ref">3</span>import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+<span class="line-ref">4</span>import { z } from "zod";
+<span class="line-ref">5</span>import { spawn, ChildProcess } from "child_process";
+<span class="line-ref">6</span>import * as path from "path";
+<span class="line-ref">7</span>import * as fs from "fs";
+<span class="line-ref">8</span>import { fileURLToPath } from "url";</pre>
+
+  <table>
+    <tr><th>モジュール</th><th>役割</th></tr>
+    <tr><td><code>@modelcontextprotocol/sdk</code></td><td>MCP サーバーの土台。ツール登録・JSON-RPC通信を担う</td></tr>
+    <tr><td><code>zod</code></td><td>ツールの入力パラメータをランタイムで型検証・デフォルト値設定する</td></tr>
+    <tr><td><code>child_process.spawn</code></td><td>Java サブプロセスを起動し stdin/stdout をストリームとして取得する</td></tr>
+    <tr><td><code>path / fs</code></td><td>JAR ファイルのパス解決と存在チェック</td></tr>
+    <tr><td><code>fileURLToPath</code></td><td>ESM 環境で <code>__dirname</code> 相当を取得する（<code>import.meta.url</code> 変換）</td></tr>
+  </table>
+
+  
+  <h2>4. セッション管理（13〜24行）</h2>
+  <pre><span class="line-ref">14</span>interface Session5250 {
+<span class="line-ref">15</span>  process: ChildProcess;   // Java サブプロセスへの参照
+<span class="line-ref">16</span>  host: string;
+<span class="line-ref">17</span>  port: number;
+<span class="line-ref">18</span>  user: string;
+<span class="line-ref">19</span>  buffer: string[];        // 出力行のリングバッファ
+<span class="line-ref">20</span>  connected: boolean;      // プロセス生存フラグ
+<span class="line-ref">21</span>}
+<span class="line-ref">23</span>const sessions = new Map&lt;string, Session5250&gt;();
+<span class="line-ref">24</span>const MAX_BUFFER_SIZE = 1000;</pre>
+
+  <div class="card">
+    <div class="card-title">設計のポイント</div>
+    <ul>
+      <li><strong>session_id をキー</strong>とした <code>Map</code> でマルチセッションを管理。複数の IBM i ホストへ同時接続可能。</li>
+      <li><strong>buffer</strong> は最大 <code>1000</code> 行に制限（<code>splice</code> で古い行を削除）。メモリリークを防ぎながら直近の出力だけを保持する。</li>
+      <li><strong>connected フラグ</strong> は Java プロセスの <code>exit</code> イベントで <code>false</code> になる。接続状態を非同期で追跡できる。</li>
+    </ul>
+  </div>
+
+  
+  <h2>5. JAR ファイルのパス解決（36〜47行）</h2>
+  <pre><span class="line-ref">38</span>const tn5250JarPath =
+<span class="line-ref">39</span>  process.env.TN5250_JAR_PATH ||
+<span class="line-ref">40</span>  path.resolve(__dirname, "../lib/TN5250Session.jar");
+<span class="line-ref">42</span>// 起動時に存在チェック
+<span class="line-ref">43</span>if (!fs.existsSync(tn5250JarPath)) {
+<span class="line-ref">44</span>  console.error(`Error: TN5250Session.jar not found at: ${tn5250JarPath}`);
+<span class="line-ref">45</span>  process.exit(1);
+<span class="line-ref">46</span>}</pre>
+
+  <p>デフォルトは <code>lib/TN5250Session.jar</code>（パッケージ同梱）。
+  環境変数 <code>TN5250_JAR_PATH</code> で上書き可能なため、カスタムビルドの JAR にも対応できます。
+  <strong>サーバー起動時</strong>に即エラーを出すことで、実行中の失敗より早期に問題を発見できます。</p>
+
+  
+  <h2>6. 登録ツール一覧</h2>
+  <table>
+    <tr><th>#</th><th>ツール名</th><th>行</th><th>機能</th></tr>
+    <tr><td>1</td><td><code>connect_5250</code></td><td>50–171</td><td>IBM i に接続し新規セッションを作成する</td></tr>
+    <tr><td>2</td><td><code>send_keys</code></td><td>174–235</td><td>キー入力を送信し画面出力を返す</td></tr>
+    <tr><td>3</td><td><code>get_screen</code></td><td>238–297</td><td>現在の画面テキストを取得する</td></tr>
+    <tr><td>4</td><td><code>get_fields</code></td><td>300–359</td><td>画面上の全フィールド情報を取得する</td></tr>
+    <tr><td>5</td><td><code>get_inputs</code></td><td>362–421</td><td>入力可能フィールドのみ取得する</td></tr>
+    <tr><td>6</td><td><code>disconnect_5250</code></td><td>424–472</td><td>セッションを切断しプロセスを終了する</td></tr>
+    <tr><td>7</td><td><code>list_sessions</code></td><td>475–510</td><td>アクティブなセッション一覧を返す</td></tr>
+  </table>
+
+  
+  <h2>7. ツール詳解</h2>
+
+  <h3>7-1. connect_5250（50〜171行）</h3>
+  <h4>入力パラメータ</h4>
+  <table>
+    <tr><th>パラメータ</th><th>型</th><th>デフォルト</th><th>説明</th></tr>
+    <tr><td><code>session_id</code></td><td>string</td><td>—</td><td>セッションを一意に識別するキー</td></tr>
+    <tr><td><code>host</code></td><td>string</td><td>—</td><td>IBM i ホスト名または IP アドレス</td></tr>
+    <tr><td><code>port</code></td><td>number</td><td>23</td><td>Telnet ポート番号</td></tr>
+    <tr><td><code>user</code></td><td>string</td><td>—</td><td>ログインユーザー名</td></tr>
+    <tr><td><code>password</code></td><td>string</td><td>—</td><td>パスワード</td></tr>
+    <tr><td><code>code_page</code></td><td>number</td><td>930</td><td>文字コードページ（930=日本語EBCDIC）</td></tr>
+    <tr><td><code>ssl</code></td><td>boolean</td><td>false</td><td>SSL/TLS 使用フラグ</td></tr>
+    <tr><td><code>screen_size</code></td><td>string</td><td>"24x80"</td><td>画面サイズ（24x80 または 27x132）</td></tr>
+  </table>
+
+  <h4>処理フロー</h4>
+  <div class="flow">
+    <div class="flow-box">① 重複チェック</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">② java -jar 起動</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">③ stdout/stderr ハンドラ登録</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">④ 3秒待機</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">⑤ 生存確認</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">⑥ 成功返却</div>
+  </div>
+
+  <pre><span class="line-ref">78</span>const javaProcess = spawn("java", [
+<span class="line-ref">79</span>  "-jar", tn5250JarPath,
+<span class="line-ref">80</span>  host, String(port), user, password,
+<span class="line-ref">81</span>  String(code_page), String(ssl), screen_size
+<span class="line-ref">82</span>], { cwd: path.dirname(tn5250JarPath) });</pre>
+
+  <div class="note">
+    <code>cwd</code> を JAR のディレクトリに設定することで、JAR が相対パスで参照するリソースファイルを正しく解決できます。
+  </div>
+
+  <pre><span class="line-ref">131</span>await new Promise((resolve) =&gt; setTimeout(resolve, 3000));
+<span class="line-ref">133</span>// プロセスが既に終了している場合は接続失敗
+<span class="line-ref">134</span>if (!session.connected || javaProcess.exitCode !== null) {
+<span class="line-ref">135</span>  sessions.delete(session_id);
+<span class="line-ref">136</span>  // バッファに残ったエラーログをユーザーに返す
+<span class="line-ref">137</span>  ...</pre>
+
+  <div class="warn">
+    3秒のハードコード待機は、ネットワーク遅延が大きい環境では接続失敗と誤判定される可能性があります。本番環境では環境変数等でタイムアウト値を調整することを検討してください。
+  </div>
+
+  
+  <h3>7-2. send_keys（174〜235行）</h3>
+  <p>
+    セッションの stdin に <code>send &lt;keys&gt;\n</code> という1行テキストを書き込み、
+    <code>wait_ms</code> ミリ秒待機後にバッファの内容を返します。
+  </p>
+  <pre><span class="line-ref">197</span>session.buffer.length = 0;         // 送信前にバッファをクリア
+<span class="line-ref">200</span>session.process.stdin?.write(`send ${keys}\n`);
+<span class="line-ref">203</span>await new Promise((resolve) =&gt; setTimeout(resolve, wait_ms));
+<span class="line-ref">206</span>const output = session.buffer
+<span class="line-ref">207</span>  .map(line =&gt; line.replace(/[\x00-\x1F\x7F-\x9F]/g, ' '))
+<span class="line-ref">208</span>  .join("\n");</pre>
+
+  <div class="note">
+    <strong>制御文字の除去：</strong>TN5250 プロトコルは画面属性や色情報をバイト列で埋め込みます。
+    正規表現 <code>/[\x00-\x1F\x7F-\x9F]/g</code> でこれをスペースに置換し、AI が読みやすいプレーンテキストに変換しています。
+  </div>
+
+  <h4>キー記法の例</h4>
+  <table>
+    <tr><th>入力例</th><th>意味</th></tr>
+    <tr><td><code>WRKSYSSTS[enter]</code></td><td>文字入力後に Enter キー送信</td></tr>
+    <tr><td><code>[pf3]</code></td><td>ファンクションキー F3</td></tr>
+    <tr><td><code>[f1]</code></td><td>ファンクションキー F1</td></tr>
+  </table>
+
+  
+  <h3>7-3. get_screen（238〜297行）</h3>
+  <p>stdin に <code>screen\n</code> を書き込み、500ms 後のバッファを返します。
+  現在表示されている 5250 画面のテキストを取得するための最もシンプルなツールです。</p>
+
+  
+  <h3>7-4. get_fields（300〜359行）</h3>
+  <p>stdin に <code>fields\n</code> を送信。画面上の<strong>全フィールド（保護フィールド含む）</strong>の
+  位置・内容をテキスト形式で取得します。</p>
+
+  
+  <h3>7-5. get_inputs（362〜421行）</h3>
+  <p>stdin に <code>inputs\n</code> を送信。<strong>入力可能フィールドのみ</strong>を絞り込んで返します。
+  フォーム入力の自動化に適しています。</p>
+
+  
+  <h3>7-6. disconnect_5250（424〜472行）</h3>
+  <pre><span class="line-ref">445</span>session.process.stdin?.write("quit\n"); // Java側に正常終了を指示
+<span class="line-ref">448</span>await new Promise((resolve) =&gt; setTimeout(resolve, 500));
+<span class="line-ref">449</span>session.process.kill();                 // 念のため強制終了
+<span class="line-ref">450</span>sessions.delete(session_id);</pre>
+  <p>
+    <code>quit</code> コマンドで Java プロセスに正常終了を促し、500ms 後に <code>kill()</code> で強制終了します。
+    <code>sessions.delete()</code> でマップからエントリを除去しメモリを解放します。
+  </p>
+
+  
+  <h3>7-7. list_sessions（475〜510行）</h3>
+  <p>引数なし。アクティブなセッションの <code>session_id / host / port / user / connected</code> を
+  JSON 配列で返します。</p>
+  <pre><span class="line-ref">480</span>const sessionList = Array.from(sessions.entries()).map(([id, session]) =&gt; ({
+<span class="line-ref">481</span>  session_id: id,
+<span class="line-ref">482</span>  host: session.host,
+<span class="line-ref">483</span>  port: session.port,
+<span class="line-ref">484</span>  user: session.user,
+<span class="line-ref">485</span>  connected: session.connected,
+<span class="line-ref">486</span>}));</pre>
+
+  
+  <h2>8. エントリポイント（513〜522行）</h2>
+  <pre><span class="line-ref">513</span>async function main() {
+<span class="line-ref">514</span>  const transport = new StdioServerTransport();
+<span class="line-ref">515</span>  await server.connect(transport);
+<span class="line-ref">516</span>  console.error("TN5250 MCP server running on stdio");
+<span class="line-ref">517</span>}
+<span class="line-ref">519</span>main().catch((error) =&gt; {
+<span class="line-ref">520</span>  console.error("Fatal error:", error);
+<span class="line-ref">521</span>  process.exit(1);
+<span class="line-ref">522</span>});</pre>
+
+  <p>
+    <code>StdioServerTransport</code> を使用するため、MCP ホスト（Bob など）が
+    このプロセスを<strong>サブプロセスとして起動し、stdin/stdout で JSON-RPC 通信</strong>します。
+    ログは <code>stderr</code> に出力するので、JSON-RPC ストリームと混在しません。
+  </p>
+
+  
+  <h2>9. データフロー全体像</h2>
+
+  <div class="card">
+    <div class="card-title">connect_5250 → send_keys → get_screen の典型的な流れ</div>
+    <ol>
+      <li>AI が <code>connect_5250</code> を呼び出す → Node.js が <code>java -jar TN5250Session.jar ...</code> を起動</li>
+      <li>Java が IBM i ホストへ TN5250/Telnet 接続し、ログイン処理を行う</li>
+      <li>Java の stdout → Node.js の buffer 配列に行単位で蓄積</li>
+      <li>3秒後、プロセスが生存していれば接続成功をAIに返す</li>
+      <li>AI が <code>send_keys</code> で <code>WRKSYSSTS[enter]</code> を送信</li>
+      <li>Node.js が <code>send WRKSYSSTS[enter]\n</code> を Java の stdin へ書き込む</li>
+      <li>Java がキーを 5250 プロトコルで IBM i へ送信し、画面データを stdout へ出力</li>
+      <li>Node.js が 1000ms 待機後、buffer を制御文字除去してAIに返す</li>
+      <li>AI が情報を解析し、次のアクションを決定する</li>
+    </ol>
+  </div>
+
+  
+  <h2>10. エラーハンドリング戦略</h2>
+  <table>
+    <tr><th>状況</th><th>対応</th></tr>
+    <tr><td>JAR ファイルが存在しない</td><td>起動時に <code>process.exit(1)</code></td></tr>
+    <tr><td>既存セッション ID に再接続</td><td><code>isError: true</code> を返す</td></tr>
+    <tr><td>Java プロセスが 3秒以内に終了</td><td>バッファのエラーログとともに失敗を返す</td></tr>
+    <tr><td>存在しないセッション ID を指定</td><td><code>isError: true</code>「Session not found」を返す</td></tr>
+    <tr><td>例外（try/catch）</td><td>全ツールで catch し <code>isError: true</code> として返す</td></tr>
+    <tr><td>Java プロセス終了（非同期）</td><td><code>exit</code> イベントで <code>connected = false</code>、Map から削除</td></tr>
+  </table>
+
+  
+  <h2>11. 関連ファイル構成</h2>
+  <pre>MCP/tn5250-server/
+├── src/
+│   └── index.ts          ← このファイル（全実装）
+├── build/
+│   └── index.js          ← TypeScript コンパイル済み
+├── lib/
+│   └── TN5250Session.jar ← Java TN5250クライアント（同梱）
+├── package.json
+├── tsconfig.json
+├── README.md
+└── ARCHITECTURE.md</pre>
+
+  
+  <h2>12. コード統計</h2>
+  <table>
+    <tr><th>項目</th><th>値</th></tr>
+    <tr><td>総行数</td><td>525 行</td></tr>
+    <tr><td>登録ツール数</td><td>7 ツール</td></tr>
+    <tr><td>インターフェース定義</td><td>1 件（Session5250）</td></tr>
+    <tr><td>外部依存（npm）</td><td>3 パッケージ（MCP SDK / zod / Node.js 標準）</td></tr>
+    <tr><td>通信方式</td><td>stdio（JSON-RPC over stdin/stdout）</td></tr>
+    <tr><td>子プロセス言語</td><td>Java（TN5250Session.jar）</td></tr>
+  </table>
+
+<footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>
