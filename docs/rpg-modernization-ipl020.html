@@ -1,0 +1,630 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RPG Modernization Report — IPL020</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    margin: 0;
+    padding: 24px 16px 48px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  /* Header */
+  .page-header {
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: #1f2328;
+  }
+  .page-header .subtitle {
+    color: #57606a;
+    font-size: 13px;
+    margin: 0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e5e7eb;
+    color: #1f2328;
+    margin-right: 4px;
+  }
+  .badge-success { background: #d1fae5; color: #065f46; }
+  .badge-info { background: #dbeafe; color: #1e40af; }
+  .badge-warn { background: #fef3c7; color: #92400e; }
+
+  /* Summary card */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .summary-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #57606a;
+    margin-bottom: 4px;
+  }
+  .summary-card .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2328;
+  }
+  .summary-card code {
+    background: #e5e7eb;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+
+  /* Sections */
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2328;
+    margin: 32px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 20px 0 8px;
+    color: #1f2328;
+  }
+  p { margin: 0 0 10px; }
+
+  /* Workflow steps */
+  .workflow-steps { margin-bottom: 24px; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-done { background: #d1fae5; color: #065f46; }
+  .step-skip { background: #e5e7eb; color: #57606a; }
+  .step-inprogress { background: #fef3c7; color: #92400e; }
+  .step-name { font-weight: 600; font-size: 13px; color: #1f2328; }
+  .step-desc { font-size: 12px; color: #57606a; margin-top: 2px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13px;
+  }
+  th {
+    background: #f7f8fa;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    color: #1f2328;
+  }
+  td {
+    padding: 7px 10px;
+    border: 1px solid #e5e7eb;
+    vertical-align: top;
+    color: #1f2328;
+  }
+  td code, th code {
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Code blocks */
+  .code-block {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid #3b82d4;
+    border-radius: 0 4px 4px 0;
+    padding: 10px 14px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 10px 0;
+    white-space: pre;
+  }
+  .code-comment { color: #57606a; }
+  .code-keyword { color: #0550ae; font-weight: 600; }
+  .code-string { color: #0a3069; }
+
+  /* Compile log */
+  .compile-attempt {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0;
+  }
+  .compile-attempt .attempt-header {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compile-attempt .attempt-body {
+    font-size: 12px;
+    color: #57606a;
+  }
+  .compile-attempt ul { margin: 6px 0 0; padding-left: 20px; }
+  .compile-attempt li { margin-bottom: 3px; }
+
+  /* Cost box */
+  .cost-box {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .cost-item .cost-label {
+    font-size: 11px;
+    color: #57606a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .cost-item .cost-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2328;
+  }
+
+  /* Alert */
+  .alert {
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin: 12px 0;
+    border: 1px solid;
+  }
+  .alert-info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+  .alert-success { background: #f0fdf4; border-color: #bbf7d0; color: #065f46; }
+  .alert-warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+
+  /* Footer */
+  .page-footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #8b949e;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  
+  <div class="page-header">
+    <h1>RPG Modernization タスクレポート</h1>
+    <p class="subtitle">
+      <span class="badge badge-info">Workflow</span>
+      <span class="badge">ibmi_rpg_modernization</span>
+      <span class="badge badge-success">✅ 完了（Step 9 まで成功）</span>
+    </p>
+  </div>
+
+  
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">対象プログラム</div>
+      <div class="value"><code>IPL020.RPGLE</code></div>
+    </div>
+    <div class="summary-card">
+      <div class="label">変換種別</div>
+      <div class="value">ILE Fixed Format → Free Form</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">入力ファイル（元ソース）</div>
+      <div class="value"><code>MYLIB/QRPGLESRC/IPL020.RPGLE</code></div>
+    </div>
+    <div class="summary-card">
+      <div class="label">出力ファイル（変換後）</div>
+      <div class="value"><code>MYLIB/QRPGLESRC/IPL020_FRE.RPGLE</code></div>
+    </div>
+    <div class="summary-card">
+      <div class="label">コンパイル結果</div>
+      <div class="value" style="color:#065f46">✅ 成功（2回目）</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">コスト（トークン / USD）</div>
+      <div class="value">916,581 tokens / $2.66</div>
+    </div>
+  </div>
+
+  
+  <h2>1. ワークフロー実行ステップ</h2>
+  <div class="workflow-steps">
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 1 — RPGファイル選択</div>
+        <div class="step-desc">ライブラリー → ソースファイル → メンバー <code>IPL020.RPGLE</code> を選択。タイプ: RPG IV Fixed Format と検出。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 2 — 作業用コピーの作成</div>
+        <div class="step-desc">元ソースを保護するため、一時メンバー <code>IPL020_T.RPGLE</code> を同ライブラリーに作成。変換後に自動削除。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 3 — 出力先の確定</div>
+        <div class="step-desc">提案出力先 <code>IPL020_FRE.RPGLE</code> を採用。既存メンバーを上書き（クリア）して続行。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 4 — 事前コンパイル（Pre-Conversion Compilation）</div>
+        <div class="step-desc">Fixed Format のままコンパイルして問題がないことを確認。<code>CRTBNDRPG PGM(MYLIB/IPL020_T)</code> → <strong style="color:#065f46">初回コンパイル成功</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 5 — I-Spec 検出</div>
+        <div class="step-desc">プログラム記述の I-Spec（入力仕様）が存在するか確認。<strong>I-Spec なし</strong>（F-Spec は外部記述ファイル <code>E</code> フラグ）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-skip">—</div>
+      <div>
+        <div class="step-name">Step 6 — I-Spec 外部ファイル化（スキップ）</div>
+        <div class="step-desc">I-Spec が存在しないため、このステップはスキップ。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 7 — O-Spec 検出</div>
+        <div class="step-desc">プログラム記述の O-Spec（出力/プリンター仕様）が存在するか確認。<strong>O-Spec なし</strong>（WORKSTN/DISKファイルのみ）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-skip">—</div>
+      <div>
+        <div class="step-name">Step 8 — O-Spec 外部 DDS 化（スキップ）</div>
+        <div class="step-desc">O-Spec が存在しないため、このステップはスキップ。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-done">✓</div>
+      <div>
+        <div class="step-name">Step 9 — ILE Fixed Format → Free Format 変換</div>
+        <div class="step-desc">全仕様タイプ（H/F/D/C-spec）をフリーフォームへ変換。自己修復コンパイルループにより 2回目で成功。一時メンバーと一時 PGM オブジェクトを削除。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon step-inprogress">…</div>
+      <div>
+        <div class="step-name">Step 10 — モダナイゼーションサマリーレポート生成</div>
+        <div class="step-desc">ワークフロー終了時の最終レポート生成ステップ（進行中でエクスポート）。</div>
+      </div>
+    </div>
+  </div>
+
+  
+  <h2>2. プログラム概要</h2>
+  <p>
+    <strong>IPL020</strong> は品目照会（サブファイル表示）プログラムです。
+    WORKSTNデバイスファイル <code>IPL020D</code> を使用してサブファイル画面を表示し、
+    外部記述キーファイル <code>HINMSL01</code>（品目マスター）からデータを読み込んでサブファイルに書き出します。
+  </p>
+  <table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>H-spec（制御仕様）</td><td><code>DATEDIT(*YMD)</code></td></tr>
+      <tr><td>F-spec（ファイル）</td><td><code>IPL020D</code>（WORKSTN/CF/E, SFL付き）、<code>HINMSL01</code>（DISK/IF/E/K）</td></tr>
+      <tr><td>D-spec（変数定義）</td><td><code>#NAKN</code>（LIKE(HNNAKN)）、<code>#CTL</code>（CHAR 4）、<code>#RRN01</code>（PACKED 4:0）</td></tr>
+      <tr><td>C-spec（ロジック）</td><td>CASE ディスパッチ、サブルーチン 5本（@HED, @DTL, @CHKH, @SET, @END）、初期化 *INZSR</td></tr>
+      <tr><td>インジケーター</td><td>*IN03（F3キー）、*IN32（SFLEND）、*IN33（SFLクリア）、*IN90（SETLL結果）、*IN91（EOF）、*IN92（WRITEエラー）、*INLR</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>3. 仕様タイプ別 変換内容</h2>
+
+  <h3>H-spec → CTL-OPT</h3>
+  <table>
+    <thead><tr><th>変換前（固定フォーマット）</th><th>変換後（フリーフォーム）</th></tr></thead>
+    <tbody>
+      <tr><td><code>H DATEDIT(*YMD)</code></td><td><code>CTL-OPT DATEDIT(*YMD);</code></td></tr>
+    </tbody>
+  </table>
+  <p style="color:#57606a;font-size:12px">プログラム先頭に <code>**FREE</code> 指示子を追加。</p>
+
+  <h3>F-spec → DCL-F</h3>
+  <table>
+    <thead><tr><th>変換前（固定）</th><th>変換後（フリーフォーム）</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>FIPL020D CF E WORKSTN SFILE(SFL01:#RRN01)</code></td>
+        <td><code>DCL-F IPL020D WORKSTN SFILE(SFL01:#RRN01);</code></td>
+        <td>WORKSTNデバイスキーワードを最初に配置</td>
+      </tr>
+      <tr>
+        <td><code>FHINMSL01 IF E K DISK</code></td>
+        <td><code>DCL-F HINMSL01 KEYED USAGE(*INPUT);</code></td>
+        <td><code>DISK(*EXT)</code> はデフォルトのため省略、<code>KEYED</code> + <code>USAGE(*INPUT)</code> に変換</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="alert alert-warn">
+    <strong>注意:</strong> 初回コンパイルでは <code>DCL-F ipl020d</code>（小文字）を指定したところ、CCSID 5026（日本語）環境で小文字英字が特殊文字として解釈され文字化けが発生。<strong>ファイル名・変数名をすべて大文字に修正</strong>することで解決。
+  </div>
+
+  <h3>D-spec → DCL-S</h3>
+  <table>
+    <thead><tr><th>変換前（固定）</th><th>変換後（フリーフォーム）</th></tr></thead>
+    <tbody>
+      <tr><td><code>D #NAKN S LIKE(HNNAKN)</code></td><td><code>DCL-S #NAKN LIKE(HNNAKN);</code></td></tr>
+      <tr><td><code>D #CTL S 4</code></td><td><code>DCL-S #CTL CHAR(4);</code></td></tr>
+      <tr><td><code>D #RRN01 S 4 0</code></td><td><code>DCL-S #RRN01 PACKED(4:0);</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>C-spec → フリーフォーム</h3>
+
+  <p><strong>CAS/ENDCS → SELECT/WHEN/ENDSL</strong></p>
+  <div class="code-block"><span class="code-comment">// 変換前</span>
+C  #CTL  CASEQ  'HED '  @HED
+C  #CTL  CASEQ  'DTL '  @DTL
+C  #CTL  CASEQ  'END '  @END
+C         ENDCS
+
+<span class="code-comment">// 変換後</span>
+<span class="code-keyword">SELECT</span>;
+  <span class="code-keyword">WHEN</span> #CTL = <span class="code-string">'HED '</span>;
+    EXSR @HED;
+  <span class="code-keyword">WHEN</span> #CTL = <span class="code-string">'DTL '</span>;
+    EXSR @DTL;
+  <span class="code-keyword">WHEN</span> #CTL = <span class="code-string">'END '</span>;
+    EXSR @END;
+<span class="code-keyword">ENDSL</span>;</div>
+
+  <p><strong>EVAL → 直接代入</strong></p>
+  <div class="code-block"><span class="code-comment">// 変換前</span>
+C  EVAL  #CTL = 'END '
+
+<span class="code-comment">// 変換後</span>
+#CTL = <span class="code-string">'END '</span>;</div>
+
+  <h3>インジケーター結果の変換（BIF化）</h3>
+  <table>
+    <thead><tr><th>変換前（固定・結果インジケーター）</th><th>変換後（フリーフォーム BIF）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>SETLL #NAKN HINMSL01</code>  <strong>90</strong></td>
+        <td><code>SETLL #NAKN HINMSL01;</code><br /><code>IF NOT %FOUND(HINMSL01); *IN90 = *ON; ELSE; *IN90 = *OFF; ENDIF;</code></td>
+      </tr>
+      <tr>
+        <td><code>READ HINMSL01</code>  <strong>91</strong></td>
+        <td><code>READ HINMSL01;</code><br /><code>*IN91 = %EOF(HINMSL01);</code></td>
+      </tr>
+      <tr>
+        <td><code>WRITE SFL01</code>  <strong>92</strong></td>
+        <td><code>WRITE SFL01;</code>（エラーインジケーター92は保持）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>インジケーター一覧</h3>
+  <table>
+    <thead><tr><th>インジケーター</th><th>用途</th><th>変換方法</th></tr></thead>
+    <tbody>
+      <tr><td><code>*IN03</code></td><td>F3キー（終了）</td><td><code>IF *IN03 = *ON;</code> として保持</td></tr>
+      <tr><td><code>*IN32</code></td><td>SFLENDフラグ</td><td><code>*IN32 = *ON/OFF;</code> として保持</td></tr>
+      <tr><td><code>*IN33</code></td><td>サブファイルクリア</td><td><code>*IN33 = *ON/OFF;</code> として保持</td></tr>
+      <tr><td><code>*IN90</code></td><td>SETLL失敗（Not Found）</td><td><code>IF NOT %FOUND(HINMSL01);</code> で設定</td></tr>
+      <tr><td><code>*IN91</code></td><td>READ EOF</td><td><code>%EOF(HINMSL01)</code> の結果を代入</td></tr>
+      <tr><td><code>*IN92</code></td><td>SFLWRITEエラー</td><td>インジケーターとして保持</td></tr>
+      <tr><td><code>*INLR</code></td><td>最終レコード（終了）</td><td><code>*INLR = *ON;</code> として保持</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>4. コンパイル実行ログ</h2>
+
+  <h3>Step 4 — 事前コンパイル（Fixed Format）</h3>
+  <div class="compile-attempt">
+    <div class="attempt-header"><span class="badge badge-success">✅ 成功</span>試行 1/1</div>
+    <div class="attempt-body">
+      コマンド: <code>CRTBNDRPG PGM(MYLIB/IPL020_T) SRCFILE(MYLIB/QRPGLESRC)</code><br />
+      修正: なし
+    </div>
+  </div>
+
+  <h3>Step 9 — フリーフォーム変換後コンパイル</h3>
+  <div class="compile-attempt">
+    <div class="attempt-header"><span class="badge badge-warn">❌ 失敗</span>試行 1/2</div>
+    <div class="attempt-body">
+      コマンド: <code>CRTBNDRPG PGM(MYLIB/IPL020_FRE) SRCFILE(MYLIB/QRPGLESRC)</code><br />
+      エラー原因:
+      <ul>
+        <li><strong>文字化け問題</strong>: ファイル名を小文字で指定（<code>ipl020d</code>）したところ、CCSID 5026環境で特殊文字として変換されコンパイラーが認識できなかった</li>
+        <li><strong>RNF2368</strong>: <code>DISK(*EXT)</code> キーワードの位置が不正（最初のキーワードに配置する必要あり）</li>
+        <li><strong>RNF0391/0394</strong>: <code>%EOF</code>/<code>%FOUND</code> のパラメーターが小文字のため未解決</li>
+        <li><strong>RNF7030</strong>: ファイル名未解決に伴うインジケーター未定義エラー</li>
+      </ul>
+    </div>
+  </div>
+  <div class="compile-attempt">
+    <div class="attempt-header"><span class="badge badge-success">✅ 成功</span>試行 2/2（自己修復後）</div>
+    <div class="attempt-body">
+      修正内容:
+      <ul>
+        <li>ファイル名・変数名をすべて大文字に変更（<code>IPL020D</code>、<code>HINMSL01</code>）</li>
+        <li><code>DCL-F HINMSL01 KEYED USAGE(*INPUT);</code>（<code>DISK(*EXT)</code> を削除 — デフォルトのため不要）</li>
+        <li><code>%FOUND(HINMSL01)</code>、<code>%EOF(HINMSL01)</code> を大文字化</li>
+        <li><code>SETLL</code> の後処理ロジックを <code>IF NOT %FOUND / ELSE</code> 構文に修正</li>
+      </ul>
+      コマンド: <code>CRTBNDRPG PGM(MYLIB/IPL020_FRE) SRCFILE(MYLIB/QRPGLESRC)</code><br />
+      結果: <strong style="color:#065f46">プログラムオブジェクト <code>MYLIB/IPL020_FRE (*PGM)</code> 作成成功</strong>
+    </div>
+  </div>
+
+  
+  <h2>5. 使用したスキル</h2>
+  <table>
+    <thead><tr><th>スキル名</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>rpg-fixed-to-free</code></td><td>固定フォーマット → フリーフォーム変換ルール全般</td></tr>
+      <tr><td><code>rpgle-specs</code></td><td>H/F/D/I/C/O-Spec の固定フォーマット仕様リファレンス</td></tr>
+      <tr><td><code>rpg-ile-understanding</code></td><td>ILE RPG の構造・アクティベーショングループ・手続き理解</td></tr>
+    </tbody>
+  </table>
+  <p style="color:#57606a;font-size:12px">加えて、コンパイルエラー調査のため IBM i ドキュメント RAG（<code>search_ibm_i_docs_with_rag</code>）を使用して <code>DCL-F</code> キーワード順序を確認。</p>
+
+  
+  <h2>6. サブエージェント実行サマリー</h2>
+  <table>
+    <thead><tr><th>サブエージェント</th><th>役割</th><th>結果</th><th>ツール使用数</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Pre-Conversion Compilation</td>
+        <td>事前コンパイル実行</td>
+        <td><span class="badge badge-success">成功</span></td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td>I-Spec Detection</td>
+        <td>I-Spec の有無を検出</td>
+        <td><span class="badge badge-info">I-Spec なし</span></td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>O-Spec Detection</td>
+        <td>O-Spec の有無を検出</td>
+        <td><span class="badge badge-info">O-Spec なし</span></td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>Complete Fixed-to-Free Conversion（サブタスク）</td>
+        <td>全仕様変換 + 自己修復コンパイル</td>
+        <td><span class="badge badge-success">成功（2回目）</span></td>
+        <td>多数</td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+  <h2>7. コスト情報</h2>
+  <div class="cost-box">
+    <div class="cost-item">
+      <div class="cost-label">入力トークン</div>
+      <div class="cost-value">916,581</div>
+    </div>
+    <div class="cost-item">
+      <div class="cost-label">出力トークン</div>
+      <div class="cost-value">10,708</div>
+    </div>
+    <div class="cost-item">
+      <div class="cost-label">キャッシュ読み取り</div>
+      <div class="cost-value">822,960</div>
+    </div>
+    <div class="cost-item">
+      <div class="cost-label">キャッシュ書き込み</div>
+      <div class="cost-value">93,602</div>
+    </div>
+    <div class="cost-item">
+      <div class="cost-label">合計コスト</div>
+      <div class="cost-value">$2.6649</div>
+    </div>
+    <div class="cost-item">
+      <div class="cost-label">コンテキストトークン</div>
+      <div class="cost-value">71,237</div>
+    </div>
+  </div>
+
+  
+  <h2>8. 生成・変更されたファイル</h2>
+  <table>
+    <thead><tr><th>ファイル</th><th>操作</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>MYLIB/QRPGLESRC/IPL020_T.RPGLE</code></td>
+        <td>作成 → 削除</td>
+        <td>作業用一時コピー（変換後に自動削除）</td>
+      </tr>
+      <tr>
+        <td><code>MYLIB/QRPGLESRC/IPL020_FRE.RPGLE</code></td>
+        <td>作成（141行）</td>
+        <td>フリーフォーム RPGLE 変換後ファイル</td>
+      </tr>
+      <tr>
+        <td><code>MYLIB/IPL020_T (*PGM)</code></td>
+        <td>コンパイル → 削除</td>
+        <td>事前コンパイルで作成した一時 PGM（変換後に自動削除）</td>
+      </tr>
+      <tr>
+        <td><code>MYLIB/IPL020_FRE (*PGM)</code></td>
+        <td>コンパイル成功</td>
+        <td>最終フリーフォーム RPGLE プログラムオブジェクト</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-success">
+    <strong>変換完了:</strong> 元ソース <code>MYLIB/QRPGLESRC/IPL020.RPGLE</code> は変更されていません。
+    フリーフォーム版 <code>IPL020_FRE.RPGLE</code> が正常にコンパイルされ、IBM i 上で利用可能な状態です。
+  </div>
+
+  <div class="page-footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>
