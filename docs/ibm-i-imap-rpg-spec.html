@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBMi-imap RPG 実装 仕様書</title>
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3350;
+      --accent:    #5b8dee;
+      --accent2:   #7c5ce0;
+      --green:     #43d98c;
+      --yellow:    #f9ca56;
+      --red:       #ff6b6b;
+      --cyan:      #4ecdc4;
+      --text:      #e2e5f0;
+      --muted:     #8892a8;
+      --code-bg:   #13162a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0d1b3e 0%, #1a1d27 60%, #1e1040 100%);
+      border-bottom: 2px solid var(--border);
+      padding: 48px 0 36px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(91,141,238,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 14px; font-size: 12px; color: var(--muted);
+    }
+    .badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-green { background: var(--green); }
+    .dot-blue  { background: var(--accent); }
+    .dot-yellow { background: var(--yellow); }
+    header h1 {
+      font-size: 2.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p.subtitle {
+      margin-top: 10px; color: var(--muted); font-size: 1rem;
+    }
+    .meta-row {
+      display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+      margin-top: 20px; font-size: 13px; color: var(--muted);
+    }
+    .meta-row span { display: flex; align-items: center; gap: 6px; }
+
+    /* ── LAYOUT ── */
+    .wrapper { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* ── NAV (TOC) ── */
+    nav.toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 36px 0 40px;
+    }
+    nav.toc h2 { font-size: .85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 16px; }
+    nav.toc ol { padding-left: 20px; }
+    nav.toc li { margin: 5px 0; }
+    nav.toc a { color: var(--accent); text-decoration: none; font-size: .93rem; }
+    nav.toc a:hover { text-decoration: underline; }
+    nav.toc ol ol { margin-top: 4px; }
+    nav.toc ol ol li a { color: var(--muted); font-size: .88rem; }
+
+    /* ── SECTION ── */
+    section { margin-bottom: 64px; }
+    h2.section-title {
+      font-size: 1.4rem; font-weight: 700;
+      border-left: 4px solid var(--accent);
+      padding-left: 14px; margin-bottom: 24px;
+      scroll-margin-top: 24px;
+    }
+    h3.sub-title {
+      font-size: 1.05rem; font-weight: 600; color: var(--accent);
+      margin: 28px 0 12px; scroll-margin-top: 24px;
+    }
+    h4.subsub { font-size: .95rem; color: var(--cyan); margin: 20px 0 8px; }
+    p { margin-bottom: 12px; color: var(--text); }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      overflow-x: auto;
+    }
+    .arch-layer {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin: 8px 0;
+      position: relative;
+    }
+    .layer-caller  { background: rgba(91,141,238,.08); border-color: var(--accent); }
+    .layer-cli     { background: rgba(124,92,224,.08); border-color: var(--accent2); }
+    .layer-mid     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .layer-conn    { background: rgba(67,217,140,.06); border-color: var(--green); }
+    .layer-resp    { background: rgba(78,205,196,.06); border-color: var(--cyan); }
+    .layer-sys     { background: rgba(249,202,86,.06); border-color: var(--yellow); }
+    .layer-label {
+      font-size: .78rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .lbl-caller { color: var(--accent); }
+    .lbl-cli    { color: var(--accent2); }
+    .lbl-conn   { color: var(--green); }
+    .lbl-resp   { color: var(--cyan); }
+    .lbl-sys    { color: var(--yellow); }
+    .arch-arrow {
+      text-align: center; color: var(--muted); font-size: 1.3rem;
+      margin: 2px 0; line-height: 1;
+    }
+    .arch-box ul { list-style: none; padding: 0; font-size: .87rem; color: var(--muted); }
+    .arch-box ul li::before { content: '· '; color: var(--accent); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 16px; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: .9rem;
+    }
+    thead tr { background: var(--surface2); }
+    th {
+      text-align: left; padding: 10px 14px;
+      font-weight: 600; font-size: .82rem;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--muted); border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 9px 14px; border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:hover td { background: var(--surface2); }
+    code {
+      font-family: 'Cascadia Code','Consolas','Fira Code', monospace;
+      font-size: .85em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--cyan);
+    }
+    .ret-ok   { color: var(--green);  font-weight: 600; }
+    .ret-int  { color: var(--accent); }
+    .ret-ptr  { color: var(--yellow); }
+    .ret-ind  { color: var(--cyan);   }
+
+    /* ── CODE BLOCK ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code','Consolas','Fira Code', monospace;
+      font-size: .84rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    pre .cmt  { color: #5a7a6a; }
+    pre .kw   { color: #c792ea; }
+    pre .str  { color: #c3e88d; }
+    pre .num  { color: #f78c6c; }
+    pre .fn   { color: var(--accent); }
+    pre .ds   { color: var(--yellow); }
+    pre .cl   { color: var(--cmd); --cmd: #82aaff; }
+    .lang-tag {
+      position: absolute; top: 10px; right: 14px;
+      font-size: .72rem; color: var(--muted);
+      font-family: monospace; text-transform: uppercase;
+    }
+
+    /* ── CARD GRID ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; margin-bottom: 16px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .card-title { font-size: .82rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 10px; }
+    .card ul { list-style: none; padding: 0; font-size: .85rem; color: var(--muted); }
+    .card ul li { padding: 3px 0; }
+    .card ul li::before { content: '✓ '; color: var(--green); }
+
+    /* ── ALERT ── */
+    .alert {
+      border-radius: 8px; padding: 14px 18px;
+      font-size: .88rem; margin: 16px 0;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .alert-info  { background: rgba(91,141,238,.1);  border-left: 3px solid var(--accent); }
+    .alert-warn  { background: rgba(249,202,86,.1);  border-left: 3px solid var(--yellow); }
+    .alert-note  { background: rgba(67,217,140,.1);  border-left: 3px solid var(--green); }
+    .alert-icon  { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── STATE FLOW ── */
+    .state-flow {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 6px; padding: 16px; background: var(--code-bg);
+      border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px;
+    }
+    .state-node {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 14px;
+      font-size: .82rem; font-weight: 600; white-space: nowrap;
+    }
+    .state-arrow { color: var(--muted); font-size: 1.1rem; }
+    .sn-disc  { border-color: var(--red);     color: var(--red); }
+    .sn-conn  { border-color: var(--accent);  color: var(--accent); }
+    .sn-auth  { border-color: var(--green);   color: var(--green); }
+    .sn-sel   { border-color: var(--cyan);    color: var(--cyan); }
+    .sn-err   { border-color: var(--yellow);  color: var(--yellow); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0; text-align: center;
+      color: var(--muted); font-size: .82rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     HEADER
+════════════════════════════════════════ -->
+<header>
+  <div class="badge-row">
+    <span class="badge"><span class="dot dot-green"></span>ILE RPG フルスクラッチ</span>
+    <span class="badge"><span class="dot dot-blue"></span>RFC 3501 IMAP4rev1</span>
+    <span class="badge"><span class="dot dot-yellow"></span>IBM i V7R3+</span>
+    <span class="badge"><span class="dot dot-green"></span>RPGUnit テスト 57 件</span>
+  </div>
+  <h1>IBMi-imap RPG 実装 仕様書</h1>
+  <p class="subtitle">IBM i 向け IMAP4rev1 クライアントライブラリ — ILE RPG フルスクラッチ実装</p>
+  <div class="meta-row">
+    <span>📄 対象バージョン: V7R3 以降</span>
+    <span>🔒 GSKit TLS 対応</span>
+    <span>🧪 RPGUnit 単体テスト 49 件 + 統合テスト 8 件</span>
+    <span>📦 サービスプログラム: IMAPLIB</span>
+  </div>
+</header>
+
+<div class="wrapper">
+
+<!-- ════ TOC ════ -->
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#overview">概要</a></li>
+    <li><a href="#architecture">アーキテクチャ</a>
+      <ol>
+        <li><a href="#layers">レイヤー構成</a></li>
+        <li><a href="#files">ファイル構成</a></li>
+        <li><a href="#state">接続状態遷移</a></li>
+      </ol>
+    </li>
+    <li><a href="#copybook">コピーブック (IMAPH.rpgleinc)</a>
+      <ol>
+        <li><a href="#constants">プロトコル定数</a></li>
+        <li><a href="#errcodes">エラーコード</a></li>
+        <li><a href="#flags">フラグ定数</a></li>
+        <li><a href="#capabilities">CAPABILITY ビットマスク</a></li>
+        <li><a href="#structs">データ構造体</a></li>
+      </ol>
+    </li>
+    <li><a href="#imapconn">IMAPCONN モジュール — TCP/TLS 接続管理</a></li>
+    <li><a href="#imapresp">IMAPRESP モジュール — レスポンスパーサー</a></li>
+    <li><a href="#imapcli">IMAPCLI モジュール — 高レベルクライアント API</a>
+      <ol>
+        <li><a href="#lifecycle">ライフサイクル管理</a></li>
+        <li><a href="#conn-api">接続 API</a></li>
+        <li><a href="#auth-api">認証 API</a></li>
+        <li><a href="#mbox-api">メールボックス API</a></li>
+        <li><a href="#msg-api">メッセージ API</a></li>
+        <li><a href="#util-api">ユーティリティ API</a></li>
+      </ol>
+    </li>
+    <li><a href="#memory">メモリ管理</a></li>
+    <li><a href="#tls">TLS ハンドシェイクフロー</a></li>
+    <li><a href="#compile">コンパイル手順</a></li>
+    <li><a href="#testing">RPGUnit テストスイート</a></li>
+    <li><a href="#quickstart">クイックスタートサンプル</a></li>
+    <li><a href="#ibmi-notes">IBM i 固有の実装注意点</a></li>
+    <li><a href="#sysreq">システム要件</a></li>
+    <li><a href="#refs">参考文書</a></li>
+  </ol>
+</nav>
+
+<!-- ════════════════════════════════════════
+     1. 概要
+════════════════════════════════════════ -->
+<section id="overview">
+  <h2 class="section-title">1. 概要</h2>
+  <p>
+    本ライブラリは、既存の ILE C 実装 (<code>IBMi-imap/client/src/</code>) を参照元として、
+    <strong>ILE RPG のみ</strong>でフルスクラッチ再実装した RFC 3501 IMAP4rev1 クライアントライブラリです。
+    C コンパイラを必要とせず、IBM i 標準の BSD ソケット API と GSKit (Global Security Toolkit) を
+    RPG から直接呼び出すことで、平文 (port 143) および IMAPS / STARTTLS (port 993) の両方に対応しています。
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title" style="color:var(--accent)">主な機能</div>
+      <ul>
+        <li>TCP / IMAPS 接続 (GSKit TLS)</li>
+        <li>LOGIN / AUTHENTICATE PLAIN 認証</li>
+        <li>メールボックス SELECT / LIST / STATUS</li>
+        <li>UID SEARCH / FETCH / STORE / COPY</li>
+        <li>EXPUNGE / CAPABILITY</li>
+        <li>Base64 エンコード内蔵</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green)">設計ポリシー</div>
+      <ul>
+        <li>RPG フルスクラッチ (C 依存なし)</li>
+        <li>3 レイヤーモジュール分離</li>
+        <li>ヒープポインタ型コンテキスト</li>
+        <li>EBCDIC 対応 (大文字変換・バイト演算)</li>
+        <li>AUT(*EXCLUDE) セキュアデフォルト</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--yellow)">品質保証</div>
+      <ul>
+        <li>RPGUnit 単体テスト 49 件</li>
+        <li>統合テスト 8 件 (実サーバー)</li>
+        <li>コードカバレッジ計測対応</li>
+        <li>testing.json でビルド管理</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--cyan)">提供形式</div>
+      <ul>
+        <li>サービスプログラム IMAPLIB</li>
+        <li>3 モジュール構成</li>
+        <li>IFS ストリームファイル配布</li>
+        <li>QSYS メンバー変換対応</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     2. アーキテクチャ
+════════════════════════════════════════ -->
+<section id="architecture">
+  <h2 class="section-title">2. アーキテクチャ</h2>
+
+  <h3 class="sub-title" id="layers">2.1 レイヤー構成</h3>
+
+  <div class="arch-box">
+    <div class="arch-layer layer-caller">
+      <div class="layer-label lbl-caller">呼び出し元 RPG プログラム</div>
+      <ul>
+        <li>imap_client_init() → imap_connect() → imap_login() → imap_select()</li>
+        <li>imap_search() → imap_fetch() → imap_logout() → imap_client_cleanup()</li>
+      </ul>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer layer-cli">
+      <div class="layer-label lbl-cli">レイヤー 3 — IMAPCLI.rpgle (高レベルクライアント API)</div>
+      <ul>
+        <li>t_imap_client コンテキスト管理 (state / config / cur_mailbox)</li>
+        <li>IMAP コマンド文字列組み立て・送信・結果格納</li>
+        <li>AUTHENTICATE PLAIN 用 Base64 エンコード内蔵</li>
+      </ul>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="layer-mid">
+      <div class="arch-layer layer-conn">
+        <div class="layer-label lbl-conn">レイヤー 1 — IMAPCONN.rpgle</div>
+        <ul>
+          <li>TCP 接続 (socket / connect / getaddrinfo)</li>
+          <li>GSKit TLS ハンドシェイク</li>
+          <li>コマンドタグ生成 (A001…)</li>
+          <li>1 行受信バッファ管理</li>
+        </ul>
+      </div>
+      <div class="arch-layer layer-resp">
+        <div class="layer-label lbl-resp">レイヤー 2 — IMAPRESP.rpgle</div>
+        <ul>
+          <li>タグ付き / アンタグドレスポンスパース</li>
+          <li>t_imap_parsed_resp 生成</li>
+          <li>t_imap_lines 動的配列管理</li>
+          <li>imapresp_wait_tagged ループ</li>
+        </ul>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer layer-sys">
+      <div class="layer-label lbl-sys">IBM i システム API</div>
+      <ul>
+        <li>BSD ソケット API: socket / connect / send / recv / setsockopt / getaddrinfo</li>
+        <li>GSKit API: gsk_environment_open/init / gsk_secure_soc_open/init / gsk_secure_soc_write/read</li>
+        <li>LIBC: memset / memcpy / strlen / snprintf</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="files">2.2 ファイル構成</h3>
+  <pre><span class="cmt">IBMi-imap/rpg/
+├── includes/
+│   └── IMAPH.rpgleinc          # 共通コピーブック (定数・DS・プロトタイプ)
+├── src/
+│   ├── IMAPCONN.rpgle          # レイヤー 1: TCP/TLS 接続管理
+│   ├── IMAPRESP.rpgle          # レイヤー 2: レスポンスパーサー
+│   └── IMAPCLI.rpgle           # レイヤー 3: 高レベルクライアント API
+├── qtestsrc/
+│   ├── testing.json            # RPGUnit コンパイル/実行設定
+│   ├── IMAPCONN.test.rpgle     # 単体テスト 14 件
+│   ├── IMAPRESP.test.rpgle     # 単体テスト 18 件
+│   ├── IMAPCLI.test.rpgle      # 単体テスト 17 件
+│   └── IMAP_INT.test.rpgle     # 統合テスト  8 件
+└── README_RPG.md               # 実装ガイド</span></pre>
+
+  <h3 class="sub-title" id="state">2.3 接続状態遷移</h3>
+  <div class="state-flow">
+    <span class="state-node sn-disc">DISCONNECTED<br><small style="font-weight:400;font-size:.75rem">0</small></span>
+    <span class="state-arrow">→</span>
+    <span class="state-node sn-conn">CONNECTING<br><small style="font-weight:400;font-size:.75rem">1</small></span>
+    <span class="state-arrow">→</span>
+    <span class="state-node sn-conn">CONNECTED<br><small style="font-weight:400;font-size:.75rem">2</small></span>
+    <span class="state-arrow">→</span>
+    <span class="state-node sn-auth">AUTHENTICATED<br><small style="font-weight:400;font-size:.75rem">3</small></span>
+    <span class="state-arrow">→</span>
+    <span class="state-node sn-sel">SELECTED<br><small style="font-weight:400;font-size:.75rem">4</small></span>
+  </div>
+  <div class="state-flow" style="margin-top:0">
+    <span class="state-node sn-err">ERROR<br><small style="font-weight:400;font-size:.75rem">5</small></span>
+    <span class="state-arrow">← 任意の状態から遷移可能 (API 失敗時)</span>
+  </div>
+  <p style="font-size:.88rem; color:var(--muted); margin-top:8px">
+    各 API は呼び出し前に必要最小状態を検証し、不足する場合は <code>IMAP_ERR_INVALID_STATE (-9)</code> を返します。
+  </p>
+</section>
+
+<!-- ════════════════════════════════════════
+     3. コピーブック
+════════════════════════════════════════ -->
+<section id="copybook">
+  <h2 class="section-title">3. コピーブック (IMAPH.rpgleinc)</h2>
+  <p>
+    全モジュールが <code>/INCLUDE '../includes/IMAPH.rpgleinc'</code> でインクルードする共通ヘッダーです。
+    二重インクルード防止のため <code>/IF NOT DEFINED(IMAPH_INCLUDED)</code> ガードを実装しています。
+  </p>
+
+  <h3 class="sub-title" id="constants">3.1 プロトコル定数</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>定数名</th><th>値</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><code>IMAP_VERSION</code></td><td><code>'IMAP4rev1'</code></td><td>プロトコルバージョン文字列</td></tr>
+        <tr><td><code>IMAP_PORT</code></td><td><code>143</code></td><td>平文 IMAP ポート</td></tr>
+        <tr><td><code>IMAPS_PORT</code></td><td><code>993</code></td><td>IMAPS (直接 TLS) ポート</td></tr>
+        <tr><td><code>IMAP_MAX_LINE</code></td><td><code>8192</code></td><td>最大行バッファサイズ (バイト)</td></tr>
+        <tr><td><code>IMAP_MAX_TAG</code></td><td><code>64</code></td><td>コマンドタグ最大長</td></tr>
+        <tr><td><code>IMAP_MAX_MAILBOX</code></td><td><code>256</code></td><td>メールボックス名最大長</td></tr>
+        <tr><td><code>IMAP_MAX_USERNAME</code></td><td><code>256</code></td><td>ユーザー名最大長</td></tr>
+        <tr><td><code>IMAP_MAX_PASSWORD</code></td><td><code>256</code></td><td>パスワード最大長</td></tr>
+        <tr><td><code>IMAP_TIMEOUT_CONNECT</code></td><td><code>30</code></td><td>接続タイムアウト (秒)</td></tr>
+        <tr><td><code>IMAP_TIMEOUT_IO</code></td><td><code>300</code></td><td>I/O タイムアウト (秒)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="errcodes">3.2 エラーコード (IMAP_ERR_*)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>定数名</th><th>値</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><code>IMAP_ERR_NONE</code></td><td><span class="ret-ok">0</span></td><td>成功</td></tr>
+        <tr><td><code>IMAP_ERR_CONNECT</code></td><td><span class="ret-int">-1</span></td><td>TCP 接続エラー (getaddrinfo / connect 失敗)</td></tr>
+        <tr><td><code>IMAP_ERR_AUTH</code></td><td><span class="ret-int">-2</span></td><td>認証エラー (LOGIN / AUTHENTICATE 失敗)</td></tr>
+        <tr><td><code>IMAP_ERR_PROTOCOL</code></td><td><span class="ret-int">-3</span></td><td>プロトコルエラー (不正レスポンス)</td></tr>
+        <tr><td><code>IMAP_ERR_TIMEOUT</code></td><td><span class="ret-int">-4</span></td><td>タイムアウト</td></tr>
+        <tr><td><code>IMAP_ERR_MEMORY</code></td><td><span class="ret-int">-5</span></td><td>メモリ確保失敗</td></tr>
+        <tr><td><code>IMAP_ERR_IO</code></td><td><span class="ret-int">-6</span></td><td>I/O エラー (send / recv 失敗)</td></tr>
+        <tr><td><code>IMAP_ERR_SSL</code></td><td><span class="ret-int">-7</span></td><td>SSL/TLS エラー (GSKit 失敗)</td></tr>
+        <tr><td><code>IMAP_ERR_PARSE</code></td><td><span class="ret-int">-8</span></td><td>レスポンスパースエラー</td></tr>
+        <tr><td><code>IMAP_ERR_INVALID_STATE</code></td><td><span class="ret-int">-9</span></td><td>無効な状態 (未接続 / 未認証での API 呼び出し)</td></tr>
+        <tr><td><code>IMAP_ERR_MAILBOX_NOT_FOUND</code></td><td><span class="ret-int">-10</span></td><td>メールボックスが存在しない</td></tr>
+        <tr><td><code>IMAP_ERR_MESSAGE_NOT_FOUND</code></td><td><span class="ret-int">-11</span></td><td>メッセージが存在しない</td></tr>
+        <tr><td><code>IMAP_ERR_PERMISSION</code></td><td><span class="ret-int">-12</span></td><td>権限不足</td></tr>
+        <tr><td><code>IMAP_ERR_UNKNOWN</code></td><td><span class="ret-int">-99</span></td><td>不明エラー</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="flags">3.3 メッセージフラグ定数 (IMAP_FLAG_*)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>定数名</th><th>値</th><th>ビット</th><th>RFC 3501 フラグ</th></tr></thead>
+      <tbody>
+        <tr><td><code>IMAP_FLAG_SEEN</code></td>    <td>1</td>  <td>x'0001'</td><td><code>\Seen</code></td></tr>
+        <tr><td><code>IMAP_FLAG_ANSWERED</code></td><td>2</td>  <td>x'0002'</td><td><code>\Answered</code></td></tr>
+        <tr><td><code>IMAP_FLAG_FLAGGED</code></td> <td>4</td>  <td>x'0004'</td><td><code>\Flagged</code></td></tr>
+        <tr><td><code>IMAP_FLAG_DELETED</code></td> <td>8</td>  <td>x'0008'</td><td><code>\Deleted</code></td></tr>
+        <tr><td><code>IMAP_FLAG_DRAFT</code></td>   <td>16</td> <td>x'0010'</td><td><code>\Draft</code></td></tr>
+        <tr><td><code>IMAP_FLAG_RECENT</code></td>  <td>32</td> <td>x'0020'</td><td><code>\Recent</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="capabilities">3.4 CAPABILITY ビットマスク (IMAP_CAP_*)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>定数名</th><th>値</th><th>IMAP 機能文字列</th></tr></thead>
+      <tbody>
+        <tr><td><code>IMAP_CAP_IMAP4REV1</code></td><td>1</td>   <td>IMAP4rev1</td></tr>
+        <tr><td><code>IMAP_CAP_STARTTLS</code></td> <td>2</td>   <td>STARTTLS</td></tr>
+        <tr><td><code>IMAP_CAP_LOGINDIS</code></td> <td>4</td>   <td>LOGINDISABLED</td></tr>
+        <tr><td><code>IMAP_CAP_IDLE</code></td>     <td>8</td>   <td>IDLE</td></tr>
+        <tr><td><code>IMAP_CAP_NAMESPACE</code></td><td>16</td>  <td>NAMESPACE</td></tr>
+        <tr><td><code>IMAP_CAP_UIDPLUS</code></td>  <td>32</td>  <td>UIDPLUS</td></tr>
+        <tr><td><code>IMAP_CAP_CHILDREN</code></td> <td>64</td>  <td>CHILDREN</td></tr>
+        <tr><td><code>IMAP_CAP_UNSELECT</code></td> <td>128</td> <td>UNSELECT</td></tr>
+        <tr><td><code>IMAP_CAP_SORT</code></td>     <td>256</td> <td>SORT</td></tr>
+        <tr><td><code>IMAP_CAP_THREAD</code></td>   <td>512</td> <td>THREAD</td></tr>
+        <tr><td><code>IMAP_CAP_QUOTA</code></td>    <td>1024</td><td>QUOTA</td></tr>
+        <tr><td><code>IMAP_CAP_ACL</code></td>      <td>2048</td><td>ACL</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="structs">3.5 データ構造体</h3>
+
+  <h4 class="subsub">t_imap_client_config — 接続設定</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>フィールド</th><th>型</th><th>説明</th><th>デフォルト</th></tr></thead>
+      <tbody>
+        <tr><td><code>timeout</code></td>    <td><code>int(10)</code></td><td>接続タイムアウト秒 (0 = 30 秒)</td><td>30</td></tr>
+        <tr><td><code>ssl_verify</code></td> <td><code>ind</code></td>    <td>SSL 証明書検証 (*on = 検証, *off = スキップ)</td><td>*on</td></tr>
+        <tr><td><code>max_retries</code></td><td><code>int(10)</code></td><td>最大再試行回数</td><td>3</td></tr>
+        <tr><td><code>debug</code></td>      <td><code>ind</code></td>    <td>デバッグモード</td><td>*off</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 class="subsub">t_imap_mailbox — メールボックス情報</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><code>name</code></td>       <td><code>char(256)</code></td><td>メールボックス名</td></tr>
+        <tr><td><code>flags</code></td>      <td><code>int(10)</code></td> <td>IMAP_MBOX_* フラグビット組み合わせ</td></tr>
+        <tr><td><code>exists</code></td>     <td><code>int(10)</code></td> <td>総メッセージ数 (SELECT 時)</td></tr>
+        <tr><td><code>recent</code></td>     <td><code>int(10)</code></td> <td>最近追加メッセージ数</td></tr>
+        <tr><td><code>unseen</code></td>     <td><code>int(10)</code></td> <td>未読メッセージ数 (STATUS 時のみ)</td></tr>
+        <tr><td><code>uidvalidity</code></td><td><code>int(10)</code></td> <td>UIDVALIDITY 値</td></tr>
+        <tr><td><code>uidnext</code></td>    <td><code>int(10)</code></td> <td>次割り当て UID</td></tr>
+        <tr><td><code>delimiter</code></td>  <td><code>char(1)</code></td> <td>階層区切り文字 (例: '/')</td></tr>
+        <tr><td><code>is_selected</code></td><td><code>ind</code></td>     <td>SELECT 済みフラグ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 class="subsub">t_imap_message — メッセージ情報</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><code>uid</code></td>        <td><code>int(10)</code></td>   <td>メッセージ UID</td></tr>
+        <tr><td><code>seq</code></td>        <td><code>int(10)</code></td>   <td>シーケンス番号</td></tr>
+        <tr><td><code>flags</code></td>      <td><code>int(10)</code></td>   <td>IMAP_FLAG_* ビット組み合わせ</td></tr>
+        <tr><td><code>size</code></td>       <td><code>int(10)</code></td>   <td>RFC822.SIZE (バイト)</td></tr>
+        <tr><td><code>subject</code></td>    <td><code>char(512)</code></td> <td>件名</td></tr>
+        <tr><td><code>from_addr</code></td>  <td><code>char(512)</code></td> <td>From アドレス</td></tr>
+        <tr><td><code>to_addr</code></td>    <td><code>char(512)</code></td> <td>To アドレス</td></tr>
+        <tr><td><code>cc_addr</code></td>    <td><code>char(512)</code></td> <td>CC アドレス</td></tr>
+        <tr><td><code>message_id</code></td> <td><code>char(512)</code></td> <td>Message-ID ヘッダー</td></tr>
+        <tr><td><code>full_body</code></td>  <td><code>char(65536)</code></td><td>本文 (最大 64 KB)</td></tr>
+        <tr><td><code>body_len</code></td>   <td><code>int(10)</code></td>   <td>full_body の実効バイト数</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 class="subsub">動的配列構造体</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>構造体</th><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><code>t_imap_uid_list</code></td><td><code>uids_ptr</code></td><td><code>pointer</code></td><td>int(10) 配列へのポインタ (%alloc)</td></tr>
+        <tr><td><code>count</code></td>   <td><code>int(10)</code></td><td>格納 UID 数</td></tr>
+        <tr><td><code>capacity</code></td><td><code>int(10)</code></td><td>確保スロット数 (初期値 64)</td></tr>
+        <tr><td rowspan="3"><code>t_imap_mbox_list</code></td><td><code>items_ptr</code></td><td><code>pointer</code></td><td>t_imap_mailbox 配列へのポインタ</td></tr>
+        <tr><td><code>count</code></td>   <td><code>int(10)</code></td><td>格納メールボックス数</td></tr>
+        <tr><td><code>capacity</code></td><td><code>int(10)</code></td><td>確保スロット数 (初期値 16)</td></tr>
+        <tr><td rowspan="3"><code>t_imap_lines</code></td><td><code>lines_ptr</code></td><td><code>pointer</code></td><td>行格納領域へのポインタ</td></tr>
+        <tr><td><code>count</code></td>   <td><code>int(10)</code></td><td>格納行数</td></tr>
+        <tr><td><code>capacity</code></td><td><code>int(10)</code></td><td>確保スロット数 (初期値 16、+16 ずつ拡張)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     4. IMAPCONN
+════════════════════════════════════════ -->
+<section id="imapconn">
+  <h2 class="section-title">4. IMAPCONN モジュール — TCP/TLS 接続管理</h2>
+  <p>
+    レイヤー 1。BSD ソケット API と GSKit を使い、TCP 接続の確立・クローズ・データ送受信・
+    コマンドタグ生成・ソケット生存確認を担当します。
+    コンテキスト構造体 <code>t_imapconn</code> はヒープ上に確保され、ポインタで受け渡します。
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>概要</th><th>主なパラメータ</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imapconn_open</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>TCP 接続確立 + (use_ssl=*on 時) GSKit TLS ハンドシェイク。接続後グリーティング 1 行を読み捨てる。</td>
+          <td>ctx・hostname・port・use_ssl・ssl_verify・timeout</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_close</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>GSKit セッション → GSKit 環境 → ソケットの順でクローズ。NULL ctx は無視。</td>
+          <td>ctx</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_send</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>IMAP コマンド文字列を送信。末尾に CRLF (<code>x'0D0A'</code>) を自動付与。</td>
+          <td>ctx・cmd (varchar(8192))</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_send_raw</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>生バイト列をそのまま送信 (リテラルブロック等)。CRLF 付与なし。</td>
+          <td>ctx・data (pointer)・len</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_recv_line</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>CRLF (<code>\r\n</code>) まで 1 行受信。内部バッファを使用しバイト単位で読み取る。</td>
+          <td>ctx・line (pointer)・maxLen</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_next_tag</code></td>
+          <td><span class="ret-ptr">varchar(64)</span></td>
+          <td>コマンドタグを生成して返す。内部カウンタをインクリメント。A001, A002…A1000 形式。</td>
+          <td>ctx</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_is_alive</code></td>
+          <td><span class="ret-ind">ind</span></td>
+          <td>MSG_PEEK + MSG_DONTWAIT で recv() を呼びソケットの生存を確認。0 バイト受信 = 切断。</td>
+          <td>ctx</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_get_error</code></td>
+          <td><span class="ret-ptr">varchar(256)</span></td>
+          <td>コンテキストに保存された最後のエラーメッセージ文字列を返す。</td>
+          <td>ctx</td>
+        </tr>
+        <tr>
+          <td><code>imapconn_get_error_code</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>コンテキストに保存された最後のエラーコード (IMAP_ERR_*) を返す。</td>
+          <td>ctx</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠</span>
+    <div><strong>注意:</strong> <code>imapconn_recv_line</code> は 1 バイトずつ recv() を呼ぶ実装です。
+    大容量ボディ取得では呼び出し回数が増加します。IMAP プロトコルのコマンド/レスポンス交換 (行単位) での使用を前提としています。</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     5. IMAPRESP
+════════════════════════════════════════ -->
+<section id="imapresp">
+  <h2 class="section-title">5. IMAPRESP モジュール — レスポンスパーサー</h2>
+  <p>
+    レイヤー 2。IMAP サーバーから受信した生テキスト行を解析し、
+    タグ付きレスポンス (例: <code>A001 OK</code>)・アンタグドレスポンス (例: <code>* 10 EXISTS</code>)・
+    継続レスポンス (<code>+</code>) を識別して <code>t_imap_parsed_resp</code> 構造体に格納します。
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imapresp_parse_line</code></td>
+          <td><span class="ret-int">int(10)</span> (0=成功 / -1=エラー)</td>
+          <td>生テキスト 1 行を解析して <code>t_imap_parsed_resp</code> に格納。キーワードは EBCDIC 大文字変換 (_to_upper) を適用。</td>
+        </tr>
+        <tr>
+          <td><code>imapresp_wait_tagged</code></td>
+          <td><span class="ret-int">int(10)</span> IMAP_RESP_*</td>
+          <td>指定タグの完了レスポンス (OK/NO/BAD) まで行を読み続け、アンタグドラインを <code>t_imap_lines</code> に蓄積する。IMAPCLI の全コマンドが内部で使用。</td>
+        </tr>
+        <tr>
+          <td><code>imapresp_lines_init</code></td>
+          <td>―</td>
+          <td>t_imap_lines の動的配列を初期化 (%alloc)。容量 RESP_LINES_INIT_CAP (16) で開始。</td>
+        </tr>
+        <tr>
+          <td><code>imapresp_lines_free</code></td>
+          <td>―</td>
+          <td>t_imap_lines の動的配列を解放 (%dealloc)。count / capacity を 0 にリセット。</td>
+        </tr>
+        <tr>
+          <td><code>imapresp_lines_get</code></td>
+          <td><span class="ret-int">int(10)</span> (0=成功 / -1=範囲外)</td>
+          <td>N 番目 (0-based) のアンタグドラインを lineOut バッファにコピーして返す。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 class="subsub">t_imap_parsed_resp フィールド</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>フィールド</th><th>型</th><th>値</th></tr></thead>
+      <tbody>
+        <tr><td><code>type</code></td>      <td><code>int(10)</code></td><td>RESP_TYPE_STATUS(0) / RESP_TYPE_DATA(1) / RESP_TYPE_CONT(2)</td></tr>
+        <tr><td><code>tag</code></td>       <td><code>char(64)</code></td><td>タグ文字列 (アンタグドは '*')</td></tr>
+        <tr><td><code>resp_code</code></td> <td><code>int(10)</code></td><td>IMAP_RESP_OK(0) / NO(1) / BAD(2) / BYE(3) / CONTINUE(4)</td></tr>
+        <tr><td><code>keyword</code></td>   <td><code>char(32)</code></td><td>大文字キーワード (EXISTS / FETCH / LIST 等)</td></tr>
+        <tr><td><code>number</code></td>    <td><code>int(10)</code></td><td>数値 (-1 = なし)。例: <code>* 10 EXISTS</code> の 10</td></tr>
+        <tr><td><code>text</code></td>      <td><code>char(8192)</code></td><td>キーワード以降の残テキスト全体</td></tr>
+        <tr><td><code>is_untagged</code></td><td><code>ind</code></td>   <td>アンタグドフラグ (*on = '*' 始まり)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     6. IMAPCLI
+════════════════════════════════════════ -->
+<section id="imapcli">
+  <h2 class="section-title">6. IMAPCLI モジュール — 高レベルクライアント API</h2>
+  <p>
+    レイヤー 3。呼び出し元 RPG プログラムが直接使用するパブリック API 層です。
+    IMAPCONN と IMAPRESP の上に IMAP4rev1 の各コマンドを実装し、
+    接続状態管理・コマンド組み立て・レスポンス解析・結果データ構造体への格納を一括して行います。
+  </p>
+
+  <h3 class="sub-title" id="lifecycle">6.1 ライフサイクル管理</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_client_init</code></td>
+          <td><span class="ret-ptr">pointer</span></td>
+          <td>デフォルト設定 (timeout=30, ssl_verify=*on, max_retries=3) でクライアントコンテキストを確保・初期化して返す。内部で <code>imap_client_init_cfg</code> を呼ぶ。</td>
+        </tr>
+        <tr>
+          <td><code>imap_client_init_cfg</code></td>
+          <td><span class="ret-ptr">pointer</span></td>
+          <td>t_imap_client_config を受け取りカスタム設定で初期化。t_imap_client と t_imapconn を %alloc で確保する。失敗時は *null を返す。</td>
+        </tr>
+        <tr>
+          <td><code>imap_client_cleanup</code></td>
+          <td>―</td>
+          <td>接続中の場合は LOGOUT を試み、全ヒープリソース (conn_ctx・cliPtr) を %dealloc で解放する。NULL 引数は安全に無視。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="conn-api">6.2 接続 API</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>必要状態</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_connect</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>DISCONNECTED</td>
+          <td>TCP/TLS 接続を確立し CAPABILITY コマンドを発行してサーバー機能を取得。成功後は CONNECTED 状態に遷移。</td>
+        </tr>
+        <tr>
+          <td><code>imap_disconnect</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>CONNECTED 以上</td>
+          <td>LOGOUT コマンドなしでソケットを即時クローズ。緊急切断時に使用。</td>
+        </tr>
+        <tr>
+          <td><code>imap_is_connected</code></td>
+          <td><span class="ret-ind">ind</span></td>
+          <td>―</td>
+          <td>state が CONNECTED (2) 以上なら *on を返す。NULL ctx は *off。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="auth-api">6.3 認証 API</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>必要状態</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_login</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>CONNECTED</td>
+          <td><code>TAG LOGIN username password</code> コマンドを送信。成功後は AUTHENTICATED 状態に遷移。LOGINDISABLED キャパビリティが設定されている場合は非推奨。</td>
+        </tr>
+        <tr>
+          <td><code>imap_authenticate_plain</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>CONNECTED</td>
+          <td><code>TAG AUTHENTICATE PLAIN</code> を送信し、サーバーの継続要求 (<code>+</code>) に対して <code>\0user\0pass</code> 形式の Base64 エンコード文字列で応答する。内蔵 _base64_encode を使用。</td>
+        </tr>
+        <tr>
+          <td><code>imap_logout</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>CONNECTED 以上</td>
+          <td><code>TAG LOGOUT</code> コマンドを送信して正常切断。成功後は DISCONNECTED 状態に遷移。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="mbox-api">6.4 メールボックス API</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>必要状態</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_select</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG SELECT mailbox</code>。成功後は SELECTED 状態。t_imap_mailbox に exists / recent / uidvalidity / uidnext を格納。</td>
+        </tr>
+        <tr>
+          <td><code>imap_examine</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG EXAMINE mailbox</code>。読み取り専用 SELECT。SELECT と同じ情報を格納するが書き込みコマンドは拒否される。</td>
+        </tr>
+        <tr>
+          <td><code>imap_list</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG LIST ref pattern</code>。<code>t_imap_mbox_list</code> にメールボックス情報を格納。<strong>呼び出し元が imap_mbox_list_free で解放する責任を持つ。</strong></td>
+        </tr>
+        <tr>
+          <td><code>imap_status</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG STATUS mailbox (items)</code>。items 例: <code>'MESSAGES UNSEEN UIDNEXT'</code>。t_imap_mailbox に統計値を格納。</td>
+        </tr>
+        <tr>
+          <td><code>imap_create</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG CREATE mailbox</code>。新規メールボックスを作成。</td>
+        </tr>
+        <tr>
+          <td><code>imap_delete_mbox</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG DELETE mailbox</code>。メールボックスを削除。</td>
+        </tr>
+        <tr>
+          <td><code>imap_rename_mbox</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>AUTHENTICATED</td>
+          <td><code>TAG RENAME oldname newname</code>。メールボックスをリネーム。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="msg-api">6.5 メッセージ API</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>必要状態</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_search</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>SELECTED</td>
+          <td><code>TAG UID SEARCH criteria</code>。criteria 例: <code>'UNSEEN'</code>、<code>'FROM "user@example.com"'</code>。<code>t_imap_uid_list</code> に一致 UID を格納。<strong>呼び出し元が imap_uid_list_free で解放する。</strong></td>
+        </tr>
+        <tr>
+          <td><code>imap_fetch</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>SELECTED</td>
+          <td><code>TAG UID FETCH uid (items)</code>。items 例: <code>'FLAGS RFC822.SIZE BODY[HEADER.FIELDS (FROM TO SUBJECT)]'</code>。<code>t_imap_message</code> に結果を格納。</td>
+        </tr>
+        <tr>
+          <td><code>imap_store_flags</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>SELECTED</td>
+          <td><code>TAG UID STORE uid mode FLAGS (flagList)</code>。mode: <code>'+FLAGS'</code>(追加) / <code>'-FLAGS'</code>(削除) / <code>'FLAGS'</code>(上書き)。flags は IMAP_FLAG_* ビット組み合わせを渡す。</td>
+        </tr>
+        <tr>
+          <td><code>imap_copy_msg</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>SELECTED</td>
+          <td><code>TAG UID COPY uid destMailbox</code>。別メールボックスへメッセージをコピー。</td>
+        </tr>
+        <tr>
+          <td><code>imap_expunge</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>SELECTED</td>
+          <td><code>TAG EXPUNGE</code>。<code>\Deleted</code> フラグが付いたメッセージを完全削除。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="util-api">6.6 ユーティリティ API</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>手続き名</th><th>戻り値</th><th>概要</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>imap_get_capabilities</code></td>
+          <td><span class="ret-ptr">uns(10)</span></td>
+          <td><code>TAG CAPABILITY</code> を発行し IMAP_CAP_* ビットマスクを返す。%bitand で個別機能を確認可能。</td>
+        </tr>
+        <tr>
+          <td><code>imap_get_error</code></td>
+          <td><span class="ret-ptr">varchar(256)</span></td>
+          <td>クライアントコンテキストに保存された最後のエラーメッセージを返す。</td>
+        </tr>
+        <tr>
+          <td><code>imap_get_error_code</code></td>
+          <td><span class="ret-int">int(10)</span></td>
+          <td>最後のエラーコード (IMAP_ERR_*) を返す。</td>
+        </tr>
+        <tr>
+          <td><code>imap_uid_list_free</code></td>
+          <td>―</td>
+          <td>t_imap_uid_list の uids_ptr を %dealloc して count / capacity をリセット。</td>
+        </tr>
+        <tr>
+          <td><code>imap_mbox_list_free</code></td>
+          <td>―</td>
+          <td>t_imap_mbox_list の items_ptr を %dealloc して count / capacity をリセット。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     7. メモリ管理
+════════════════════════════════════════ -->
+<section id="memory">
+  <h2 class="section-title">7. メモリ管理</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>コンテキスト</th><th>確保</th><th>解放</th><th>責任</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>t_imap_client</code> (IMAPCLI_CTX_SIZE ≈ 900 B)</td>
+          <td><code>imap_client_init / imap_client_init_cfg</code></td>
+          <td><code>imap_client_cleanup</code></td>
+          <td>ライブラリ</td>
+        </tr>
+        <tr>
+          <td><code>t_imapconn</code> (IMAPCONN_CTX_SIZE ≈ 8784 B)</td>
+          <td><code>imap_client_init</code> 内で自動確保</td>
+          <td><code>imap_client_cleanup</code></td>
+          <td>ライブラリ</td>
+        </tr>
+        <tr>
+          <td><code>t_imap_lines</code></td>
+          <td><code>imapresp_lines_init</code></td>
+          <td><code>imapresp_lines_free</code></td>
+          <td>ライブラリ (IMAPCLI 内部で管理)</td>
+        </tr>
+        <tr>
+          <td><code>t_imap_uid_list.uids_ptr</code></td>
+          <td><code>imap_search</code> 内で %alloc</td>
+          <td><code>imap_uid_list_free</code></td>
+          <td><strong>呼び出し元</strong></td>
+        </tr>
+        <tr>
+          <td><code>t_imap_mbox_list.items_ptr</code></td>
+          <td><code>imap_list</code> 内で %alloc</td>
+          <td><code>imap_mbox_list_free</code></td>
+          <td><strong>呼び出し元</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ</span>
+    <div><code>imap_client_cleanup</code> を必ず呼んでください。接続中の場合は内部で LOGOUT を試みてからソケットとヒープをすべて解放します。
+    <code>imap_uid_list_free</code> と <code>imap_mbox_list_free</code> は呼び出し元プログラムの責任です。</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     8. TLS ハンドシェイク
+════════════════════════════════════════ -->
+<section id="tls">
+  <h2 class="section-title">8. TLS ハンドシェイクフロー (GSKit)</h2>
+  <p>IBM i Digital Certificate Manager (DCM) を使用した証明書管理が前提です。</p>
+  <pre><span class="cmt">1. gsk_environment_open()               → GSKit 環境ハンドル取得
+2. gsk_attribute_set_enum               → GSK_SESSION_TYPE = GSK_CLIENT_SESSION
+3. gsk_attribute_set_enum               → GSK_SERVER_AUTH_TYPE
+                                           ssl_verify=*on  → GSK_SERVER_AUTH_FULL  (完全証明書検証)
+                                           ssl_verify=*off → GSK_SERVER_AUTH_PASSTHRU (検証スキップ)
+4. gsk_environment_init()               → TLS 設定確定
+
+5. socket(AF_INET, SOCK_STREAM, 0)      → TCP ソケット作成
+6. setsockopt(SO_RCVTIMEO / SO_SNDTIMEO)→ タイムアウト設定 (SOL_SOCKET = -1 on IBM i)
+7. connect(fd, sockaddr_in, ...)        → TCP 接続確立
+
+8. gsk_secure_soc_open(env_handle)      → GSKit セッションハンドル取得
+9. gsk_attribute_set_numeric_value(GSK_FD, fd) → ソケット fd を関連付け
+10. gsk_secure_soc_init(soc_handle)     → TLS ハンドシェイク実行
+
+   ── 以降は gsk_secure_soc_write / gsk_secure_soc_read で通信 ──
+
+11. gsk_secure_soc_close(soc_handle)    → TLS セッション終了
+12. gsk_environment_close(env_handle)   → GSKit 環境終了
+13. close(fd)                           → TCP ソケットクローズ</span></pre>
+</section>
+
+<!-- ════════════════════════════════════════
+     9. コンパイル手順
+════════════════════════════════════════ -->
+<section id="compile">
+  <h2 class="section-title">9. コンパイル手順</h2>
+
+  <h3 class="sub-title">9.1 IFS ストリームファイルからコンパイル (推奨)</h3>
+  <p>依存順序どおりに 3 モジュールをコンパイルしてから SRVPGM を作成します。</p>
+  <pre><span class="cmt">/* ── Step 1: IMAPCONN モジュール ─────────────────────────── */</span>
+<span class="kw">CRTRPGMOD</span> <span class="fn">MODULE</span>(MYLIB/IMAPCONN)
+          <span class="fn">SRCSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPCONN.rpgle'</span>)
+          <span class="fn">OPTION</span>(*EVENTF *SRCSTMT)
+          <span class="fn">DBGVIEW</span>(*SOURCE)
+          <span class="fn">INCDIR</span>(<span class="str">'/IBMi-imap/rpg/includes'</span>)
+
+<span class="cmt">/* ── Step 2: IMAPRESP モジュール ─────────────────────────── */</span>
+<span class="kw">CRTRPGMOD</span> <span class="fn">MODULE</span>(MYLIB/IMAPRESP)
+          <span class="fn">SRCSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPRESP.rpgle'</span>)
+          <span class="fn">OPTION</span>(*EVENTF *SRCSTMT)
+          <span class="fn">DBGVIEW</span>(*SOURCE)
+          <span class="fn">INCDIR</span>(<span class="str">'/IBMi-imap/rpg/includes'</span>)
+
+<span class="cmt">/* ── Step 3: IMAPCLI モジュール ──────────────────────────── */</span>
+<span class="kw">CRTRPGMOD</span> <span class="fn">MODULE</span>(MYLIB/IMAPCLI)
+          <span class="fn">SRCSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPCLI.rpgle'</span>)
+          <span class="fn">OPTION</span>(*EVENTF *SRCSTMT)
+          <span class="fn">DBGVIEW</span>(*SOURCE)
+          <span class="fn">INCDIR</span>(<span class="str">'/IBMi-imap/rpg/includes'</span>)
+
+<span class="cmt">/* ── Step 4: サービスプログラム作成 ─────────────────────── */</span>
+<span class="kw">CRTSRVPGM</span> <span class="fn">SRVPGM</span>(MYLIB/IMAPLIB)
+          <span class="fn">MODULE</span>(MYLIB/IMAPCONN MYLIB/IMAPRESP MYLIB/IMAPCLI)
+          <span class="fn">EXPORT</span>(*ALL)
+          <span class="fn">BNDDIR</span>(QC2LE QSYS/QSOSSLBND)
+          <span class="fn">ACTGRP</span>(*CALLER)
+          <span class="fn">AUT</span>(*EXCLUDE)</pre>
+
+  <div class="alert alert-note">
+    <span class="alert-icon">✓</span>
+    <div><code>QSOSSLBND</code> バインディングディレクトリには GSKit ライブラリが含まれています。
+    <code>AUT(*EXCLUDE)</code> により、明示的な権限付与なしに他ユーザーからのアクセスを拒否するセキュアデフォルト設定です。</div>
+  </div>
+
+  <h3 class="sub-title">9.2 QSYS メンバーからコンパイルする場合</h3>
+  <pre><span class="cmt">/* IFS → QSYS ソースメンバーへのコピー例 */</span>
+<span class="kw">CPYFRMSTMF</span> <span class="fn">FROMSTMF</span>(<span class="str">'/IBMi-imap/rpg/includes/IMAPH.rpgleinc'</span>)
+           <span class="fn">TOMBR</span>(<span class="str">'MYLIB/QRPGLEREF/IMAPH'</span>) <span class="fn">MBROPT</span>(*REPLACE)
+<span class="kw">CPYFRMSTMF</span> <span class="fn">FROMSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPCONN.rpgle'</span>)
+           <span class="fn">TOMBR</span>(<span class="str">'MYLIB/QRPGLESRC/IMAPCONN'</span>) <span class="fn">MBROPT</span>(*REPLACE)
+<span class="kw">CPYFRMSTMF</span> <span class="fn">FROMSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPRESP.rpgle'</span>)
+           <span class="fn">TOMBR</span>(<span class="str">'MYLIB/QRPGLESRC/IMAPRESP'</span>) <span class="fn">MBROPT</span>(*REPLACE)
+<span class="kw">CPYFRMSTMF</span> <span class="fn">FROMSTMF</span>(<span class="str">'/IBMi-imap/rpg/src/IMAPCLI.rpgle'</span>)
+           <span class="fn">TOMBR</span>(<span class="str">'MYLIB/QRPGLESRC/IMAPCLI'</span>) <span class="fn">MBROPT</span>(*REPLACE)</pre>
+</section>
+
+<!-- ════════════════════════════════════════
+     10. テスト
+════════════════════════════════════════ -->
+<section id="testing">
+  <h2 class="section-title">10. RPGUnit テストスイート</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ファイル</th><th>分類</th><th>テスト数</th><th>ネットワーク</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>IMAPCONN.test.rpgle</code></td>
+          <td>単体</td>
+          <td>14 件</td>
+          <td>不要</td>
+          <td>コンテキスト確保/解放・タグ生成連番・ラップ・NULL ctx 安全性・エラーコード初期値・送受信 NULL</td>
+        </tr>
+        <tr>
+          <td><code>IMAPRESP.test.rpgle</code></td>
+          <td>単体</td>
+          <td>18 件</td>
+          <td>不要</td>
+          <td>タグ付き OK/NO/BAD・アンタグド OK/BYE/数値・継続・FETCH/LIST/CAPABILITY 行パース・動的配列初期化/追記/取得</td>
+        </tr>
+        <tr>
+          <td><code>IMAPCLI.test.rpgle</code></td>
+          <td>単体</td>
+          <td>17 件</td>
+          <td>不要</td>
+          <td>デフォルト/カスタム初期化・NULL クリーンアップ・未接続 API 呼び出しエラー・フラグ文字列変換・CAPABILITY/SEARCH/フラグパース・UID/MBOX リスト解放</td>
+        </tr>
+        <tr>
+          <td><code>IMAP_INT.test.rpgle</code></td>
+          <td>統合</td>
+          <td>8 件</td>
+          <td>必要</td>
+          <td>実サーバー接続・LOGIN・SELECT・SEARCH・FETCH・LOGOUT 一連フロー</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 class="subsub">統合テスト実行準備 (環境変数設定)</h4>
+  <pre><span class="cmt">/* IMAP_HOST が未設定の場合、全 8 ケースは自動スキップされます */</span>
+<span class="kw">ADDENVVAR</span> <span class="fn">ENVVAR</span>(IMAP_HOST) <span class="fn">VALUE</span>(<span class="str">'imap.example.com'</span>)
+<span class="kw">ADDENVVAR</span> <span class="fn">ENVVAR</span>(IMAP_PORT) <span class="fn">VALUE</span>(<span class="str">'993'</span>)
+<span class="kw">ADDENVVAR</span> <span class="fn">ENVVAR</span>(IMAP_SSL)  <span class="fn">VALUE</span>(<span class="str">'Y'</span>)
+<span class="kw">ADDENVVAR</span> <span class="fn">ENVVAR</span>(IMAP_USER) <span class="fn">VALUE</span>(<span class="str">'test@example.com'</span>)
+<span class="kw">ADDENVVAR</span> <span class="fn">ENVVAR</span>(IMAP_PASS) <span class="fn">VALUE</span>(<span class="str">'secret'</span>)</pre>
+
+  <h4 class="subsub">RPGUnit 実行コマンド</h4>
+  <pre><span class="cmt">/* 単体テスト (ネットワーク不要) */</span>
+<span class="kw">RUCALLTST</span> <span class="fn">TSTPGM</span>(*LIBL/IMAPCONN) <span class="fn">DETAIL</span>(*BASIC)
+<span class="kw">RUCALLTST</span> <span class="fn">TSTPGM</span>(*LIBL/IMAPRESP) <span class="fn">DETAIL</span>(*BASIC)
+<span class="kw">RUCALLTST</span> <span class="fn">TSTPGM</span>(*LIBL/IMAPCLI)  <span class="fn">DETAIL</span>(*BASIC)
+
+<span class="cmt">/* 統合テスト */</span>
+<span class="kw">RUCALLTST</span> <span class="fn">TSTPGM</span>(*LIBL/IMAP_INT) <span class="fn">DETAIL</span>(*BASIC)
+
+<span class="cmt">/* コードカバレッジ付き実行 */</span>
+<span class="kw">RUCALLTST</span> <span class="fn">TSTPGM</span>(*LIBL/IMAPRESP)
+          <span class="fn">COVRPG</span>(*YES) <span class="fn">COVMOD</span>(IMAPRESP)</pre>
+</section>
+
+<!-- ════════════════════════════════════════
+     11. クイックスタート
+════════════════════════════════════════ -->
+<section id="quickstart">
+  <h2 class="section-title">11. クイックスタートサンプル</h2>
+  <p>INBOX の未読メッセージを検索して先頭メールのヘッダーを取得する最小サンプルです。</p>
+  <pre><span class="lang-tag">ILE RPG</span><span class="kw">**free</span>
+<span class="kw">/include</span> <span class="str">'IBMi-imap/rpg/includes/IMAPH.rpgleinc'</span>
+
+<span class="cmt">// ── プロトタイプ宣言 ──────────────────────────────────────</span>
+<span class="kw">dcl-pr</span> <span class="fn">imap_client_init</span>    pointer         extproc(<span class="str">'imap_client_init'</span>);    <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_client_cleanup</span>                extproc(<span class="str">'imap_client_cleanup'</span>);
+  cliPtr  pointer value;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_connect</span>        int(10)         extproc(<span class="str">'imap_connect'</span>);
+  cliPtr  pointer value;
+  host    varchar(256) const;
+  port    int(10) value;
+  ssl     ind value;      <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_login</span>          int(10)         extproc(<span class="str">'imap_login'</span>);
+  cliPtr  pointer value;
+  user    varchar(256) const;
+  pass    varchar(256) const;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_select</span>         int(10)         extproc(<span class="str">'imap_select'</span>);
+  cliPtr  pointer value;
+  mbox    varchar(256) const;
+  mboxInfo <span class="ds">likeds(t_imap_mailbox)</span>;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_search</span>         int(10)         extproc(<span class="str">'imap_search'</span>);
+  cliPtr  pointer value;
+  crit    varchar(256) const;
+  uids    <span class="ds">likeds(t_imap_uid_list)</span>;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_fetch</span>          int(10)         extproc(<span class="str">'imap_fetch'</span>);
+  cliPtr  pointer value;
+  uid     int(10) value;
+  items   varchar(128) const;
+  msg     <span class="ds">likeds(t_imap_message)</span>;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_logout</span>         int(10)         extproc(<span class="str">'imap_logout'</span>);
+  cliPtr  pointer value;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_get_error</span>      varchar(256)    extproc(<span class="str">'imap_get_error'</span>);
+  cliPtr  pointer value;  <span class="kw">end-pr</span>;
+<span class="kw">dcl-pr</span> <span class="fn">imap_uid_list_free</span>               extproc(<span class="str">'imap_uid_list_free'</span>);
+  uids    <span class="ds">likeds(t_imap_uid_list)</span>;  <span class="kw">end-pr</span>;
+
+<span class="cmt">// ── 変数宣言 ──────────────────────────────────────────────</span>
+<span class="kw">dcl-s</span>  cliPtr  pointer;
+<span class="kw">dcl-ds</span> inbox   <span class="ds">likeds(t_imap_mailbox)</span> inz;
+<span class="kw">dcl-ds</span> uids    <span class="ds">likeds(t_imap_uid_list)</span> inz;
+<span class="kw">dcl-ds</span> msg     <span class="ds">likeds(t_imap_message)</span>  inz;
+<span class="kw">dcl-s</span>  rc      int(10);
+<span class="kw">dcl-s</span>  uidPtr  pointer;
+<span class="kw">dcl-s</span>  firstUid int(10) based(uidPtr);
+
+<span class="cmt">// ── 初期化 & 接続 ────────────────────────────────────────</span>
+cliPtr = <span class="fn">imap_client_init</span>();
+
+rc = <span class="fn">imap_connect</span>(cliPtr : <span class="str">'imap.example.com'</span> : <span class="num">993</span> : *on);
+<span class="kw">if</span> rc &lt;&gt; IMAP_ERR_NONE;
+  dsply <span class="fn">imap_get_error</span>(cliPtr);
+  <span class="fn">imap_client_cleanup</span>(cliPtr);
+  *inlr = *on;
+  return;
+<span class="kw">endif</span>;
+
+<span class="cmt">// ── LOGIN 認証 ───────────────────────────────────────────</span>
+rc = <span class="fn">imap_login</span>(cliPtr : <span class="str">'user@example.com'</span> : <span class="str">'password'</span>);
+<span class="kw">if</span> rc &lt;&gt; IMAP_ERR_NONE;
+  dsply <span class="fn">imap_get_error</span>(cliPtr);
+  <span class="fn">imap_client_cleanup</span>(cliPtr);
+  *inlr = *on;
+  return;
+<span class="kw">endif</span>;
+
+<span class="cmt">// ── INBOX SELECT & 未読検索 ──────────────────────────────</span>
+rc = <span class="fn">imap_select</span>(cliPtr : <span class="str">'INBOX'</span> : inbox);
+<span class="cmt">// inbox.exists = 総メッセージ数, inbox.unseen = 未読数</span>
+
+rc = <span class="fn">imap_search</span>(cliPtr : <span class="str">'UNSEEN'</span> : uids);
+<span class="kw">if</span> rc = IMAP_ERR_NONE <span class="kw">and</span> uids.count > 0;
+  uidPtr = uids.uids_ptr;
+  rc = <span class="fn">imap_fetch</span>(cliPtr : firstUid
+               : <span class="str">'FLAGS RFC822.SIZE BODY[HEADER.FIELDS (FROM TO SUBJECT)]'</span>
+               : msg);
+  <span class="cmt">// msg.subject / msg.from_addr / msg.size を参照</span>
+<span class="kw">endif</span>;
+<span class="fn">imap_uid_list_free</span>(uids);   <span class="cmt">// ← 呼び出し元責任で解放</span>
+
+<span class="cmt">// ── 後処理 ──────────────────────────────────────────────</span>
+<span class="fn">imap_logout</span>(cliPtr);
+<span class="fn">imap_client_cleanup</span>(cliPtr);
+*inlr = *on;</pre>
+</section>
+
+<!-- ════════════════════════════════════════
+     12. IBM i 固有注意点
+════════════════════════════════════════ -->
+<section id="ibmi-notes">
+  <h2 class="section-title">12. IBM i 固有の実装注意点</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>項目</th><th>問題</th><th>本実装の解決策</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>SOL_SOCKET</code> の値</td>
+          <td>Linux/AIX では <code>1</code> だが IBM i では <code>-1</code></td>
+          <td><code>IMAPH.rpgleinc</code> で <code>dcl-c SOL_SOCKET -1</code> として明示定義</td>
+        </tr>
+        <tr>
+          <td>recv フラグの組み合わせ</td>
+          <td><code>MSG_PEEK + MSG_DONTWAIT</code> の加算は誤り</td>
+          <td><code>%bitor(MSG_PEEK : MSG_DONTWAIT)</code> でビット OR を使用</td>
+        </tr>
+        <tr>
+          <td>バイト値取得 (EBCDIC)</td>
+          <td><code>%dec(char:1:0)</code> は EBCDIC コードポイントで誤動作</td>
+          <td><code>uns(3) based(bytePtr)</code> でポインタ演算して 1 バイト読み取り</td>
+        </tr>
+        <tr>
+          <td><code>%right</code> BIF</td>
+          <td>IBM i RPG に <code>%right</code> BIF は存在しない</td>
+          <td><code>if tagNum &lt;= 9 / &lt;= 99 / &lt;= 999</code> の条件分岐でゼロ埋め実装</td>
+        </tr>
+        <tr>
+          <td>varchar → C API 引数</td>
+          <td><code>%addr(varchar)</code> は 2 バイトの長さフィールドを指す</td>
+          <td><code>hostnameZ = %trimr(hostname) + x'00'</code> で null 終端 <code>char</code> に変換</td>
+        </tr>
+        <tr>
+          <td>EBCDIC 大文字変換</td>
+          <td><code>%UPPER</code> や C の <code>toupper</code> は EBCDIC では信頼性が低い</td>
+          <td><code>_to_upper</code> 手続きで IMAP_LOWER_ALPHA → IMAP_UPPER_ALPHA の手動マップ変換</td>
+        </tr>
+        <tr>
+          <td>Base64 バイト演算</td>
+          <td><code>%dec</code> による文字コード算術は EBCDIC で不正</td>
+          <td><code>byteRead uns(3) based(bytePtr)</code> でポインタオフセット移動して読み取り</td>
+        </tr>
+        <tr>
+          <td><code>%scan</code> の文字セット検索</td>
+          <td><code>%scan(ch:'0123456789')-1</code> は EBCDIC で誤変換リスク</td>
+          <td><code>ch >= '0' and ch &lt;= '9'</code> の比較式に変更 (EBCDIC 連続性を保証)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠</span>
+    <div>
+      IBM i の EBCDIC 環境では ASCII 前提のコードがサイレントに誤動作します。
+      文字コード算術・大文字変換・バイト値取得には上記の対策を必ず適用してください。
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     13. システム要件
+════════════════════════════════════════ -->
+<section id="sysreq">
+  <h2 class="section-title">13. システム要件</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>項目</th><th>要件</th></tr></thead>
+      <tbody>
+        <tr><td>IBM i バージョン</td><td>V7R3 以降</td></tr>
+        <tr><td>RPG コンパイラ</td><td>ILE RPG (CRTRPGMOD)</td></tr>
+        <tr><td>バインディングディレクトリ</td><td><code>QC2LE</code> (LIBC)、<code>QSYS/QSOSSLBND</code> (GSKit)</td></tr>
+        <tr><td>DCM 設定</td><td>GSKit TLS 使用時: アプリ ID または証明書の設定が必要</td></tr>
+        <tr><td>テスト実行 (RPGUnit)</td><td><code>RPGUNIT</code> をライブラリリストに追加</td></tr>
+        <tr><td>コードカバレッジ</td><td><code>QDEVTOOLS</code> をライブラリリストに追加</td></tr>
+        <tr><td>ソースファイル配置</td><td>IFS ストリームファイル または QSYS メンバー (CPYFRMSTMF で変換可)</td></tr>
+        <tr><td>SRVPGM 名</td><td><code>IMAPLIB</code> (3 モジュール: IMAPCONN / IMAPRESP / IMAPCLI)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     14. 参考文書
+════════════════════════════════════════ -->
+<section id="refs">
+  <h2 class="section-title">14. 参考文書</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>文書</th><th>URL / 場所</th></tr></thead>
+      <tbody>
+        <tr><td>RFC 3501 — IMAP4rev1</td><td><a href="https://tools.ietf.org/html/rfc3501" style="color:var(--accent)">https://tools.ietf.org/html/rfc3501</a></td></tr>
+        <tr><td>IBM i 7.5 Socket Programming</td><td><a href="https://www.ibm.com/docs/en/i/7.5?topic=communications-socket-programming" style="color:var(--accent)">IBM Docs</a></td></tr>
+        <tr><td>GSKit APIs — IBM i 7.5</td><td><a href="https://www.ibm.com/docs/en/i/7.5?topic=security-global-security-kit-gskit-apis" style="color:var(--accent)">IBM Docs</a></td></tr>
+        <tr><td>ILE RPG Reference 7.6</td><td><a href="https://www.ibm.com/docs/en/i/7.6?topic=rpg-ile-reference" style="color:var(--accent)">IBM Docs</a></td></tr>
+        <tr><td>IBM Redbook: iSeries Wired Network Security Ch.6</td><td><a href="https://www.redbooks.ibm.com/" style="color:var(--accent)">Redbooks</a></td></tr>
+        <tr><td>C 実装 参照元 — IMAPCONN.C</td><td><code>IBMi-imap/client/src/IMAPCONN.C</code></td></tr>
+        <tr><td>C 実装 参照元 — IMAPRESP.C</td><td><code>IBMi-imap/client/src/IMAPRESP.C</code></td></tr>
+        <tr><td>C 実装 参照元 — IMAPCLI.C</td><td><code>IBMi-imap/client/src/IMAPCLI.C</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p>IBMi-imap RPG 実装 仕様書 &nbsp;|&nbsp; ILE RPG フルスクラッチ実装 &nbsp;|&nbsp; RFC 3501 IMAP4rev1 準拠 &nbsp;|&nbsp; IBM i V7R3+</p>
+</footer>
+
+</body>
+</html>
