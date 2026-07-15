@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5250TestUnit 技術解説書</title>
+  <style>
+    :root {
+      --blue:    #1a4f8a;
+      --blue-l:  #2563ab;
+      --blue-bg: #eef4fb;
+      --green:   #166534;
+      --green-bg:#dcfce7;
+      --red:     #991b1b;
+      --red-bg:  #fee2e2;
+      --gray:    #374151;
+      --gray-l:  #6b7280;
+      --gray-bg: #f3f4f6;
+      --border:  #d1d5db;
+      --code-bg: #1e1e2e;
+      --code-fg: #cdd6f4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--gray);
+      background: #fff;
+    }
+    /* ===== ヘッダー ===== */
+    header {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-l) 100%);
+      color: #fff;
+      padding: 48px 64px 40px;
+    }
+    header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: 0.03em; }
+    header .subtitle { font-size: 1rem; opacity: 0.85; margin-top: 8px; }
+    header .meta { font-size: 0.85rem; opacity: 0.7; margin-top: 16px; }
+
+    /* ===== レイアウト ===== */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 48px 80px; }
+
+    /* ===== 目次 ===== */
+    nav.toc {
+      background: var(--blue-bg);
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 24px 32px;
+      margin: 40px 0;
+    }
+    nav.toc h2 { font-size: 1rem; color: var(--blue); margin-bottom: 12px; }
+    nav.toc ol { padding-left: 20px; }
+    nav.toc li { margin: 4px 0; }
+    nav.toc a { color: var(--blue-l); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+
+    /* ===== 見出し ===== */
+    h2 {
+      font-size: 1.5rem;
+      color: var(--blue);
+      border-bottom: 3px solid var(--blue);
+      padding-bottom: 8px;
+      margin: 56px 0 20px;
+    }
+    h3 {
+      font-size: 1.1rem;
+      color: var(--gray);
+      border-left: 4px solid var(--blue-l);
+      padding-left: 10px;
+      margin: 32px 0 12px;
+    }
+    h4 {
+      font-size: 0.95rem;
+      color: var(--gray);
+      margin: 20px 0 8px;
+      font-weight: 600;
+    }
+
+    /* ===== 本文 ===== */
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0; }
+    li { margin: 4px 0; }
+
+    /* ===== コードブロック ===== */
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin: 16px 0;
+      font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    }
+    code {
+      background: var(--gray-bg);
+      color: var(--red);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.88em;
+      font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* ===== テーブル ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+    th {
+      background: var(--blue);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+    tr:nth-child(even) td { background: var(--gray-bg); }
+    tr:hover td { background: var(--blue-bg); }
+
+    /* ===== バッジ ===== */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .badge-blue  { background: #dbeafe; color: #1e40af; }
+    .badge-green { background: var(--green-bg); color: var(--green); }
+    .badge-red   { background: var(--red-bg); color: var(--red); }
+    .badge-gray  { background: var(--gray-bg); color: var(--gray); }
+
+    /* ===== ボックス ===== */
+    .box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .box-info  { background: var(--blue-bg);  border-left: 4px solid var(--blue-l); }
+    .box-warn  { background: #fffbeb;         border-left: 4px solid #f59e0b; }
+    .box-tip   { background: var(--green-bg); border-left: 4px solid #16a34a; }
+
+    /* ===== アーキテクチャ図 ===== */
+    .arch {
+      background: var(--gray-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 20px 0;
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      font-size: 0.85rem;
+      line-height: 1.9;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ===== フローステップ ===== */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 16px 0;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .flow-num {
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .flow-arrow {
+      color: var(--gray-l);
+      padding: 0 0 0 13px;
+      font-size: 1.1rem;
+    }
+
+    /* ===== フッター ===== */
+    footer {
+      background: var(--gray-bg);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 20px;
+      font-size: 0.82rem;
+      color: var(--gray-l);
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>5250TestUnit</h1>
+  <div class="subtitle">IBM i（AS/400）5250画面操作テスト自動化ツール — 技術解説書</div>
+  <div class="meta">Version 0.1.0 &nbsp;|&nbsp; Node.js 22 / TypeScript 5 / Java 21 &nbsp;|&nbsp; 対象 IBM i: 7.5（5770SS1 V7R5M0）</div>
+</header>
+
+<div class="container">
+
+  <!-- 目次 -->
+  <nav class="toc">
+    <h2>📋 目次</h2>
+    <ol>
+      <li><a href="#overview">概要とアーキテクチャ</a></li>
+      <li><a href="#directory">ディレクトリ構成</a></li>
+      <li><a href="#commands">CLIコマンド仕様</a></li>
+      <li><a href="#testcases-json">テストケース JSON スキーマ</a></li>
+      <li><a href="#session-driver">SessionDriver — 5250操作エンジン</a></li>
+      <li><a href="#tn5250-jar">TN5250Session.jar — Java側プロセス</a></li>
+      <li><a href="#db-verifier">DbVerifier — DB事後検証</a></li>
+      <li><a href="#reporters">レポーター</a></li>
+      <li><a href="#analyze">analyze コマンド詳細</a></li>
+      <li><a href="#generate">generate コマンド詳細</a></li>
+      <li><a href="#build">ビルド手順</a></li>
+      <li><a href="#howto">テスト作成ガイド</a></li>
+      <li><a href="#troubleshoot">トラブルシューティング</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. 概要 -->
+  <h2 id="overview">1. 概要とアーキテクチャ</h2>
+  <p>
+    <strong>5250TestUnit</strong> は IBM i（AS/400）上で動作する 5250 端末アプリケーションに対して、
+    画面操作テストケースを自動生成・実行するCLIツールです。
+    TN5250 プロトコルで実機接続し、実際の画面テキストをアサートするため、
+    エミュレータ上での目視確認を不要にします。
+  </p>
+
+  <h3>コンポーネント図</h3>
+  <div class="arch">
+┌─────────────────────────────────────────────────────────────────┐
+│                       5250TestUnit CLI                          │
+│  node build/index.js  analyze | generate | run                  │
+└──────────────┬──────────────────────────────┬───────────────────┘
+               │                              │
+   ┌───────────▼───────────┐    ┌─────────────▼────────────────┐
+   │     SSH Client        │    │       SessionDriver           │
+   │  (node-pty / ssh)     │    │     (TypeScript class)        │
+   │  analyze / generate   │    │   stdin/stdout パイプ通信     │
+   └───────────────────────┘    └─────────────┬────────────────┘
+                                              │ spawn
+                                ┌─────────────▼────────────────┐
+                                │    TN5250Session.jar          │
+                                │  (Java / HACL ECL API)        │
+                                │  ・TN5250 接続 / サインオン    │
+                                │  ・画面取得 (screen)          │
+                                │  ・キー送信 (send)            │
+                                └─────────────┬────────────────┘
+                                              │ TN5250
+                                ┌─────────────▼────────────────┐
+                                │          IBM i 7.5            │
+                                │  （RPGプログラム群）           │
+                                └──────────────────────────────┘
+
+   DbVerifier.jar (JTOpen JDBC)  ←→  IBM i DB2 for i
+  </div>
+
+  <h3>処理フロー（run コマンド）</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><div>testcases.json を読み込む（TestSuite 型）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">2</div><div>SessionDriver.connect() → TN5250Session.jar を子プロセス起動 → サインオン</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">3</div><div>テストケースを順番に実行（fail-fast なし）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">4</div><div>各ステップを実行（keys / assertText / snapshot 等）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">5</div><div>DB アサーション実行（DbVerifier.jar 経由）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">6</div><div>JUnit XML + テキストレポートを出力</div></div>
+  </div>
+
+  <!-- 2. ディレクトリ構成 -->
+  <h2 id="directory">2. ディレクトリ構成</h2>
+  <pre>MCP/
+├── pom.xml                         # Maven ビルド定義（Java 全体）
+├── src/main/java/
+│   ├── TN5250Session.java           # 5250セッション管理（HACL ECL）
+│   ├── TN3270Session.java           # 3270セッション管理
+│   └── DbVerifier.java              # JTOpen JDBC DB検証
+├── jars/                            # HACLライブラリ（ha5250*.jar 等）
+├── tn5250-server/lib/
+│   └── TN5250Session.jar            # fat JAR（mvn package で生成）
+└── 5250testunit/
+    ├── package.json                 # npm プロジェクト定義
+    ├── tsconfig.json                # TypeScript コンパイル設定
+    ├── lib/
+    │   └── DbVerifier.jar           # fat JAR（mvn package で生成）
+    ├── IPL020-testcases.json        # テストケース（IPL020用）
+    ├── IPL010-testcases.json        # テストケース（IPL010用）
+    ├── IPL020-testcases-results.xml # JUnit XML レポート
+    ├── IPL020-testcases-results.txt # テキストレポート
+    └── src/
+        ├── index.ts                 # CLIエントリポイント（commander）
+        ├── types.ts                 # 全型定義
+        ├── analyze-command.ts       # analyze サブコマンド
+        ├── generate-command.ts      # generate サブコマンド
+        ├── run-command.ts           # run サブコマンド（メイン）
+        ├── ssh/
+        │   └── ssh-client.ts        # node-pty SSH クライアント
+        ├── analyzer/
+        │   ├── source-fetcher.ts    # IBM i ソース取得（CPYTOSTMF）
+        │   ├── dspf-parser.ts       # DSPF ソース解析
+        │   ├── rpg-parser.ts        # RPG ソース解析
+        │   └── db-inspector.ts      # DB テーブル定義取得
+        ├── sampler/
+        │   └── db-sampler.ts        # DB サンプルデータ取得
+        ├── generator/
+        │   └── test-case-builder.ts # テストケース自動生成
+        └── runner/
+            ├── session-driver.ts    # 5250操作エンジン（本体）
+            └── db-verifier.ts       # DbVerifier.jar ラッパー
+        └── reporter/
+            ├── junit-reporter.ts    # JUnit XML 生成
+            └── text-reporter.ts     # コンソールサマリー出力</pre>
+
+  <!-- 3. CLIコマンド -->
+  <h2 id="commands">3. CLIコマンド仕様</h2>
+  <p>コマンド体系は <code>analyze</code> / <code>generate</code> / <code>run</code> の3つです。</p>
+
+  <h3>analyze — ソース解析</h3>
+  <p>SSH でIBM iに接続し、DSPFソース・RPGソースを取得して解析。<code>{pgm}-analysis.json</code> を出力します。</p>
+  <pre>node build/index.js analyze \
+  --host &lt;IBM_I_HOST&gt; \
+  --lib  &lt;LIBRARY&gt; \
+  --pgm  &lt;PROGRAM&gt; \
+  --user &lt;USER&gt; \
+  --password &lt;PASSWORD&gt;</pre>
+  <table>
+    <tr><th>オプション</th><th>必須</th><th>説明</th></tr>
+    <tr><td><code>--host</code></td><td><span class="badge badge-red">必須</span></td><td>IBM i ホスト名または IP</td></tr>
+    <tr><td><code>--lib</code></td><td><span class="badge badge-red">必須</span></td><td>ソースライブラリ名</td></tr>
+    <tr><td><code>--pgm</code></td><td><span class="badge badge-red">必須</span></td><td>RPGプログラム名</td></tr>
+    <tr><td><code>--user</code></td><td><span class="badge badge-red">必須</span></td><td>SSHユーザー名</td></tr>
+    <tr><td><code>--password</code></td><td><span class="badge badge-red">必須</span></td><td>SSHパスワード</td></tr>
+    <tr><td><code>--port</code></td><td><span class="badge badge-gray">省略可</span></td><td>SSHポート（デフォルト: 22）</td></tr>
+    <tr><td><code>--dspf</code></td><td><span class="badge badge-gray">省略可</span></td><td>DSPFメンバー名（省略時: pgm名）</td></tr>
+    <tr><td><code>--rpg</code></td><td><span class="badge badge-gray">省略可</span></td><td>RPGメンバー名（省略時: pgm名）</td></tr>
+    <tr><td><code>--output</code></td><td><span class="badge badge-gray">省略可</span></td><td>出力ファイルパス</td></tr>
+  </table>
+
+  <h3>generate — テストケース生成</h3>
+  <p><code>analysis.json</code> と DBサンプリング結果から <code>testcases.json</code> を自動生成します。</p>
+  <pre>node build/index.js generate \
+  --analysis &lt;program&gt;-analysis.json \
+  --host     &lt;IBM_I_HOST&gt; \
+  --user     &lt;USER&gt; \
+  --password &lt;PASSWORD&gt; \
+  --sample   5</pre>
+  <table>
+    <tr><th>オプション</th><th>必須</th><th>説明</th></tr>
+    <tr><td><code>--analysis</code></td><td><span class="badge badge-red">必須</span></td><td>analysis.json のパス</td></tr>
+    <tr><td><code>--host</code></td><td><span class="badge badge-red">必須</span></td><td>IBM i ホスト名</td></tr>
+    <tr><td><code>--user</code></td><td><span class="badge badge-red">必須</span></td><td>SSHユーザー名</td></tr>
+    <tr><td><code>--password</code></td><td><span class="badge badge-red">必須</span></td><td>SSHパスワード</td></tr>
+    <tr><td><code>--sample</code></td><td><span class="badge badge-gray">省略可</span></td><td>取得サンプル件数（デフォルト: 3）</td></tr>
+    <tr><td><code>--output</code></td><td><span class="badge badge-gray">省略可</span></td><td>出力ファイルパス</td></tr>
+    <tr><td><code>--suite-name</code></td><td><span class="badge badge-gray">省略可</span></td><td>テストスイート名</td></tr>
+  </table>
+
+  <h3>run — テスト実行</h3>
+  <p>テストケース JSON を読み込み、TN5250 で実機接続してテストを実行します。</p>
+  <pre>node build/index.js run \
+  --testcases &lt;program&gt;-testcases.json \
+  --password  &lt;PASSWORD&gt; \
+  --code-page 1399</pre>
+  <table>
+    <tr><th>オプション</th><th>必須</th><th>説明</th></tr>
+    <tr><td><code>--testcases</code></td><td><span class="badge badge-red">必須</span></td><td>testcases.json のパス</td></tr>
+    <tr><td><code>--password</code></td><td><span class="badge badge-red">必須</span></td><td>TN5250 パスワード</td></tr>
+    <tr><td><code>--host</code></td><td><span class="badge badge-gray">省略可</span></td><td>ホスト名（JSON の値を上書き）</td></tr>
+    <tr><td><code>--user</code></td><td><span class="badge badge-gray">省略可</span></td><td>ユーザー名（JSON の値を上書き）</td></tr>
+    <tr><td><code>--port</code></td><td><span class="badge badge-gray">省略可</span></td><td>TN5250ポート（デフォルト: 23）</td></tr>
+    <tr><td><code>--code-page</code></td><td><span class="badge badge-gray">省略可</span></td><td>EBCDICコードページ（デフォルト: 930）</td></tr>
+    <tr><td><code>--output-xml</code></td><td><span class="badge badge-gray">省略可</span></td><td>JUnit XML 出力パス</td></tr>
+    <tr><td><code>--output-txt</code></td><td><span class="badge badge-gray">省略可</span></td><td>テキストレポート出力パス</td></tr>
+  </table>
+
+  <div class="box box-info">
+    <strong>コードページの選択：</strong>
+    日本語環境では通常 <code>930</code>（IBM EBCDIC日本語）または <code>1399</code>（Unicode対応日本語）を使用します。
+    接続先 IBM i のシステム値 <code>QCCSID</code> に合わせて指定してください。
+  </div>
+
+  <!-- 4. テストケース JSON -->
+  <h2 id="testcases-json">4. テストケース JSON スキーマ</h2>
+  <p>テストケースは JSON ファイルで記述します。以下が完全なスキーマです。</p>
+  <pre>{
+  "suiteName": "テストスイート名（レポートに表示）",
+  "host":      "&lt;IBM_I_HOST&gt;",      // IBM i ホスト名
+  "port":      23,                  // TN5250 ポート
+  "user":      "&lt;USER&gt;",            // ユーザー名
+  "codePage":  "1399",              // コードページ（文字列でも可）
+  "tests": [
+    {
+      "name": "TC001: テストケース名",
+      "steps": [ /* TestStep の配列 */ ],
+      "dbAssertions": [ /* DbAssertion の配列（省略可）*/ ]
+    }
+  ]
+}</pre>
+
+  <h3>TestStep 型一覧</h3>
+  <table>
+    <tr><th>type</th><th>パラメータ</th><th>説明</th></tr>
+    <tr>
+      <td><code>keys</code></td>
+      <td><code>keys</code>, <code>waitMs</code></td>
+      <td>キーストロークを送信する。<code>[enter]</code>, <code>[pf3]</code> 等の特殊キーが使用可能。送信後プロンプトが返るまで自動待機。</td>
+    </tr>
+    <tr>
+      <td><code>assertText</code></td>
+      <td><code>text</code></td>
+      <td>現在の画面テキストに指定文字列が含まれるか検証する。失敗時は画面ダンプ（先頭500文字）をメッセージに含む。</td>
+    </tr>
+    <tr>
+      <td><code>assertTitle</code></td>
+      <td><code>text</code></td>
+      <td>画面1行目（タイトル行）に文字列が含まれるか検証する。</td>
+    </tr>
+    <tr>
+      <td><code>assertField</code></td>
+      <td><code>fieldIndex</code>, <code>fieldValue</code></td>
+      <td>入力フィールドの値を検証する。fieldIndex は 1 始まりの番号。</td>
+    </tr>
+    <tr>
+      <td><code>snapshot</code></td>
+      <td><code>snapshotPath</code></td>
+      <td>現在の画面をコンソールにリアルタイム出力し、テキストレポートにも記録する。</td>
+    </tr>
+    <tr>
+      <td><code>waitScreen</code></td>
+      <td><code>waitMs</code></td>
+      <td>指定ミリ秒間待機する。画面遷移の安定待ちに使用。</td>
+    </tr>
+  </table>
+
+  <h3>特殊キー記法</h3>
+  <table>
+    <tr><th>記法</th><th>説明</th></tr>
+    <tr><td><code>[enter]</code></td><td>Enterキー</td></tr>
+    <tr><td><code>[pf1]</code>〜<code>[pf24]</code></td><td>ファンクションキー F1〜F24</td></tr>
+    <tr><td><code>[f1]</code>〜<code>[f24]</code></td><td>同上（自動変換される）</td></tr>
+    <tr><td><code>[tab]</code></td><td>タブキー</td></tr>
+    <tr><td><code>[backtab]</code></td><td>バックタブ</td></tr>
+    <tr><td><code>[clear]</code></td><td>クリアキー</td></tr>
+    <tr><td><code>[home]</code></td><td>ホームキー</td></tr>
+    <tr><td><code>[pageup]</code>, <code>[pagedn]</code></td><td>ページアップ/ダウン</td></tr>
+    <tr><td><code>[eraseeof]</code></td><td>フィールド末尾まで消去</td></tr>
+    <tr><td><code>[reset]</code></td><td>エラーリセット</td></tr>
+  </table>
+
+  <h3>DbAssertion 型</h3>
+  <pre>{
+  "description": "アサーション説明",
+  "sql": "SELECT COUNT(*) AS CNT FROM QEOL/HINMSL01 WHERE HNNBAN = '40100'",
+  "expectedRows": 1,
+  "expectedValues": [
+    { "CNT": "1" }    // 省略可
+  ]
+}</pre>
+
+  <!-- 5. SessionDriver -->
+  <h2 id="session-driver">5. SessionDriver — 5250操作エンジン</h2>
+  <p>
+    <code>src/runner/session-driver.ts</code> に実装されたクラスで、
+    <code>TN5250Session.jar</code> を Node.js 子プロセスとして起動し、
+    stdin/stdout パイプ経由で制御します。
+  </p>
+
+  <h3>プロンプト同期方式</h3>
+  <p>
+    TN5250Session.jar はコマンドごとに画面テキストを出力した後 <code>&gt; </code> プロンプトを出力します。
+    SessionDriver はこのプロンプトを区切りとして使用し、応答が完全に届くまでポーリングで待機します。
+  </p>
+  <div class="box box-info">
+    <strong>旧実装の問題（解決済み）：</strong>
+    固定 500ms 待機では画面テキスト（80列×24行）が受信完了する前にバッファを読んでいたため、
+    <code>assertText</code> が常に失敗していました。プロンプト同期方式に変更することで解決しました。
+  </div>
+
+  <h3>主要メソッド</h3>
+  <table>
+    <tr><th>メソッド</th><th>説明</th></tr>
+    <tr><td><code>connect(host, port, user, password, codePage)</code></td><td>JARを起動してサインオン。<code>&gt; </code>プロンプトが出るまで最大30秒待機。</td></tr>
+    <tr><td><code>disconnect()</code></td><td><code>quit</code>コマンド送信後にプロセスをkill。</td></tr>
+    <tr><td><code>sendKeys(keys, waitMs?)</code></td><td>JAR に <code>send {keys}</code> を送信。プロンプト到着後、waitMs で追加待機。</td></tr>
+    <tr><td><code>getScreen()</code></td><td>JAR に <code>screen</code> を送信し、プロンプト前のテキストを返す。</td></tr>
+    <tr><td><code>getFields()</code></td><td>JAR に <code>fields</code> を送信し、フィールド情報を返す。</td></tr>
+    <tr><td><code>assertText(expected)</code></td><td><code>getScreen()</code> を呼び出し、テキストの存在を検証。</td></tr>
+    <tr><td><code>snapshot(label)</code></td><td><code>getScreen()</code> を呼び出し、ラベル付き画面テキストを返す。</td></tr>
+  </table>
+
+  <h3>制御文字フィルタ（stripCtrl）</h3>
+  <p>画面テキストから 5250 属性バイトなどの制御文字を除去します。保持するコードポイント：</p>
+  <ul>
+    <li><code>0x0A</code>（LF）、<code>0x0D</code>（CR）— 改行を保持</li>
+    <li><code>0x20</code>（スペース）</li>
+    <li><code>0x21</code>〜<code>0x7E</code>（印字可能 ASCII）</li>
+    <li><code>0xA0</code> 以上（UTF-8 日本語文字を含むマルチバイト）</li>
+  </ul>
+
+  <h3>タイムアウト定数</h3>
+  <table>
+    <tr><th>定数</th><th>値</th><th>用途</th></tr>
+    <tr><td><code>CONNECT_TIMEOUT_MS</code></td><td>30,000 ms</td><td>接続確立（サインオン含む）の最大待機時間</td></tr>
+    <tr><td><code>PROMPT_TIMEOUT_MS</code></td><td>15,000 ms</td><td>各コマンド応答の最大待機時間</td></tr>
+  </table>
+
+  <!-- 6. TN5250Session.jar -->
+  <h2 id="tn5250-jar">6. TN5250Session.jar — Java側プロセス</h2>
+  <p>
+    <code>src/main/java/TN5250Session.java</code> で実装され、
+    <strong>IBM Host Access Class Library (HACL)</strong> の ECL API を使用して
+    TN5250 セッションを管理します。
+  </p>
+
+  <h3>起動引数</h3>
+  <pre>java -jar TN5250Session.jar &lt;host&gt; &lt;port&gt; &lt;user&gt; &lt;password&gt; [codePage]</pre>
+
+  <h3>対話モードコマンド</h3>
+  <table>
+    <tr><th>コマンド</th><th>説明</th></tr>
+    <tr><td><code>screen</code> (または <code>sc</code>)</td><td>現在の画面を80列×24行でテキスト出力</td></tr>
+    <tr><td><code>send &lt;keys&gt;</code> (または <code>s</code>)</td><td>キーを送信し、画面更新完了後に画面テキストを出力</td></tr>
+    <tr><td><code>fields</code> (または <code>f</code>)</td><td>全フィールド情報を出力（型・位置・内容）</td></tr>
+    <tr><td><code>inputs</code> (または <code>i</code>)</td><td>入力可能フィールドのみ出力</td></tr>
+    <tr><td><code>help</code></td><td>コマンド一覧を表示</td></tr>
+    <tr><td><code>quit</code> (または <code>q</code>)</td><td>切断して終了</td></tr>
+  </table>
+
+  <h3>画面テキスト出力形式</h3>
+  <p><code>screen</code> コマンドは以下の形式で画面を出力します。</p>
+  <pre>================================================================================
+  IPL010                  品目マスター照会                     日付  26/07/15
+                                                               時刻  20:04:27
+    品目番号・・・・・・
+  ...（24行）...
+================================================================================
+&gt; </pre>
+  <p>行頭の <code>================</code> 区切り線と末尾の <code>&gt; </code> プロンプトが応答の区切りです。</p>
+
+  <h3>ビルド</h3>
+  <p><code>MCP/</code> ディレクトリで Maven ビルドを実行します。</p>
+  <pre>cd MCP
+mvn package</pre>
+  <p>生成先: <code>tn5250-server/lib/TN5250Session.jar</code>（fat JAR、約18MB）</p>
+
+  <!-- 7. DbVerifier -->
+  <h2 id="db-verifier">7. DbVerifier — DB事後検証</h2>
+  <p>
+    <code>src/runner/db-verifier.ts</code> が <code>lib/DbVerifier.jar</code> を子プロセスとして起動します。
+    JSON を stdin に送り、結果 JSON を stdout から受け取ります。
+  </p>
+
+  <h3>通信プロトコル</h3>
+  <h4>入力 JSON（stdin）</h4>
+  <pre>{
+  "host":     "&lt;IBM_I_HOST&gt;",
+  "user":     "&lt;USER&gt;",
+  "password": "&lt;PASSWORD&gt;",
+  "sql":      "SELECT COUNT(*) AS CNT FROM &lt;LIBRARY&gt;/&lt;TABLE&gt; WHERE &lt;KEY_FIELD&gt; = '&lt;VALUE&gt;'"
+}</pre>
+  <h4>出力 JSON（stdout）</h4>
+  <pre>{
+  "rows":     [ { "CNT": "1" } ],
+  "rowCount": 1,
+  "error":    null            // エラー時は文字列
+}</pre>
+
+  <h3>検証ロジック</h3>
+  <ol>
+    <li>DbVerifier.jar が存在しない場合 → スキップ（pass=true）</li>
+    <li>JAR 実行エラー → pass=false</li>
+    <li><code>rowCount</code> が <code>expectedRows</code> と不一致 → pass=false</li>
+    <li><code>expectedValues</code> が指定されていれば各列の値を比較</li>
+    <li>全チェック通過 → pass=true</li>
+  </ol>
+
+  <h3>ビルド</h3>
+  <p><code>mvn package</code> により <code>5250testunit/lib/DbVerifier.jar</code> が生成されます（JTOpen内包、約17MB）。</p>
+
+  <!-- 8. レポーター -->
+  <h2 id="reporters">8. レポーター</h2>
+
+  <h3>JUnit XML レポート（junit-reporter.ts）</h3>
+  <p>CI/CD ツール（Jenkins, GitHub Actions等）で読み込み可能な JUnit XML を生成します。</p>
+  <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;testsuites tests="4" failures="0" time="88.646"&gt;
+  &lt;testsuite name="IPL010 品目マスター照会テスト" tests="4" failures="0" time="88.646"&gt;
+    &lt;testcase name="TC001: 品目番号40100で照会" time="26.078"/&gt;
+    ...
+  &lt;/testsuite&gt;
+&lt;/testsuites&gt;</pre>
+
+  <h3>テキストレポート（run-command.ts / text-reporter.ts）</h3>
+  <p>
+    テキストレポートファイル（<code>*-results.txt</code>）には、
+    全テストケースの結果とスナップショット画面が記録されます。
+    コンソールには実行中にスナップショットがリアルタイム出力されます。
+  </p>
+  <table>
+    <tr><th>出力先</th><th>内容</th></tr>
+    <tr><td>コンソール（リアルタイム）</td><td>接続状況 / テストケース成否 / <code>snapshot</code> ステップの画面</td></tr>
+    <tr><td><code>*-results.txt</code></td><td>サマリー + 全テストケースのスナップショット + 失敗詳細</td></tr>
+    <tr><td><code>*-results.xml</code></td><td>JUnit XML（CI/CD 連携用）</td></tr>
+  </table>
+
+  <!-- 9. analyze 詳細 -->
+  <h2 id="analyze">9. analyze コマンド詳細</h2>
+  <p>SSH 接続で IBM i からソースを取得し、解析結果を JSON 出力します。</p>
+
+  <h3>処理ステップ</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><div>SSH接続（node-pty）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">2</div><div>DSPF ソース取得（<code>CPYTOSTMF</code> コマンド → IFS ファイル読み取り）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">3</div><div>dspf-parser.ts でフォーマット定義・フィールド定義を解析</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">4</div><div>RPG ソース取得 → rpg-parser.ts で参照ファイル一覧を抽出</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">5</div><div>DISK デバイスファイルを db-inspector.ts で検査（カラム定義取得）</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><div class="flow-num">6</div><div><code>{pgm}-analysis.json</code> を出力</div></div>
+  </div>
+
+  <h3>analysis.json 出力形式</h3>
+  <pre>{
+  "program": "IPL020",
+  "library": "QEOL",
+  "dspf": {
+    "member": "IPL020D",
+    "formats": [
+      { "name": "PANEL01", "isSubfile": false, "fields": [...] },
+      { "name": "CTL01",   "isSubfile": false, "sflCtlName": "SFL01", "fields": [...] }
+    ]
+  },
+  "rpgFiles": [
+    { "fileName": "HINMSL01", "fileType": "I", "device": "DISK", "library": "QEOL" }
+  ],
+  "dbTables": [
+    { "name": "HINMSL01", "library": "QEOL", "fields": [...] }
+  ]
+}</pre>
+
+  <!-- 10. generate 詳細 -->
+  <h2 id="generate">10. generate コマンド詳細</h2>
+  <p><code>analysis.json</code> と DB サンプルデータから <code>testcases.json</code> を自動生成します。</p>
+
+  <h3>生成されるテストケースの種類</h3>
+  <ul>
+    <li><strong>初期表示テスト</strong> — プログラム起動後の画面タイトルを検証</li>
+    <li><strong>データ検索テスト</strong> — サンプルデータのキー値で入力・結果確認</li>
+    <li><strong>DB アサーション</strong> — 画面に表示されたデータが DB と一致するか検証</li>
+  </ul>
+
+  <div class="box box-warn">
+    <strong>注意：</strong>自動生成されたテストケースは出発点です。
+    実際の画面遷移（メッセージ画面の閉じ方、特殊操作等）は手動で調整してください。
+  </div>
+
+  <!-- 11. ビルド手順 -->
+  <h2 id="build">11. ビルド手順</h2>
+
+  <h3>前提条件</h3>
+  <ul>
+    <li>Java 21（IBM Semeru Runtime 推奨）</li>
+    <li>Maven 3.9 以上</li>
+    <li>Node.js 22 以上</li>
+    <li>HACL ライブラリ（<code>MCP/jars/*.jar</code>）— IBM Host Access Client Solution に含まれる</li>
+  </ul>
+
+  <h3>Java ビルド（全JAR一括）</h3>
+  <pre>cd MCP
+mvn package</pre>
+  <p>以下の3つのfat JARが生成されます：</p>
+  <ul>
+    <li><code>tn5250-server/lib/TN5250Session.jar</code></li>
+    <li><code>tn3270-server/lib/TN3270Session.jar</code></li>
+    <li><code>5250testunit/lib/DbVerifier.jar</code></li>
+  </ul>
+
+  <h3>TypeScript ビルド</h3>
+  <pre>cd MCP/5250testunit
+npm install
+npm run build</pre>
+  <p>コンパイル結果は <code>build/</code> ディレクトリに出力されます。</p>
+
+  <!-- 12. テスト作成ガイド -->
+  <h2 id="howto">12. テスト作成ガイド</h2>
+
+  <h3>基本パターン：プログラム呼び出しと画面アサート</h3>
+  <pre>{
+  "name": "TC001: 基本照会テスト",
+  "steps": [
+    { "type": "waitScreen", "waitMs": 3000 },
+    { "type": "keys", "keys": "[enter]", "waitMs": 2000 },
+    { "type": "keys", "keys": "ADDLIBLE LIB(QEOL)[enter]", "waitMs": 2000 },
+    { "type": "keys", "keys": "CALL PGM(QEOL/IPL010)[enter]", "waitMs": 8000 },
+    { "type": "assertText", "text": "品目マスター照会" },
+    { "type": "snapshot", "snapshotPath": "初期画面" },
+    { "type": "keys", "keys": "40100[enter]", "waitMs": 5000 },
+    { "type": "assertText", "text": "21,700" },
+    { "type": "snapshot", "snapshotPath": "詳細画面" },
+    { "type": "keys", "keys": "[pf3]", "waitMs": 3000 }
+  ],
+  "dbAssertions": []
+}</pre>
+
+  <h3>注意事項</h3>
+  <div class="box box-warn">
+    <strong>接続直後のメッセージ画面：</strong>
+    IBM i では接続時に「メッセージ待ち行列が割り振られている」等の通知画面が表示される場合があります。
+    TC001 の先頭に <code>{ "type": "keys", "keys": "[enter]", "waitMs": 2000 }</code> を
+    追加して画面を閉じてください。TC002 以降は同一セッションのため不要です。
+  </div>
+
+  <div class="box box-tip">
+    <strong>ADDLIBLE は TC001 のみ：</strong>
+    <code>ADDLIBLE LIB(QEOL)</code> は1テストスイートの最初のテストケースのみで実行します。
+    同一セッション内では持続するため、TC002 以降は不要です（重複しても問題ありませんが効率が下がります）。
+  </div>
+
+  <h3>waitMs の目安</h3>
+  <table>
+    <tr><th>操作</th><th>推奨 waitMs</th></tr>
+    <tr><td>接続直後 waitScreen</td><td>3,000 ms</td></tr>
+    <tr><td>ADDLIBLE</td><td>2,000 ms</td></tr>
+    <tr><td>CALL PGM（プログラム起動）</td><td>8,000 ms</td></tr>
+    <tr><td>Enter（画面内遷移）</td><td>5,000 ms</td></tr>
+    <tr><td>F3（終了・戻り）</td><td>3,000 ms</td></tr>
+  </table>
+  <p>
+    <code>keys</code> ステップの <code>waitMs</code> はプロンプト到着後の<strong>追加待機</strong>です。
+    プロンプト到着まではタイムアウト（最大15秒）まで自動待機するため、
+    <code>waitMs</code> を省略しても多くの場合は動作します。
+  </p>
+
+  <!-- 13. トラブルシューティング -->
+  <h2 id="troubleshoot">13. トラブルシューティング</h2>
+
+  <table>
+    <tr><th>症状</th><th>原因</th><th>対処</th></tr>
+    <tr>
+      <td>assertText が常に失敗する</td>
+      <td>接続直後のメッセージ画面が表示されたまま操作している</td>
+      <td>TC001 先頭に <code>[enter]</code> ステップを追加</td>
+    </tr>
+    <tr>
+      <td>CPF4101: ファイル OPEN エラー</td>
+      <td>必要なライブラリがライブラリーリストにない</td>
+      <td><code>ADDLIBLE LIB(QEOL)</code> が実行されているか確認</td>
+    </tr>
+    <tr>
+      <td>TN5250Session.jar not found</td>
+      <td>JAR が生成されていない</td>
+      <td><code>cd MCP &amp;&amp; mvn package</code> を実行</td>
+    </tr>
+    <tr>
+      <td>Failed to connect: Java process exited</td>
+      <td>ホスト名・ポート・認証情報の誤り、またはサーバーが停止</td>
+      <td>接続情報を確認し、ネットワーク疎通を確認</td>
+    </tr>
+    <tr>
+      <td>画面テキストが文字化けする</td>
+      <td>コードページの不一致</td>
+      <td><code>--code-page</code> で正しいコードページを指定（930 または 1399）</td>
+    </tr>
+    <tr>
+      <td>画面に保護域エラーが表示される</td>
+      <td>入力フィールド以外に文字を送信しようとしている</td>
+      <td>画面状態を確認し、<code>[reset]</code> キーを送信してから再試行</td>
+    </tr>
+    <tr>
+      <td>テスト実行時間が長い</td>
+      <td>waitMs が大きすぎる</td>
+      <td>プロンプト同期待機で自動最適化されるため waitMs を 0 に設定可能</td>
+    </tr>
+  </table>
+
+  <h3>デバッグ方法</h3>
+  <p>
+    <code>assertText</code> 失敗時のエラーメッセージには画面ダンプ（先頭500文字）が含まれます。
+    テキストレポートファイル（<code>*-results.txt</code>）の失敗詳細セクションを確認してください。
+  </p>
+  <p>
+    また <code>snapshot</code> ステップをテストケースに挿入すると、
+    任意のタイミングの画面をコンソールとレポートファイルの両方に記録できます。
+  </p>
+
+</div>
+
+<footer>
+  5250TestUnit 技術解説書 &nbsp;|&nbsp; Version 0.1.0 &nbsp;|&nbsp; IBM i 5250 Test Automation Tool
+</footer>
+
+</body>
+</html>
