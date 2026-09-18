@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プログラム仕様書 — WRKMSPLF</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      mermaid.initialize({ startOnLoad: true, theme: "default" });
+    });
+  </script>
+  <style>
+    :root {
+      --primary:   #1a4a7a;
+      --accent:    #2e7fcf;
+      --bg-header: #eef4fb;
+      --bg-table:  #f9fbfd;
+      --border:    #c8d8ea;
+      --text:      #1e2630;
+      --mono:      "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo UI", "Yu Gothic UI", "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #f5f7fa;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    /* ─── ヘッダーカード ─── */
+    .doc-header {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      padding: 20px 28px 16px;
+    }
+    .doc-header h1 { font-size: 22px; letter-spacing: .04em; }
+    .doc-header .subtitle { font-size: 13px; opacity: .8; margin-top: 4px; }
+
+    /* ─── メタ情報バー ─── */
+    .meta-bar {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .meta-bar dl {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
+      border-right: 1px solid var(--border);
+      min-width: 140px;
+    }
+    .meta-bar dl:last-child { border-right: none; }
+    .meta-bar dt { font-size: 11px; color: #6a7f96; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-bar dd { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 2px; }
+
+    /* ─── 本文 ─── */
+    .content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 28px 32px 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 28px 0 12px;
+    }
+    h2:first-of-type { margin-top: 0; }
+    h3 {
+      font-size: 14px;
+      color: var(--primary);
+      margin: 18px 0 8px;
+      padding-left: 6px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 4px;
+    }
+    h4 {
+      font-size: 13.5px;
+      color: #2c4766;
+      margin: 14px 0 6px;
+    }
+    p { line-height: 1.75; margin-bottom: 8px; }
+    ul, ol { padding-left: 20px; line-height: 1.9; margin-bottom: 12px; }
+    li { margin-bottom: 2px; }
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #eef2f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #24476b;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      color: #1e2630;
+    }
+
+    /* ─── テーブル ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: normal;
+      padding: 7px 10px;
+      text-align: left;
+      border: 1px solid var(--primary);
+    }
+    tbody tr:nth-child(even) { background: var(--bg-table); }
+    tbody tr:hover { background: #eaf2fb; }
+    tbody td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      vertical-align: top;
+    }
+
+    /* ─── コールアウト・注意書き ─── */
+    .callout {
+      background: #fdf8e2;
+      border-left: 4px solid #d99b26;
+      padding: 10px 14px;
+      margin: 12px 0 16px;
+      border-radius: 0 4px 4px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ─── 目次 ─── */
+    .toc {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+    }
+    .toc h3 {
+      border-bottom: none;
+      padding-left: 0;
+      margin: 0 0 8px;
+    }
+    .toc ul {
+      margin-bottom: 0;
+      columns: 2;
+      column-gap: 24px;
+    }
+    .toc a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    /* ─── Mermaid ダイアグラム ─── */
+    .mermaid {
+      margin: 16px 0 20px;
+      text-align: center;
+      background: #ffffff;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    /* ─── フッター ─── */
+    .footer {
+      font-size: 12px;
+      color: #8a9ba8;
+      text-align: right;
+      margin-top: 24px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ヘッダーカード -->
+  <div class="doc-header">
+    <h1>WRKMSPLF プログラム仕様書</h1>
+    <div class="subtitle">スプール・ファイルの処理 (Work with My Spooled Files) — UIM ベース対話式管理ユーティリティ</div>
+  </div>
+
+  <!-- メタ情報バー -->
+  <div class="meta-bar">
+    <dl>
+      <dt>コマンド名</dt>
+      <dd>WRKMSPLF</dd>
+    </dl>
+    <dl>
+      <dt>主プログラム</dt>
+      <dd>WRKMSPLF (SQLRPGLE)</dd>
+    </dl>
+    <dl>
+      <dt>出口プログラム</dt>
+      <dd>WRKMSPLFX (RPGLE)</dd>
+    </dl>
+    <dl>
+      <dt>パネル・グループ</dt>
+      <dd>WRKMSPLF (QPNLSRC)</dd>
+    </dl>
+    <dl>
+      <dt>ライブラリ</dt>
+      <dd>MAIV300S / MAI</dd>
+    </dl>
+    <dl>
+      <dt>作成者 / 日付</dt>
+      <dd>Y.Ide (2025/09/01)</dd>
+    </dl>
+  </div>
+
+  <!-- 本文コンテンツ -->
+  <div class="content">
+
+    <!-- 目次 -->
+    <div class="toc">
+      <h3>目次</h3>
+      <ul>
+        <li>1. <a href="#sec1">概要</a></li>
+        <li>2. <a href="#sec2">コンポーネント一覧</a></li>
+        <li>3. <a href="#sec3">コマンド仕様 (WRKMSPLF.CMD)</a></li>
+        <li>4. <a href="#sec4">メイン・プログラム仕様 (WRKMSPLF.SQLRPGLE)</a></li>
+        <li>5. <a href="#sec5">UIM アクション・リスト出口プログラム仕様 (WRKMSPLFX.RPGLE)</a></li>
+        <li>6. <a href="#sec6">パネル・グループ仕様 (WRKMSPLF.PNLGRP)</a></li>
+        <li>7. <a href="#sec7">処理フロー</a></li>
+        <li>8. <a href="#sec8">データ構造</a></li>
+        <li>9. <a href="#sec9">使用 API 一覧</a></li>
+        <li>10. <a href="#sec10">画面説明</a></li>
+      </ul>
+    </div>
+
+    <!-- 1. 概要 -->
+    <h2 id="sec1">1. 概要</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>コマンド名</td>
+          <td><code>WRKMSPLF</code></td>
+        </tr>
+        <tr>
+          <td>機能名</td>
+          <td>スプール・ファイルの処理 (Work with My Spooled Files)</td>
+        </tr>
+        <tr>
+          <td>ライブラリ</td>
+          <td><code>MAIV300S</code></td>
+        </tr>
+        <tr>
+          <td>作成者</td>
+          <td>Y.Ide</td>
+        </tr>
+        <tr>
+          <td>作成日</td>
+          <td>2025/09/01</td>
+        </tr>
+        <tr>
+          <td>バージョン</td>
+          <td>6.1 (WRKMSPLF.SQLRPGLE) / 01.00 (WRKMSPLFX.RPGLE)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>機能説明</h3>
+    <p><code>WRKMSPLF</code> は IBM i の UIM (User Interface Manager) 技術を使用したスプール・ファイル管理コマンドです。</p>
+    <p>指定されたユーザーのスプール・ファイル一覧を表示し、各スプール・ファイルに対して次の操作を対話式で実行できます。</p>
+    <ul>
+      <li>属性変更、保留、削除、表示、解放</li>
+      <li>ユーザー・メッセージ表示、属性参照、印刷状況確認</li>
+      <li>PDF 変換、テキスト変換、コピー、メール送信</li>
+    </ul>
+
+    <!-- 2. コンポーネント一覧 -->
+    <h2 id="sec2">2. コンポーネント一覧</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>コンポーネント</th>
+          <th>メンバー</th>
+          <th>ソース・ファイル</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>コマンド</td>
+          <td><code>WRKMSPLF</code></td>
+          <td><code>QCMDSRC</code></td>
+          <td>コマンド定義</td>
+        </tr>
+        <tr>
+          <td>メイン・プログラム</td>
+          <td><code>WRKMSPLF</code></td>
+          <td><code>QRPGLESRC</code></td>
+          <td>UIM リスト制御 + SQL によるスプール情報取得</td>
+        </tr>
+        <tr>
+          <td>出口プログラム</td>
+          <td><code>WRKMSPLFX</code></td>
+          <td><code>QRPGLESRC</code></td>
+          <td>UIM アクション・リスト出口 (操作後のリスト更新)</td>
+        </tr>
+        <tr>
+          <td>パネル・グループ</td>
+          <td><code>WRKMSPLF</code></td>
+          <td><code>QPNLSRC</code></td>
+          <td>UIM 画面定義・ヘルプ情報</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 3. コマンド仕様 -->
+    <h2 id="sec3">3. コマンド仕様 (WRKMSPLF.CMD)</h2>
+
+    <h3>コマンド定義</h3>
+    <pre><code>CMD PROMPT('スプール・ファイルの処理')
+    HLPID(WRKMSPLFC)
+    HLPPNLGRP(MAI/WRKMSPLF)</code></pre>
+
+    <h3>パラメーター</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>パラメーター</th>
+          <th>キーワード</th>
+          <th>型</th>
+          <th>長さ</th>
+          <th>デフォルト</th>
+          <th>特別値</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ユーザー</td>
+          <td><code>USER</code></td>
+          <td><code>*NAME</code></td>
+          <td>10</td>
+          <td><code>*CURRENT</code></td>
+          <td><code>*CURRENT</code>, <code>*ALL</code></td>
+          <td>対象ユーザー</td>
+        </tr>
+        <tr>
+          <td>出力</td>
+          <td><code>OUTPUT</code></td>
+          <td><code>*CHAR</code></td>
+          <td>6</td>
+          <td><code>*</code></td>
+          <td><code>*</code>, <code>*PRINT</code></td>
+          <td>出力先</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>USER パラメーター</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">値</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>*CURRENT</code></td>
+          <td>現行ユーザーのスプール・ファイルを表示</td>
+        </tr>
+        <tr>
+          <td><code>*ALL</code></td>
+          <td>すべてのユーザーのスプール・ファイルを表示</td>
+        </tr>
+        <tr>
+          <td>ユーザー名</td>
+          <td>指定ユーザーのスプール・ファイルを表示</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>OUTPUT パラメーター</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">値</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>*</code></td>
+          <td>対話式ジョブは画面表示、バッチ・ジョブは印刷</td>
+        </tr>
+        <tr>
+          <td><code>*PRINT</code></td>
+          <td>スプール・ファイル一覧を印刷出力</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4. メイン・プログラム仕様 -->
+    <h2 id="sec4">4. メイン・プログラム仕様 (WRKMSPLF.SQLRPGLE)</h2>
+
+    <h3>プログラム基本情報</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>プログラム名</td>
+          <td><code>WRKMSPLF</code></td>
+        </tr>
+        <tr>
+          <td>ソース・タイプ</td>
+          <td>SQLRPGLE (ILE RPG フリーフォーム + 埋め込み SQL)</td>
+        </tr>
+        <tr>
+          <td>アクティベーション・グループ</td>
+          <td><code>*NEW</code></td>
+        </tr>
+        <tr>
+          <td>バインド・ディレクトリー</td>
+          <td><code>QC2LE</code></td>
+        </tr>
+        <tr>
+          <td>バージョン</td>
+          <td>6.1</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>エントリー・パラメーター</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>パラメーター</th>
+          <th>変数名</th>
+          <th>型</th>
+          <th>長さ</th>
+          <th>必須</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ユーザー</td>
+          <td><code>p_usr</code></td>
+          <td><code>char</code></td>
+          <td>10</td>
+          <td>任意</td>
+          <td>対象ユーザー (<code>options(*nopass)</code>)</td>
+        </tr>
+        <tr>
+          <td>出力</td>
+          <td><code>p_output</code></td>
+          <td><code>char</code></td>
+          <td>6</td>
+          <td>任意</td>
+          <td>出力先 (<code>options(*nopass)</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>グローバル変数</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>変数名</th>
+          <th>型</th>
+          <th>初期値</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>applHandle</code></td>
+          <td><code>char(8)</code></td>
+          <td><code>''</code></td>
+          <td>UIM アプリケーション・ハンドル</td>
+        </tr>
+        <tr>
+          <td><code>funcReq</code></td>
+          <td><code>int(10)</code></td>
+          <td><code>0</code></td>
+          <td>QUIDSPP 戻りファンクション要求</td>
+        </tr>
+        <tr>
+          <td><code>g_usr</code></td>
+          <td><code>char(10)</code></td>
+          <td><code>'*CURRENT'</code></td>
+          <td>ユーザー・フィルター (ロード時に使用)</td>
+        </tr>
+        <tr>
+          <td><code>g_sqlStmt</code></td>
+          <td><code>varchar(400)</code></td>
+          <td><code>''</code></td>
+          <td>動的 SQL ステートメント文字列</td>
+        </tr>
+        <tr>
+          <td><code>w_pnlName</code></td>
+          <td><code>char(10)</code></td>
+          <td><code>'MAINPNL'</code></td>
+          <td>表示パネル名</td>
+        </tr>
+        <tr>
+          <td><code>w_pgrpQnm</code></td>
+          <td><code>char(20)</code></td>
+          <td><code>'WRKMSPLF  *LIBL'</code></td>
+          <td>パネル・グループ修飾名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>ファンクション・キー定数</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>定数名</th>
+          <th>値</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ENTKEY</code></td>
+          <td><code>0</code></td>
+          <td>Enter キー (UIM が LISTACT を処理済み)</td>
+        </tr>
+        <tr>
+          <td><code>F5KEY</code></td>
+          <td><code>5</code></td>
+          <td>F5=最新表示</td>
+        </tr>
+        <tr>
+          <td><code>F10KEY</code></td>
+          <td><code>10</code></td>
+          <td>F10=ジョブ・ログ表示</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>主処理フロー</h3>
+    <pre><code>1. エントリー・パラメーター処理
+   - p_usr が渡された場合、g_usr に設定
+
+2. OUTPUT(*PRINT) 処理
+   - p_output = '*PRINT' の場合
+     -> QCMDEXC で WRKSPLF SELECT(...) OUTPUT(*PRINT) を実行して終了
+
+3. パネル・グループのオープン (QUIOPNDA)
+   - エラー時はエスケープ・メッセージを送信して終了
+
+4. 出口プログラム変数の設定 (QUIPUTV)
+   - UIM 変数 EXITVAR に 'WRKMSPLFX *LIBL' をセット
+
+5. メイン・ループ
+   - clearList() でリストを削除
+   - loadList() でスプール・ファイルをリストに追加
+   - QUIDSPP でパネルを表示 (USRTSK='N')
+   - funcReq に応じた処理:
+     * ENTKEY (0): ループ継続 (UIM が LISTACT 処理済み)
+     * F5KEY  (5): ループ継続 (リストを再ロード)
+     * F10KEY (10): DSPJOBLOG を実行してループ継続
+     * その他 (F3/F12): ループを抜ける
+
+6. パネル・グループのクローズ (QUICLOA 'M')</code></pre>
+
+    <h3>サブプロシージャー</h3>
+
+    <h4>clearList()</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>目的</td>
+          <td>UIM リスト (<code>SPLFLIST</code>) を削除して再ロード前にクリア</td>
+        </tr>
+        <tr>
+          <td>呼び出し API</td>
+          <td><code>QUIDLTL</code></td>
+        </tr>
+        <tr>
+          <td>エラー処理</td>
+          <td>リストが未アクティブの場合のエラーは無視</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>パラメーター:</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>型</th>
+          <th>方向</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>pApplHdl</code></td>
+          <td><code>char(8)</code></td>
+          <td>入力</td>
+          <td>UIM アプリケーション・ハンドル</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>loadList()</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>目的</td>
+          <td>SQL で <code>QSYS2.SPOOLED_FILE_INFO</code> からスプール情報を取得し、UIM リストに追加</td>
+        </tr>
+        <tr>
+          <td>SQL 方式</td>
+          <td>動的 SQL (PREPARE + OPEN + FETCH)</td>
+        </tr>
+        <tr>
+          <td>呼び出し API</td>
+          <td><code>QUIADDLE</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>パラメーター:</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>型</th>
+          <th>方向</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>pApplHdl</code></td>
+          <td><code>char(8)</code></td>
+          <td>入力</td>
+          <td>UIM アプリケーション・ハンドル</td>
+        </tr>
+        <tr>
+          <td><code>pUsr</code></td>
+          <td><code>char(10)</code></td>
+          <td>入力</td>
+          <td>ユーザー・フィルター</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>使用 SQL サービス:</strong></p>
+    <pre><code>SELECT SPOOLED_FILE_NAME, JOB_NAME, JOB_USER,
+       JOB_NUMBER, SPOOLED_FILE_NUMBER, TOTAL_PAGES,
+       COPIES, STATUS, OUTPUT_QUEUE,
+       COALESCE(USER_DATA, '')
+  FROM TABLE(QSYS2.SPOOLED_FILE_INFO(USER_NAME => '&lt;ユーザー名&gt;')) x
+ ORDER BY SPOOLED_FILE_NUMBER</code></pre>
+
+    <p><strong>スプール状況コードの変換 (SQL STATUS -> UIM 表示コード):</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>SQL STATUS 値</th>
+          <th>UIM 表示コード</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>OPEN</code></td>
+          <td><code>OPN</code></td>
+          <td>オープン</td>
+        </tr>
+        <tr>
+          <td><code>READY</code></td>
+          <td><code>RDY</code></td>
+          <td>作動可能</td>
+        </tr>
+        <tr>
+          <td><code>DEFERRED</code></td>
+          <td><code>DFR</code></td>
+          <td>据え置き</td>
+        </tr>
+        <tr>
+          <td><code>SENDING</code></td>
+          <td><code>SND</code></td>
+          <td>送信中</td>
+        </tr>
+        <tr>
+          <td><code>CLOSED</code></td>
+          <td><code>CLO</code></td>
+          <td>クローズ</td>
+        </tr>
+        <tr>
+          <td><code>HELD</code></td>
+          <td><code>HLD</code></td>
+          <td>保留中</td>
+        </tr>
+        <tr>
+          <td><code>SAVED</code></td>
+          <td><code>SAV</code></td>
+          <td>保管</td>
+        </tr>
+        <tr>
+          <td><code>PENDING</code></td>
+          <td><code>PND</code></td>
+          <td>保留中</td>
+        </tr>
+        <tr>
+          <td><code>WRITING</code></td>
+          <td><code>WTR</code></td>
+          <td>書き出し中</td>
+        </tr>
+        <tr>
+          <td><code>PRINTING</code></td>
+          <td><code>PRT</code></td>
+          <td>印刷中</td>
+        </tr>
+        <tr>
+          <td><code>MESSAGE WAITING</code></td>
+          <td><code>MSGW</code></td>
+          <td>メッセージ待機</td>
+        </tr>
+        <tr>
+          <td>その他</td>
+          <td>先頭 4 文字</td>
+          <td>そのまま表示</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. 出口プログラム仕様 -->
+    <h2 id="sec5">5. UIM アクション・リスト出口プログラム仕様 (WRKMSPLFX.RPGLE)</h2>
+
+    <h3>プログラム基本情報</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>プログラム名</td>
+          <td><code>WRKMSPLFX</code></td>
+        </tr>
+        <tr>
+          <td>ソース・タイプ</td>
+          <td>RPGLE (ILE RPG フリーフォーム)</td>
+        </tr>
+        <tr>
+          <td>アクティベーション・グループ</td>
+          <td><code>*CALLER</code></td>
+        </tr>
+        <tr>
+          <td>バージョン</td>
+          <td>01.00</td>
+        </tr>
+        <tr>
+          <td>作成日</td>
+          <td>2026/03/27</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>役割</h3>
+    <p>UIM の <code>USREXIT='CALL EXITPGM'</code> 機構によって呼び出される出口プログラムです。<br>
+    ユーザーがリスト・オプションを実行した後、UIM リストのエントリーを更新または削除します。</p>
+
+    <h3>エントリー・パラメーター</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>パラメーター</th>
+          <th>変数名</th>
+          <th>型</th>
+          <th>長さ</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>出口パラメーター</td>
+          <td><code>p_exitParms</code></td>
+          <td><code>char</code></td>
+          <td>70</td>
+          <td>UIM アクション・リスト出口パラメーター構造</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>出口パラメーター構造 (exitParms DS)</h3>
+    <p>UIM が渡す <code>Qui_ALX_t</code> / <code>EUIQALX</code> 構造体:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>フィールド名</th>
+          <th>型</th>
+          <th>位置</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>strucLevel</code></td>
+          <td><code>int(10)</code></td>
+          <td>1</td>
+          <td>構造体レベル</td>
+        </tr>
+        <tr>
+          <td><code>reserv1</code></td>
+          <td><code>char(8)</code></td>
+          <td>5</td>
+          <td>予約</td>
+        </tr>
+        <tr>
+          <td><code>callType</code></td>
+          <td><code>int(10)</code></td>
+          <td>13</td>
+          <td>呼び出し種別 (5 = アクション・リスト出口)</td>
+        </tr>
+        <tr>
+          <td><code>applHandle</code></td>
+          <td><code>char(8)</code></td>
+          <td>17</td>
+          <td>UIM アプリケーション・ハンドル</td>
+        </tr>
+        <tr>
+          <td><code>panelName</code></td>
+          <td><code>char(10)</code></td>
+          <td>25</td>
+          <td>パネル名</td>
+        </tr>
+        <tr>
+          <td><code>listName</code></td>
+          <td><code>char(10)</code></td>
+          <td>35</td>
+          <td>リスト名</td>
+        </tr>
+        <tr>
+          <td><code>listEntry</code></td>
+          <td><code>char(4)</code></td>
+          <td>45</td>
+          <td>リスト・エントリー・ハンドル</td>
+        </tr>
+        <tr>
+          <td><code>listOption</code></td>
+          <td><code>int(10)</code></td>
+          <td>49</td>
+          <td>選択オプション番号</td>
+        </tr>
+        <tr>
+          <td><code>funcQualifier</code></td>
+          <td><code>int(10)</code></td>
+          <td>53</td>
+          <td>ファンクション修飾子 (0=Enter, 1=Prompt)</td>
+        </tr>
+        <tr>
+          <td><code>result</code></td>
+          <td><code>int(10)</code></td>
+          <td>57</td>
+          <td>コマンド実行結果 (0=成功, 非ゼロ=エラー)</td>
+        </tr>
+        <tr>
+          <td><code>fieldName</code></td>
+          <td><code>char(10)</code></td>
+          <td>61</td>
+          <td>フィールド名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>処理フロー</h3>
+    <pre><code>1. result &lt;&gt; 0 の場合 (コマンド失敗): 即時終了 (リスト変更なし)
+
+2. オプション 4 (削除) の場合:
+   - QUIRMVLE でリスト・エントリーを削除して終了
+
+3. その他のオプション (2=変更, 3=保留, 6=解放 など):
+   a. QUIGETLE で現在のリスト・エントリー内容を取得
+   b. QUSRSPLA (SPLA0100) でスプール・ファイルの最新属性を取得
+   c. スプール・ファイルが存在しない場合は QUIRMVLE でエントリーを削除して終了
+   d. 最新属性を uimEntry バッファに反映:
+      - 出口コード (uie_sts) をオプション番号に基づいて設定:
+        * 2=変更 -> '*CHG'
+        * 3=保留 -> '*HLD'
+        * 6=解放 -> '*RLS'
+        * その他  -> QUSRSPLA の status を変換
+      - uie_outq, uie_usrdta, uie_pgs, uie_cpy を更新
+   e. QUIUPDLE でリスト・エントリーを更新</code></pre>
+
+    <h3>QUSRSPLA 使用情報</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>値</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>API</td>
+          <td><code>QUSRSPLA</code> (スプール・ファイル属性の検索)</td>
+        </tr>
+        <tr>
+          <td>フォーマット</td>
+          <td><code>SPLA0100</code></td>
+        </tr>
+        <tr>
+          <td>修飾ジョブ名</td>
+          <td><code>uie_jobnm + uie_usr + uie_nbr</code> (26 文字)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>SPLA0100 形式 主要フィールド</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>フィールド名</th>
+          <th>型</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>jobName</code></td>
+          <td><code>char(10)</code></td>
+          <td>ジョブ名</td>
+        </tr>
+        <tr>
+          <td><code>userName</code></td>
+          <td><code>char(10)</code></td>
+          <td>ユーザー名</td>
+        </tr>
+        <tr>
+          <td><code>jobNbr</code></td>
+          <td><code>char(6)</code></td>
+          <td>ジョブ番号</td>
+        </tr>
+        <tr>
+          <td><code>splfName</code></td>
+          <td><code>char(10)</code></td>
+          <td>スプール・ファイル名</td>
+        </tr>
+        <tr>
+          <td><code>splfNbr</code></td>
+          <td><code>int(10)</code></td>
+          <td>スプール・ファイル番号</td>
+        </tr>
+        <tr>
+          <td><code>userData</code></td>
+          <td><code>char(10)</code></td>
+          <td>ユーザー・データ</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>char(10)</code></td>
+          <td>スプール・ファイル状況</td>
+        </tr>
+        <tr>
+          <td><code>totPages</code></td>
+          <td><code>int(10)</code></td>
+          <td>総ページ数</td>
+        </tr>
+        <tr>
+          <td><code>totCopies</code></td>
+          <td><code>int(10)</code></td>
+          <td>総部数</td>
+        </tr>
+        <tr>
+          <td><code>outqName</code></td>
+          <td><code>char(10)</code></td>
+          <td>出力待ち行列名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 6. パネル・グループ仕様 -->
+    <h2 id="sec6">6. パネル・グループ仕様 (WRKMSPLF.PNLGRP)</h2>
+
+    <h3>パネル・グループ基本情報</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">項目</th>
+          <th>内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>パネル・グループ名</td>
+          <td><code>WRKMSPLF</code></td>
+        </tr>
+        <tr>
+          <td>リスト動作</td>
+          <td><code>ACTOR=UIM</code> (UIM がアクション・リストを自動処理)</td>
+        </tr>
+        <tr>
+          <td>ヘルプ</td>
+          <td>コマンド・プロンプト・ヘルプ <code>HLPID=WRKMSPLFC</code> 含む</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>クラス定義</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>クラス名</th>
+          <th>基本型</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ACTNCLS</code></td>
+          <td><code>ACTION</code></td>
+          <td>オプション入力フィールド</td>
+        </tr>
+        <tr>
+          <td><code>CHAR10</code></td>
+          <td><code>CHAR 10</code></td>
+          <td>文字 10 桁</td>
+        </tr>
+        <tr>
+          <td><code>CHAR6</code></td>
+          <td><code>CHAR 6</code></td>
+          <td>文字 6 桁</td>
+        </tr>
+        <tr>
+          <td><code>STSCLS</code></td>
+          <td><code>CHAR 10</code></td>
+          <td>状況コード</td>
+        </tr>
+        <tr>
+          <td><code>PGSCLS</code></td>
+          <td><code>BIN 15</code> (幅 5)</td>
+          <td>ページ数・部数</td>
+        </tr>
+        <tr>
+          <td><code>PARMCLS</code></td>
+          <td><code>CHAR 255</code></td>
+          <td>コマンド行・パラメーター文字列</td>
+        </tr>
+        <tr>
+          <td><code>PGMCLS</code></td>
+          <td><code>CHAR 20</code></td>
+          <td>プログラム修飾名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>ダイアログ変数定義 (VARRCD)</h3>
+
+    <h4>SPLFENT (リスト・エントリー、78 バイト)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>変数名</th>
+          <th>クラス</th>
+          <th>バイト数</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>OPT</code></td>
+          <td><code>ACTNCLS</code> (BIN 15)</td>
+          <td>2</td>
+          <td>オプション番号</td>
+        </tr>
+        <tr>
+          <td><code>FIL</code></td>
+          <td><code>CHAR10</code></td>
+          <td>10</td>
+          <td>スプール・ファイル名</td>
+        </tr>
+        <tr>
+          <td><code>USR</code></td>
+          <td><code>CHAR10</code></td>
+          <td>10</td>
+          <td>ユーザー名</td>
+        </tr>
+        <tr>
+          <td><code>OUTQ</code></td>
+          <td><code>CHAR10</code></td>
+          <td>10</td>
+          <td>出力待ち行列名</td>
+        </tr>
+        <tr>
+          <td><code>USRDTA</code></td>
+          <td><code>CHAR10</code></td>
+          <td>10</td>
+          <td>ユーザー・データ</td>
+        </tr>
+        <tr>
+          <td><code>STS</code></td>
+          <td><code>STSCLS</code></td>
+          <td>10</td>
+          <td>状況コード</td>
+        </tr>
+        <tr>
+          <td><code>PGS</code></td>
+          <td><code>PGSCLS</code> (BIN 15)</td>
+          <td>2</td>
+          <td>総ページ数</td>
+        </tr>
+        <tr>
+          <td><code>CPY</code></td>
+          <td><code>PGSCLS</code> (BIN 15)</td>
+          <td>2</td>
+          <td>部数</td>
+        </tr>
+        <tr>
+          <td><code>NBR</code></td>
+          <td><code>CHAR6</code></td>
+          <td>6</td>
+          <td>ジョブ番号</td>
+        </tr>
+        <tr>
+          <td><code>JOBNM</code></td>
+          <td><code>CHAR10</code></td>
+          <td>10</td>
+          <td>ジョブ名</td>
+        </tr>
+        <tr>
+          <td><code>SPN</code></td>
+          <td><code>CHAR6</code></td>
+          <td>6</td>
+          <td>スプール・ファイル番号</td>
+        </tr>
+        <tr>
+          <td colspan="2"><strong>合計</strong></td>
+          <td><strong>78</strong></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>PARMENT</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>変数名</th>
+          <th>クラス</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ZCMD</code></td>
+          <td><code>PARMCLS</code></td>
+          <td>コマンド行入力</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>EXITVAR</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>変数名</th>
+          <th>クラス</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>EXITPGM</code></td>
+          <td><code>PGMCLS</code></td>
+          <td>出口プログラム修飾名</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>リスト・アクション定義 (ACTOR=UIM)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>オプション</th>
+          <th>表示テキスト</th>
+          <th>実行コマンド</th>
+          <th>F4 プロンプト対応</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2</td>
+          <td>変更</td>
+          <td><code>CHGSPLFA</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>保留</td>
+          <td><code>HLDSPLF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>削除</td>
+          <td><code>DLTSPLF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>表示</td>
+          <td><code>DSPSPLF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>解放</td>
+          <td><code>RLSSPLF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>メッセージ</td>
+          <td><code>WRKMSG MSGQ(&amp;USR.)</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>属性</td>
+          <td><code>WRKSPLFA</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>印刷状況</td>
+          <td><code>WRKOUTQ OUTQ(&amp;OUTQ.)</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>PDF</td>
+          <td><code>MAI/SPLTOPDF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>テキスト</td>
+          <td><code>MAI/SPLTOTXT</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>コピー</td>
+          <td><code>CPYSPLF</code></td>
+          <td>あり</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>メール</td>
+          <td><code>MAI/SPLTOMAIL</code></td>
+          <td>あり</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>注意:</strong> 各アクションには <code>USREXIT='CALL EXITPGM'</code> が設定されており、コマンド実行後に <code>WRKMSPLFX</code> が呼び出されます。
+    </div>
+
+    <h3>ファンクション・キー定義</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>キー</th>
+          <th>アクション</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>F1 / HELP</td>
+          <td><code>HELP</code></td>
+          <td>ヘルプ表示</td>
+        </tr>
+        <tr>
+          <td>ENTER</td>
+          <td><code>ENTER</code></td>
+          <td>リスト・アクション実行</td>
+        </tr>
+        <tr>
+          <td>F3</td>
+          <td><code>EXIT</code></td>
+          <td>プログラム終了</td>
+        </tr>
+        <tr>
+          <td>F4</td>
+          <td><code>PROMPT</code></td>
+          <td>コマンド・プロンプト表示</td>
+        </tr>
+        <tr>
+          <td>F5</td>
+          <td><code>RETURN 5</code></td>
+          <td>最新表示 (funcReq=5)</td>
+        </tr>
+        <tr>
+          <td>F9</td>
+          <td><code>RETRIEVE</code></td>
+          <td>コマンド再生</td>
+        </tr>
+        <tr>
+          <td>F10</td>
+          <td><code>RETURN 10</code></td>
+          <td>ジョブ・ログ表示 (funcReq=10)</td>
+        </tr>
+        <tr>
+          <td>F12</td>
+          <td><code>CANCEL</code></td>
+          <td>取消し</td>
+        </tr>
+        <tr>
+          <td>F24</td>
+          <td><code>MOREKEYS</code></td>
+          <td>キーの続きを表示</td>
+        </tr>
+        <tr>
+          <td>PAGE DOWN</td>
+          <td><code>PAGEDOWN</code></td>
+          <td>次ページ</td>
+        </tr>
+        <tr>
+          <td>PAGE UP</td>
+          <td><code>PAGEUP</code></td>
+          <td>前ページ</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>リスト列定義</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>列変数</th>
+          <th>使用</th>
+          <th>最大幅</th>
+          <th>ヘッダー</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>OPT</code></td>
+          <td>INOUT</td>
+          <td>3</td>
+          <td>OPT</td>
+        </tr>
+        <tr>
+          <td><code>FIL</code></td>
+          <td>OUT</td>
+          <td>10</td>
+          <td>ファイル</td>
+        </tr>
+        <tr>
+          <td><code>USR</code></td>
+          <td>OUT</td>
+          <td>10</td>
+          <td>ユーザー</td>
+        </tr>
+        <tr>
+          <td><code>OUTQ</code></td>
+          <td>OUT</td>
+          <td>10</td>
+          <td>装置/待ち行列</td>
+        </tr>
+        <tr>
+          <td><code>USRDTA</code></td>
+          <td>OUT</td>
+          <td>10</td>
+          <td>ユーザー・データ</td>
+        </tr>
+        <tr>
+          <td><code>STS</code></td>
+          <td>OUT</td>
+          <td>4</td>
+          <td>STS</td>
+        </tr>
+        <tr>
+          <td><code>PGS</code></td>
+          <td>OUT</td>
+          <td>6</td>
+          <td>合計数</td>
+        </tr>
+        <tr>
+          <td><code>CPY</code></td>
+          <td>OUT</td>
+          <td>6</td>
+          <td>部数</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 7. 処理フロー -->
+    <h2 id="sec7">7. 処理フロー</h2>
+
+    <h3>全体シーケンス</h3>
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as ユーザー
+    participant CMD as WRKMSPLF<br/>(コマンド)
+    participant PGM as WRKMSPLF<br/>(SQLRPGLE)
+    participant UIM as UIM<br/>(パネル・グループ)
+    participant SQL as QSYS2.<br/>SPOOLED_FILE_INFO
+    participant EXIT as WRKMSPLFX<br/>(出口プログラム)
+    participant QUSRSPLA as QUSRSPLA<br/>(API)
+
+    User->>CMD: WRKMSPLF USER(*CURRENT) OUTPUT(*)
+    CMD->>PGM: CALL WRKMSPLF (USER, OUTPUT)
+
+    alt OUTPUT(*PRINT)
+        PGM->>PGM: QCMDEXC(WRKSPLF OUTPUT(*PRINT))
+        PGM-->>User: 終了
+    else 対話式
+        PGM->>UIM: QUIOPNDA (パネル・グループ OPEN)
+        PGM->>UIM: QUIPUTV (EXITVAR = WRKMSPLFX *LIBL)
+
+        loop メイン・ループ
+            PGM->>UIM: QUIDLTL (SPLFLIST クリア)
+            PGM->>SQL: PREPARE + OPEN + FETCH
+            SQL-->>PGM: スプール・ファイル情報
+            PGM->>UIM: QUIADDLE (リスト・エントリー追加)
+
+            PGM->>UIM: QUIDSPP (MAINPNL 表示, USRTSK='N')
+            UIM-->>User: 画面表示
+
+            User->>UIM: オプション入力 + ENTER
+            UIM->>UIM: LISTACT コマンド実行 (ACTOR=UIM)
+            UIM->>EXIT: USREXIT 呼び出し (p_exitParms)
+
+            alt オプション 4 (削除)
+                EXIT->>UIM: QUIRMVLE (エントリー削除)
+            else その他のオプション
+                EXIT->>UIM: QUIGETLE (現在エントリー取得)
+                EXIT->>QUSRSPLA: QUSRSPLA SPLA0100 (最新属性取得)
+                QUSRSPLA-->>EXIT: スプール・ファイル属性
+                EXIT->>UIM: QUIUPDLE (エントリー更新)
+            end
+
+            UIM-->>PGM: funcReq 戻り
+
+            alt funcReq = F10 (10)
+                PGM->>PGM: QCMDEXC(DSPJOBLOG)
+            else funcReq = F3/F12 (負値)
+                PGM->>PGM: ループ終了
+            end
+        end
+
+        PGM->>UIM: QUICLOA (パネル・グループ CLOSE)
+        PGM-->>User: 終了
+    end
+    </div>
+
+    <h3>OUTPUT(*PRINT) 処理</h3>
+    <p><code>OUTPUT(*PRINT)</code> が指定された場合、WRKMSPLF は自分でリストを印刷するのではなく、IBM i 標準コマンド <code>WRKSPLF</code> に委譲します。</p>
+    <pre><code>WRKSPLF SELECT(&lt;ユーザー名&gt;) OUTPUT(*PRINT)</code></pre>
+
+    <!-- 8. データ構造 -->
+    <h2 id="sec8">8. データ構造</h2>
+
+    <h3>UIM リスト・エントリー (uimEntry DS / VARRCD SPLFENT)</h3>
+    <pre><code>+--------+----------+----------+----------+----------+----------+------+------+--------+----------+--------+
+| OPT    | FIL      | USR      | OUTQ     | USRDTA   | STS      | PGS  | CPY  | NBR    | JOBNM    | SPN    |
+| BIN 15 | CHAR 10  | CHAR 10  | CHAR 10  | CHAR 10  | CHAR 10  | BIN15| BIN15| CHAR 6 | CHAR 10  | CHAR 6 |
+| 2 byte | 10 bytes | 10 bytes | 10 bytes | 10 bytes | 10 bytes | 2 b  | 2 b  | 6 bytes| 10 bytes | 6 bytes|
++--------+----------+----------+----------+----------+----------+------+------+--------+----------+--------+
+                                                                            Total: 78 bytes</code></pre>
+
+    <h3>出口パラメーター構造 (exitParms DS / Qui_ALX_t)</h3>
+    <pre><code>Offset  Len  Field
+   1     4   strucLevel   (INT 10)
+   5     8   reserv1      (CHAR 8)
+  13     4   callType     (INT 10)  -- 5 = Action List Exit
+  17     8   applHandle   (CHAR 8)
+  25    10   panelName    (CHAR 10)
+  35    10   listName     (CHAR 10)
+  45     4   listEntry    (CHAR 4)
+  49     4   listOption   (INT 10)
+  53     4   funcQualifier(INT 10)  -- 0=Enter, 1=Prompt
+  57     4   result       (INT 10)  -- 0=Success
+  61    10   fieldName    (CHAR 10)
+             Total: 70 bytes</code></pre>
+
+    <!-- 9. 使用 API 一覧 -->
+    <h2 id="sec9">9. 使用 API 一覧</h2>
+
+    <h3>UIM API</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>API</th>
+          <th>プログラム</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>QUIOPNDA</code></td>
+          <td>WRKMSPLF</td>
+          <td>UIM アプリケーションのオープン</td>
+        </tr>
+        <tr>
+          <td><code>QUIDSPP</code></td>
+          <td>WRKMSPLF</td>
+          <td>パネルの表示 (USRTSK='N' で F3 プロンプト折り返し防止)</td>
+        </tr>
+        <tr>
+          <td><code>QUICLOA</code></td>
+          <td>WRKMSPLF</td>
+          <td>UIM アプリケーションのクローズ</td>
+        </tr>
+        <tr>
+          <td><code>QUIADDLE</code></td>
+          <td>WRKMSPLF</td>
+          <td>リスト・エントリーの追加</td>
+        </tr>
+        <tr>
+          <td><code>QUIDLTL</code></td>
+          <td>WRKMSPLF</td>
+          <td>リストの削除</td>
+        </tr>
+        <tr>
+          <td><code>QUIPUTV</code></td>
+          <td>WRKMSPLF</td>
+          <td>ダイアログ変数への書き込み</td>
+        </tr>
+        <tr>
+          <td><code>QUIGETV</code></td>
+          <td>WRKMSPLF</td>
+          <td>ダイアログ変数の読み取り</td>
+        </tr>
+        <tr>
+          <td><code>QUIGETLE</code></td>
+          <td>WRKMSPLFX</td>
+          <td>リスト・エントリーの取得</td>
+        </tr>
+        <tr>
+          <td><code>QUIUPDLE</code></td>
+          <td>WRKMSPLFX</td>
+          <td>リスト・エントリーの更新</td>
+        </tr>
+        <tr>
+          <td><code>QUIRMVLE</code></td>
+          <td>WRKMSPLFX</td>
+          <td>リスト・エントリーの削除</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>システム API / コマンド</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>API / コマンド</th>
+          <th>プログラム</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>QCMDEXC</code></td>
+          <td>WRKMSPLF</td>
+          <td>CL コマンドの実行</td>
+        </tr>
+        <tr>
+          <td><code>QMHSNDPM</code></td>
+          <td>WRKMSPLF</td>
+          <td>プログラム・メッセージの送信</td>
+        </tr>
+        <tr>
+          <td><code>QUSRSPLA</code></td>
+          <td>WRKMSPLFX</td>
+          <td>スプール・ファイル属性の取得 (SPLA0100)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>SQL サービス</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>SQL サービス</th>
+          <th>プログラム</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>QSYS2.SPOOLED_FILE_INFO</code></td>
+          <td>WRKMSPLF</td>
+          <td>スプール・ファイル情報の取得</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 10. 画面説明 -->
+    <h2 id="sec10">10. 画面説明</h2>
+
+    <h3>メイン画面 (MAINPNL)</h3>
+    <pre><code>                         スプール・ファイルの処理                   SYSTEM
+                                                                    xx/xx/xx xx:xx:xx
+ オプションを入力して、実行キーを押してください。
+  2=変更  3=保留  4=削除  5=表示  6=解放  7=メッセージ  8=属性
+  9=印刷状況  11=PDF  12=テキスト  13=コピー  14=メール
+
+ OPT  ファイル   ユーザー   装置/待ち行列  ユーザー・データ  STS  合計数  部数
+      QPJOBLOG   QSYSOPR    PRT01          QPJOBLOG          RDY      2      1
+      QPDSPJOB   IDE        PRT01                            HLD     10      1
+ ===&gt;
+ F3=終了  F4=プロンプト  F5=最新表示  F9=コマンドの再生
+ F10=ジョブ・ログ表示  F12=取消し  F24=キーの続き</code></pre>
+
+    <h3>主要な表示列</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">列</th>
+          <th>説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>OPT</td>
+          <td>オプション入力欄 (入出力)</td>
+        </tr>
+        <tr>
+          <td>ファイル</td>
+          <td>スプール・ファイル名</td>
+        </tr>
+        <tr>
+          <td>ユーザー</td>
+          <td>スプール・ファイル所有者</td>
+        </tr>
+        <tr>
+          <td>装置/待ち行列</td>
+          <td>出力待ち行列名</td>
+        </tr>
+        <tr>
+          <td>ユーザー・データ</td>
+          <td>ユーザー定義テキスト</td>
+        </tr>
+        <tr>
+          <td>STS</td>
+          <td>スプール状況コード</td>
+        </tr>
+        <tr>
+          <td>合計数</td>
+          <td>総ページ数</td>
+        </tr>
+        <tr>
+          <td>部数</td>
+          <td>印刷部数</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>スプール状況コード</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 20%;">コード</th>
+          <th>意味</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>RDY</code></td>
+          <td>作動可能 - 印刷可能な状態</td>
+        </tr>
+        <tr>
+          <td><code>OPN</code></td>
+          <td>オープン - 書き込み中</td>
+        </tr>
+        <tr>
+          <td><code>DFR</code></td>
+          <td>据え置き - 印刷据え置き</td>
+        </tr>
+        <tr>
+          <td><code>SND</code></td>
+          <td>送信中 - リモートへ送信中/送信済み</td>
+        </tr>
+        <tr>
+          <td><code>CLO</code></td>
+          <td>クローズ - 処理完了、ジョブ終了まで保留</td>
+        </tr>
+        <tr>
+          <td><code>HLD</code></td>
+          <td>保留中 - ユーザーまたはシステムによる保留</td>
+        </tr>
+        <tr>
+          <td><code>SAV</code></td>
+          <td>保管 - 印刷後保管</td>
+        </tr>
+        <tr>
+          <td><code>PND</code></td>
+          <td>保留中 - 印刷変換中または印刷待ち</td>
+        </tr>
+        <tr>
+          <td><code>WTR</code></td>
+          <td>書き出し中 - 出力作成中</td>
+        </tr>
+        <tr>
+          <td><code>PRT</code></td>
+          <td>印刷中 - 印刷完了待ち</td>
+        </tr>
+        <tr>
+          <td><code>MSGW</code></td>
+          <td>メッセージ待機 - 応答が必要</td>
+        </tr>
+        <tr>
+          <td><code>*CHG</code></td>
+          <td>変更済み - オプション 2 実行後</td>
+        </tr>
+        <tr>
+          <td><code>*HLD</code></td>
+          <td>保留済み - オプション 3 実行後</td>
+        </tr>
+        <tr>
+          <td><code>*RLS</code></td>
+          <td>解放済み - オプション 6 実行後</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      仕様書作成日: 2025年 / ライブラリ: MAIV300S
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

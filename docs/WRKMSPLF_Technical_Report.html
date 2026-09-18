@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WRKMSPLF UIM アクションリスト出口プログラム実装 技術知見レポート</title>
+  <style>
+    :root {
+      --primary-color: #0f62fe;
+      --secondary-color: #0043ce;
+      --text-color: #161616;
+      --bg-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --border-color: #e0e0e0;
+      --code-bg: #262626;
+      --code-text: #f4f4f4;
+      --success-color: #24a148;
+      --warning-color: #f1c21b;
+      --danger-color: #da1e28;
+      --info-bg: #edf5ff;
+      --info-border: #0f62fe;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--secondary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: #525252;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: var(--secondary-color);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+      padding-left: 0.75rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: #393939;
+    }
+
+    p, ul, ol {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    ul, ol {
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.35rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      font-weight: 600;
+      color: #161616;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background-color: #defbe6;
+      color: #0e6027;
+    }
+
+    .badge-warning {
+      background-color: #fdf3d1;
+      color: #8a6d0b;
+    }
+
+    .badge-info {
+      background-color: #edf5ff;
+      color: #0043ce;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: #e8e8e8;
+      padding: 0.15rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.88rem;
+    }
+
+    pre code {
+      background-color: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
+    .callout {
+      background-color: var(--info-bg);
+      border-left: 4px solid var(--info-border);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .callout-title {
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1rem;
+      font-size: 0.85rem;
+      color: #6f6f6f;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WRKMSPLF UIM アクションリスト出口プログラム実装 技術知見レポート</h1>
+      <div class="meta">
+        <strong>対象システム:</strong> IBM i (bluenote) / OS Version: 7.5 | <strong>プロジェクト:</strong> MAI/400 (V3.00) | <strong>作成日:</strong> 2026/03/27
+      </div>
+    </header>
+
+    <section>
+      <h2>1. 概要と背景課題</h2>
+      <p>
+        <code>WRKMSPLF</code> コマンドは、UIM パネルグループのリスト機能（<code>ACTOR=UIM</code>）を用いてスプールファイル一覧を表示しています。
+      </p>
+      <div class="callout">
+        <div class="callout-title">従来の課題</div>
+        <code>ACTOR=UIM</code> 配下の <code>:LISTACT</code> で CL コマンド（<code>HLDSPLF</code>, <code>RLSSPLF</code>, <code>CHGSPLFA</code>, <code>DLTSPLF</code> 等）を実行した場合、UIM は RPG 側に制御を戻さずに UIM 内部の再表示ルーチンで画面を再描画するため、画面上のリスト行ステータス（STS）や削除行が最新化されない問題が発生していました。
+      </div>
+      <p>
+        この問題を解決するため、UIM 標準のアクションリスト出口プログラム（<code>USREXIT</code>）機構を採用し、コマンド実行完了直後に UIM リストエントリを動的に更新・削除する仕組みを実装しました。
+      </p>
+    </section>
+
+    <section>
+      <h2>2. 全体アーキテクチャ</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>オブジェクト</th>
+            <th>タイプ</th>
+            <th>ソース</th>
+            <th>主な役割</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>MAI/WRKMSPLF</code></td>
+            <td>*CMD</td>
+            <td><code>MAIV300S/QCMDSRC(WRKMSPLF)</code></td>
+            <td>コマンド定義（<code>USER</code>, <code>OUTPUT</code> パラメータ）</td>
+          </tr>
+          <tr>
+            <td><code>MAI/WRKMSPLF</code></td>
+            <td>*PGM (SQLRPGLE)</td>
+            <td><code>MAIV300S/QRPGLESRC(WRKMSPLF)</code></td>
+            <td>メイン処理プログラム（UIMオープン、DB2 SQLサービスによる一覧ロード、<code>EXITPGM</code> 設定）</td>
+          </tr>
+          <tr>
+            <td><code>MAI/WRKMSPLF</code></td>
+            <td>*PNLGRP</td>
+            <td><code>MAIV300S/QPNLSRC(WRKMSPLF)</code></td>
+            <td>UIM パネル定義（<code>MAXWIDTH=4</code> 拡張、<code>USREXIT='CALL EXITPGM'</code>）</td>
+          </tr>
+          <tr>
+            <td><code>MAI/WRKMSPLFX</code></td>
+            <td>*PGM (RPGLE)</td>
+            <td><code>MAIV300S/QRPGLESRC(WRKMSPLFX)</code></td>
+            <td><strong>【今回新設】</strong> アクションリスト出口プログラム（エントリ更新・削除）</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. 技術的知見とトラブルシューティング</h2>
+
+      <h3>① アクションリスト出口プログラムのインターフェース仕様</h3>
+      <p>
+        UIM から <code>USREXIT='CALL EXITPGM'</code> 経由で呼び出される出口プログラムには、<code>QSYSINC/QRPGLESRC/EUIALEX</code>（または <code>H/EUIALEX.C</code>）で定義された <strong>70バイトのパラメータ構造体</strong>（<code>CallType = 5</code>）が渡されます。
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>オフセット</th>
+            <th>フィールド名</th>
+            <th>データ型</th>
+            <th>説明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1〜4</td>
+            <td><code>StrucLevel</code></td>
+            <td>BINARY(4)</td>
+            <td>構造体レベル</td>
+          </tr>
+          <tr>
+            <td>5〜12</td>
+            <td><code>Reserv1</code></td>
+            <td>CHAR(8)</td>
+            <td>予約領域</td>
+          </tr>
+          <tr>
+            <td>13〜16</td>
+            <td><code>CallType</code></td>
+            <td>BINARY(4)</td>
+            <td><strong>5</strong>（アクションリスト出口）</td>
+          </tr>
+          <tr>
+            <td>17〜24</td>
+            <td><code>ApplHandle</code></td>
+            <td>CHAR(8)</td>
+            <td>UIM アプリケーション・ハンドル</td>
+          </tr>
+          <tr>
+            <td>25〜34</td>
+            <td><code>PanelName</code></td>
+            <td>CHAR(10)</td>
+            <td>パネル名（<code>MAINPNL</code>）</td>
+          </tr>
+          <tr>
+            <td>35〜44</td>
+            <td><code>ListName</code></td>
+            <td>CHAR(10)</td>
+            <td>リスト名（<code>SPLFLIST</code>）</td>
+          </tr>
+          <tr>
+            <td>45〜48</td>
+            <td><code>ListEntry</code></td>
+            <td>CHAR(4)</td>
+            <td>対象エントリのハンドル</td>
+          </tr>
+          <tr>
+            <td>49〜52</td>
+            <td><code>ListOption</code></td>
+            <td>BINARY(4)</td>
+            <td><strong>実行されたオプション番号</strong>（2=変更, 3=保留, 4=削除, 6=解放 等）</td>
+          </tr>
+          <tr>
+            <td>53〜56</td>
+            <td><code>FuncQualifier</code></td>
+            <td>BINARY(4)</td>
+            <td>0=実行キー, 1=プロンプト(F4)</td>
+          </tr>
+          <tr>
+            <td>57〜60</td>
+            <td><code>Result</code></td>
+            <td>BINARY(4)</td>
+            <td><strong>0=コマンド成功</strong>, 0以外=エラー</td>
+          </tr>
+          <tr>
+            <td>61〜70</td>
+            <td><code>FieldName</code></td>
+            <td>CHAR(10)</td>
+            <td>フィールド名</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>② エラー CPF6A98 の発生と QUSRTOOL（T0011）による解決</h3>
+      <p>
+        開発初期に <code>QUIGETLE</code> API の位置づけオプションに <code>posOption = 'HNDL'</code> を指定した際、<strong><code>CPF6A98</code>（リストに対象項目が見つからない）</strong> が発生しました。
+      </p>
+      <div class="callout">
+        <div class="callout-title">知見: UIM カレントエントリポインタの特性</div>
+        <code>USREXIT</code> が呼び出された時点で、UIM 内部のカレントエントリポインタは <strong>既に該当のアクション実行行に位置づけられています</strong>。<br>
+        そのため、<code>QUSRTOOL/QATTRPG/T0011RA5</code> の実装パターンに倣い、<code>posOption = 'SAME'</code>（カレントエントリ直接取得）および <code>updOption = 'SAME'</code>（カレントエントリ更新）を指定することで、ハンドル不一致エラーを完全に排除して安全に更新できるようになりました。
+      </div>
+
+      <h3>③ ステータス（STS）カラムの 4 桁表示拡張</h3>
+      <p>
+        オプション実行直後にユーザーへ視覚的なフィードバックを与えるため、STS 欄にアスタリスク付きのステータス（<code>*HLD</code>, <code>*CHG</code>, <code>*RLS</code>）を表示する要件がありました。<br>
+        従来の <code>MAXWIDTH=3</code> では 3 文字で切り詰められてしまうため、パネルグループ定義を <code>MAXWIDTH=4</code> に拡張しました。
+      </p>
+      <pre><code>:LISTCOL  VAR=STS
+          USAGE=OUT
+          MAXWIDTH=4
+          HELP='WRKMSPLF/HSTS'.
+STS</code></pre>
+    </section>
+
+    <section>
+      <h2>4. 出口プログラム（WRKMSPLFX）のコアロジック</h2>
+      <pre><code>**free
+// ---------------------------------------------------------------
+// PROGRAM-ID    : WRKMSPLFX
+// REMARKS       : WRKMSPLF UIM Action List Exit Program
+// ---------------------------------------------------------------
+ctl-opt dftactgrp(*no) actgrp(*caller) option(*srcstmt);
+
+// (API プロトタイプ・データ構造定義省略)
+
+dcl-pi *n;
+  p_exitParms char(70);
+end-pi;
+
+exitParms = p_exitParms;
+
+// コマンド実行が成功 (result = 0) の場合のみ処理
+if result &lt;&gt; 0;
+  *inlr = *on;
+  return;
+endif;
+
+leHndl = listEntry;
+
+// オプション 4 (削除): リストからエントリを削除
+if listOption = 4;
+  errDs.bytesAvail = 0;
+  QUIRMVLE( applHandle : listName : 'N' : leHndl : errDs );
+  *inlr = *on;
+  return;
+endif;
+
+// オプション 2(変更), 3(保留), 6(解放) 等: カレントエントリを取得して属性更新
+errDs.bytesAvail = 0;
+clear uimEntry;
+QUIGETLE( applHandle
+        : uimEntry
+        : %size(uimEntry)
+        : 'SPLFENT   '
+        : listName
+        : 'SAME'          // ★ カレント行を直接取得
+        : 'N'
+        : '*NONE     '
+        : *allx'00'
+        : 'N'
+        : leHndl
+        : errDs );
+
+if errDs.bytesAvail &gt; 0;
+  *inlr = *on;
+  return;
+endif;
+
+// オプション実行直後の STS 表示制御
+select;
+  when listOption = 2;
+    uie_sts = '*CHG';
+  when listOption = 3;
+    uie_sts = '*HLD';
+  when listOption = 6;
+    uie_sts = '*RLS';
+endsl;
+
+// リストエントリをインプレース更新
+errDs.bytesAvail = 0;
+QUIUPDLE( applHandle
+        : uimEntry
+        : %size(uimEntry)
+        : 'SPLFENT   '
+        : listName
+        : 'SAME'          // ★ カレント行を更新
+        : leHndl
+        : errDs );
+
+*inlr = *on;
+return;</code></pre>
+    </section>
+
+    <section>
+      <h2>5. ビルドとセキュリティ標準</h2>
+      <p>
+        <code>/home/IDE/AGENTS.md</code> のプロジェクト標準に従い、全オブジェクトはメイク用 CLP <code>MWRKMSPLF.CLP</code> により自動ビルドされます。
+      </p>
+      <ul>
+        <li><strong>所有者:</strong> <code>QPGMR</code>（<code>CHGOBJOWN NEWOWN(QPGMR) CUROWNAUT(*REVOKE)</code>）</li>
+        <li><strong>オブジェクト権限:</strong> <code>AUT(*EXCLUDE)</code>（デフォルトでの不用意な *PUBLIC 公開を防止）</li>
+        <li><strong>デバッグビュー:</strong> <code>DBGVIEW(*SOURCE)</code> 統一</li>
+      </ul>
+    </section>
+
+    <div class="footer">
+      IBM i Application Modernization &amp; Architecture Report &mdash; Generated by Bob
+    </div>
+  </div>
+</body>
+</html>
