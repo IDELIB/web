@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UIM パネルグループ — ヘルプ定義 ノウハウ集</title>
+  <style>
+    :root {
+      --primary:   #1a4a8a;
+      --accent:    #2e7dd1;
+      --bg:        #f4f7fc;
+      --card-bg:   #ffffff;
+      --border:    #d0dce8;
+      --text:      #1e2d3d;
+      --code-bg:   #eaf0f8;
+      --tag-green: #1b7f4f;
+      --tag-blue:  #1a5fa8;
+      --tag-gray:  #596677;
+      --warn:      #b45309;
+      --danger:    #c0392b;
+      --ok:        #155724;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    /* ---- Header ---- */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #0d2a5c 100%);
+      color: #fff;
+      padding: 2.5rem 2rem 2rem;
+      border-bottom: 4px solid var(--accent);
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 4px;
+      font-size: .78rem;
+      padding: .2rem .7rem;
+      margin-bottom: .8rem;
+      letter-spacing: .04em;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; }
+    header p.subtitle { margin-top: .4rem; font-size: 1rem; opacity: .85; }
+
+    /* ---- Layout ---- */
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* ---- TOC ---- */
+    nav.toc {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    nav.toc h2 { font-size: 1rem; color: var(--primary); margin-bottom: .8rem; }
+    nav.toc ol { padding-left: 1.4rem; }
+    nav.toc li { margin: .25rem 0; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+
+    /* ---- Section ---- */
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 2rem;
+    }
+    section h2 {
+      font-size: 1.35rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: .4rem;
+      margin-bottom: 1.2rem;
+    }
+    section h3 {
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin: 1.4rem 0 .5rem;
+    }
+    p { margin-bottom: .8rem; }
+
+    /* ---- Code block ---- */
+    pre {
+      background: #1e2d3d;
+      color: #e8f0f8;
+      border-radius: 6px;
+      padding: 1.1rem 1.3rem;
+      overflow-x: auto;
+      font-size: .88rem;
+      line-height: 1.6;
+      margin: .8rem 0 1rem;
+    }
+    code { font-family: "SFMono-Regular", Consolas, "Courier New", monospace; }
+    p code, li code, td code {
+      background: var(--code-bg);
+      color: var(--primary);
+      border-radius: 3px;
+      padding: .1em .45em;
+      font-size: .9em;
+    }
+
+    /* ---- Alert boxes ---- */
+    .alert {
+      border-left: 4px solid;
+      border-radius: 0 6px 6px 0;
+      padding: .9rem 1.1rem;
+      margin: 1rem 0;
+      font-size: .95rem;
+    }
+    .alert-danger  { border-color: var(--danger);  background: #fdf3f3; color: #7b1c1c; }
+    .alert-warn    { border-color: var(--warn);    background: #fef8ec; color: #7a4100; }
+    .alert-ok      { border-color: var(--ok);      background: #eaf6ed; color: #0d3d1c; }
+    .alert-info    { border-color: var(--accent);  background: #eef5fd; color: #0d2a5c; }
+    .alert strong  { display: block; margin-bottom: .3rem; font-size: 1rem; }
+
+    /* ---- Tables ---- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .8rem 0 1rem;
+      font-size: .93rem;
+    }
+    th {
+      background: var(--primary);
+      color: #fff;
+      padding: .55rem .9rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      padding: .5rem .9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f7faff; }
+
+    /* ---- Flow diagram (pure CSS) ---- */
+    .flow {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .flow-box {
+      background: var(--code-bg);
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      padding: .4rem .9rem;
+      font-size: .9rem;
+      font-family: monospace;
+      white-space: nowrap;
+    }
+    .flow-box.bad  { border-color: var(--danger); background: #fdf3f3; color: var(--danger); }
+    .flow-box.good { border-color: var(--ok);     background: #eaf6ed; color: var(--ok); }
+    .flow-arrow {
+      font-size: 1.3rem;
+      color: var(--accent);
+      align-self: center;
+    }
+    .flow-arrow.bad { color: var(--danger); }
+
+    /* ---- Badge labels ---- */
+    .lbl {
+      display: inline-block;
+      border-radius: 3px;
+      font-size: .75rem;
+      padding: .1em .6em;
+      font-weight: 700;
+      margin-right: .3rem;
+      letter-spacing: .03em;
+    }
+    .lbl-red   { background: #fde8e8; color: var(--danger); }
+    .lbl-green { background: #e4f5ea; color: var(--ok); }
+    .lbl-blue  { background: #ddeeff; color: var(--tag-blue); }
+    .lbl-gray  { background: #eaedf0; color: var(--tag-gray); }
+
+    /* ---- Footer ---- */
+    footer {
+      text-align: center;
+      font-size: .82rem;
+      color: #7a8fa6;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">IBM i — UIM Panel Group</div>
+  <h1>UIM パネルグループ ヘルプ定義 ノウハウ集</h1>
+  <p class="subtitle">WRKMSPLF.PNLGRP 開発で得た設計知識のまとめ &nbsp;|&nbsp; MAI/400 プロジェクト</p>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#s1">ヘルプ表示の仕組み — 全体ヘルプ vs コンテキストヘルプ</a></li>
+      <li><a href="#s2">全体ヘルプの自動連結順序</a></li>
+      <li><a href="#s3">見出しタグの正解 — :XH3. の使い方</a></li>
+      <li><a href="#s4">重複表示の罠 — :IMHELP と LISTCOL の二重連結</a></li>
+      <li><a href="#s5">列ヘルプ・キーヘルプの正しい設計パターン</a></li>
+      <li><a href="#s6">OPT 列 F1（コンテキストヘルプ）の設計</a></li>
+      <li><a href="#s7">推奨ソース構造テンプレート</a></li>
+      <li><a href="#s8">コンパイルと確認手順</a></li>
+      <li><a href="#s9">よくあるエラーと対処</a></li>
+    </ol>
+  </nav>
+
+  <!-- Section 1 -->
+  <section id="s1">
+    <h2>1. ヘルプ表示の仕組み — 全体ヘルプ vs コンテキストヘルプ</h2>
+
+    <p>UIM の Help 表示には2種類あり、動作が全く異なる。</p>
+
+    <table>
+      <tr>
+        <th>種別</th>
+        <th>起動方法</th>
+        <th>表示されるヘルプ</th>
+        <th>連結対象</th>
+      </tr>
+      <tr>
+        <td><strong>全体ヘルプ（Extended Help）</strong></td>
+        <td>コマンドライン（<code>===&gt;</code>）上で F1</td>
+        <td>PANEL の <code>HELP=</code> で指定したヘルプID</td>
+        <td>パネル上の全要素ヘルプが自動連結される</td>
+      </tr>
+      <tr>
+        <td><strong>コンテキストヘルプ</strong></td>
+        <td>特定フィールド／列にカーソルを置いて F1</td>
+        <td>そのフィールド・列・キーの <code>HELP=</code> で指定したヘルプID のみ</td>
+        <td>連結なし（そのIDのみ単独表示）</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-info">
+      <strong>ポイント</strong>
+      コマンドライン上で F1 を押したときだけ「全体ヘルプ」になる。
+      OPT 列にカーソルがある状態で F1 を押すと、<code>LISTCOL HELP='WRKMSPLF/HOPT'</code> の
+      コンテキストヘルプが表示される。
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section id="s2">
+    <h2>2. 全体ヘルプの自動連結順序</h2>
+
+    <p>
+      コマンドライン F1 で表示される全体ヘルプは、<strong>パネル定義の記述順</strong>に
+      各要素のヘルプが自動的に連結される。明示的な <code>:IMHELP.</code> を書かなくても
+      以下の順序でヘルプ本文が結合される。
+    </p>
+
+    <div class="flow">
+      <div class="flow-box">PANEL HELP='…/MAIN'</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">LISTCOL HELP='…/HOPT'<br><small>（OPT列）</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">LISTCOL HELP='…/HFIL'<br><small>（FIL列）</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">… 各列 …</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">KEYL HELP='…/KEYL'</div>
+    </div>
+
+    <table>
+      <tr>
+        <th>連結元タグ</th>
+        <th>連結されるヘルプID</th>
+        <th>備考</th>
+      </tr>
+      <tr>
+        <td><code>:PANEL HELP='…/MAIN'</code></td>
+        <td><code>WRKMSPLF/MAIN</code></td>
+        <td>パネルの本文ヘルプ（先頭）</td>
+      </tr>
+      <tr>
+        <td><code>:LISTCOL HELP='…/HOPT'</code></td>
+        <td><code>WRKMSPLF/HOPT</code></td>
+        <td>OPT列ヘルプが自動連結</td>
+      </tr>
+      <tr>
+        <td><code>:LISTCOL HELP='…/HFIL'</code> 〜 <code>HCPY</code></td>
+        <td>各列ヘルプ</td>
+        <td>LISTCOL 記述順に連結</td>
+      </tr>
+      <tr>
+        <td><code>:KEYL HELP='…/KEYL'</code></td>
+        <td><code>WRKMSPLF/KEYL</code></td>
+        <td>機能キー一覧ヘルプ（末尾）</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-warn">
+      <strong>注意</strong>
+      <code>:LISTACT HELP=</code> で指定した個別オプションヘルプ（OPT2〜OPT14）は、
+      全体ヘルプには<strong>自動連結されない</strong>。コンテキストヘルプ専用。
+    </div>
+  </section>
+
+  <!-- Section 3 -->
+  <section id="s3">
+    <h2>3. 見出しタグの正解 — :XH3. の使い方</h2>
+
+    <p>
+      全体ヘルプで「オプション」「列の説明」「機能キー」などを
+      <strong>高輝度（ハイライト）見出し</strong>として表示するには <code>:XH3.</code> タグを使う。
+    </p>
+
+    <h3>正しいタグ</h3>
+    <pre><code>:HELP NAME='WRKMSPLF/HOPT'.オプション (OPT) - ヘルプ
+:XH3.オプション
+:P.実行したい機能のオプション番号を入力してください。
+...</code></pre>
+
+    <h3>使えないタグ</h3>
+    <table>
+      <tr>
+        <th>タグ</th>
+        <th>結果</th>
+        <th>理由</th>
+      </tr>
+      <tr>
+        <td><code>:SL.</code></td>
+        <td><span class="lbl lbl-red">NG</span> コンパイルエラー <code>CPD5A8C</code></td>
+        <td>セクション見出しではなく単純リストタグ</td>
+      </tr>
+      <tr>
+        <td><code>:XH1.</code> / <code>:XH2.</code></td>
+        <td><span class="lbl lbl-red">NG</span> 使用不可（パネルグループの制約）</td>
+        <td>ヘルプの入れ子レベルが不正</td>
+      </tr>
+      <tr>
+        <td><code>:XH3.</code></td>
+        <td><span class="lbl lbl-green">OK</span> 高輝度見出しとして表示</td>
+        <td>HELP モジュール内で使える第3レベル見出し</td>
+      </tr>
+      <tr>
+        <td><code>:XH4.</code> 以降</td>
+        <td><span class="lbl lbl-blue">可</span> より低レベルの見出し</td>
+        <td>ネストしたセクションに使用可</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-ok">
+      <strong>覚え方</strong>
+      ヘルプテキスト内のセクション見出し = <strong><code>:XH3.</code></strong> 一択。
+      <code>WRKSPLF</code> など IBM 標準コマンドのパネルグループも同タグを使用している。
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section id="s4">
+    <h2>4. 重複表示の罠 — :IMHELP と LISTCOL の二重連結</h2>
+
+    <p>
+      最もハマりやすいのが <code>:IMHELP.</code> と <code>LISTCOL</code> の自動連結による
+      <strong>同一セクションの2回表示</strong>問題。
+    </p>
+
+    <h3>問題が発生するパターン</h3>
+    <pre><code>:HELP NAME='WRKMSPLF/MAIN'.
+:P.パネルの説明文 ...
+:IMHELP NAME='WRKMSPLF/HOPT'.   &lt;-- (A) 明示的に HOPT を埋め込む
+:XH3.列の説明
+...
+:EHELP.
+
+:LISTCOL VAR=OPT
+         HELP='WRKMSPLF/HOPT'.  &lt;-- (B) LISTCOL が HOPT を自動連結</code></pre>
+
+    <div class="flow">
+      <div class="flow-box">MAIN ヘルプ本文</div>
+      <div class="flow-arrow bad">→</div>
+      <div class="flow-box bad">HOPT（A: :IMHELP で挿入）</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">列の説明 セクション</div>
+      <div class="flow-arrow bad">→</div>
+      <div class="flow-box bad">HOPT（B: LISTCOL が自動連結）</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">KEYL</div>
+    </div>
+
+    <div class="alert alert-danger">
+      <strong>結果</strong>
+      全体ヘルプに「オプション」セクションが<strong>2回表示</strong>される。
+    </div>
+
+    <h3>正しい設計（:IMHELP を削除するだけで解決）</h3>
+    <pre><code>:HELP NAME='WRKMSPLF/MAIN'.
+:P.パネルの説明文 ...
+.*  :IMHELP NAME='WRKMSPLF/HOPT'. &lt;-- 削除！ LISTCOL が自動連結するので不要
+:XH3.列の説明
+...
+:EHELP.
+
+:LISTCOL VAR=OPT
+         HELP='WRKMSPLF/HOPT'.   &lt;-- これだけで HOPT が1回だけ連結される</code></pre>
+
+    <div class="flow">
+      <div class="flow-box good">MAIN ヘルプ本文</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box good">列の説明 セクション</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box good">HOPT（LISTCOL 自動連結 × 1回）</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box good">KEYL</div>
+    </div>
+
+    <div class="alert alert-ok">
+      <strong>原則</strong>
+      <code>:LISTCOL HELP=</code> / <code>:KEYL HELP=</code> が指定されていれば、
+      そのIDは全体ヘルプへ<strong>自動連結</strong>される。
+      <code>:IMHELP.</code> で同じIDを MAIN に書くのは<strong>二重連結</strong>になる。
+    </div>
+  </section>
+
+  <!-- Section 5 -->
+  <section id="s5">
+    <h2>5. 列ヘルプ・キーヘルプの正しい設計パターン</h2>
+
+    <p>
+      列ヘルプ（<code>HFIL</code>〜<code>HCPY</code>）と個別キーヘルプ（<code>KF1</code>〜<code>KPGUP</code>）は
+      <strong>タイトルのみ</strong>定義し、本文は集約先に1か所だけ書く。
+    </p>
+
+    <h3>列ヘルプの設計</h3>
+    <table>
+      <tr>
+        <th>ヘルプID</th>
+        <th>内容</th>
+        <th>本文</th>
+      </tr>
+      <tr>
+        <td><code>WRKMSPLF/HFIL</code></td>
+        <td>タイトルのみ「ファイル (FILE) - ヘルプ」</td>
+        <td><code>MAIN</code> の <code>:XH3.列の説明</code> <code>:PARML.</code> に集約</td>
+      </tr>
+      <tr>
+        <td><code>WRKMSPLF/HUSR</code></td>
+        <td>タイトルのみ「ユーザー (USER) - ヘルプ」</td>
+        <td>同上</td>
+      </tr>
+      <tr>
+        <td colspan="3"><em>… 以下同様 …</em></td>
+      </tr>
+    </table>
+
+    <pre><code>.*-- 列ヘルプはタイトルだけ。本文は MAIN に集約 --
+:HELP NAME='WRKMSPLF/HFIL'.ファイル (FILE) - ヘルプ
+:EHELP.
+:HELP NAME='WRKMSPLF/HUSR'.ユーザー (USER) - ヘルプ
+:EHELP.</code></pre>
+
+    <p>
+      列ヘルプにタイトルがあることで、コンテキストヘルプ（列にカーソルを置いて F1）で
+      「ファイル (FILE) - ヘルプ」というタイトルバーが表示される。本文は
+      全体ヘルプの <code>MAIN</code> 内 <code>:PARML.</code> から読む設計。
+    </p>
+
+    <h3>キーヘルプの設計</h3>
+    <pre><code>.*-- キーヘルプはタイトルだけ。本文は KEYL の :PARML. に集約 --
+:HELP NAME='WRKMSPLF/KF3'.F3=終了 - ヘルプ
+:EHELP.
+:HELP NAME='WRKMSPLF/KF4'.F4=プロンプト - ヘルプ
+:EHELP.</code></pre>
+
+    <h3>KEYL に全キー説明を集約</h3>
+    <pre><code>:HELP NAME='WRKMSPLF/KEYL'.機能キー
+:XH3.機能キー
+:PARML.
+:PT.F3=終了
+:PD.プログラムを終了し、呼び出し元の画面に戻ります。
+:PT.F4=プロンプト
+:PD.OPT 欄に入力したオプションのコマンドのプロンプト画面を表示します。
+...
+:EPARML.
+:EHELP.</code></pre>
+
+    <div class="alert alert-info">
+      <strong>なぜタイトルだけにするか</strong>
+      各列・各キーに本文を書くと、全体ヘルプで<strong>本文が重複</strong>する。
+      タイトルのみにすることでコンテキストヘルプのタイトルバーだけが変わり、
+      全体ヘルプでは集約先の本文が1回だけ表示される。
+    </div>
+  </section>
+
+  <!-- Section 6 -->
+  <section id="s6">
+    <h2>6. OPT 列 F1（コンテキストヘルプ）の設計</h2>
+
+    <p>
+      OPT 列にカーソルを置いて F1 を押したときは <code>LISTCOL HELP='WRKMSPLF/HOPT'</code>
+      のコンテキストヘルプが単独表示される。<code>HOPT</code> 自体に <code>:XH3.オプション</code>
+      と本文を持たせておくことで、コンテキスト・全体ヘルプの両方で正しく機能する。
+    </p>
+
+    <pre><code>:HELP NAME='WRKMSPLF/HOPT'.オプション (OPT) - ヘルプ
+:XH3.オプション
+:P.実行したい機能のオプション番号を入力してください。
+...
+:PARML.
+:PT.2= 変更
+:PD.スプール・ファイルの属性を変更します (CHGSPLFA)。
+...
+:EPARML.
+:EHELP.</code></pre>
+
+    <h3>個別オプションヘルプ（OPT2〜OPT14）</h3>
+    <p>
+      <code>:LISTACT HELP='WRKMSPLF/OPT2'</code> で参照される個別オプションヘルプは
+      <strong>タイトルのみ</strong>定義する。本文は <code>HOPT</code> の <code>:PARML.</code> に集約。
+    </p>
+
+    <pre><code>:HELP NAME='WRKMSPLF/OPT2'.2= 変更
+:EHELP.
+:HELP NAME='WRKMSPLF/OPT3'.3= 保留
+:EHELP.</code></pre>
+
+    <div class="alert alert-warn">
+      <strong>動作確認の注意</strong>
+      コマンドライン（<code>===&gt;</code>）にカーソルを置いてから F1 を押さないと
+      全体ヘルプにならない。OPT 列にカーソルがある状態で F1 を押すと
+      コンテキストヘルプ（HOPT）が表示される。
+    </div>
+  </section>
+
+  <!-- Section 7 -->
+  <section id="s7">
+    <h2>7. 推奨ソース構造テンプレート</h2>
+
+    <p>以下の順序でヘルプIDを定義するのが推奨パターン。</p>
+
+    <pre><code>:PNLGRP.
+.*-- クラス・変数・VARRCD・LISTDEF 定義 --
+.*-- KEYL 定義 --
+.*-- PANEL 定義（LISTACT, LISTCOL, LISTVIEW 含む）--
+:EPANEL.
+
+.*===================================================
+.*  ヘルプ本文
+.*===================================================
+.*
+.* (1) パネル全体ヘルプ + 列の説明セクション
+:HELP NAME='XXX/MAIN'.パネルタイトル (コマンド名) - ヘルプ
+:P.説明文 ...
+.*  ※ :IMHELP NAME='XXX/HOPT'. は書かない！ LISTCOL が自動連結
+:XH3.列の説明
+:PARML.
+:PT.列1見出し
+:PD.列1の説明 ...
+...
+:EPARML.
+:EHELP.
+
+.* (2) キー一覧ヘルプ（機能キーセクション見出し付き）
+:HELP NAME='XXX/KEYL'.機能キー
+:XH3.機能キー
+:PARML.
+:PT.F3=終了
+:PD.プログラムを終了します。
+...
+:EPARML.
+:EHELP.
+
+.* (3) OPT 列ヘルプ（オプションセクション見出し付き・本文含む）
+:HELP NAME='XXX/HOPT'.オプション (OPT) - ヘルプ
+:XH3.オプション
+:P.オプション番号を入力してください。
+:PARML.
+:PT.2= 変更
+:PD.説明 ...
+...
+:EPARML.
+:EHELP.
+
+.* (4) 各列ヘルプ（タイトルのみ・本文は MAIN に集約）
+:HELP NAME='XXX/HFIL'.ファイル (FILE) - ヘルプ
+:EHELP.
+:HELP NAME='XXX/HUSR'.ユーザー (USER) - ヘルプ
+:EHELP.
+.* ...（他の列）...
+
+.* (5) コマンドプロンプトヘルプ（HLPID=XXXC）
+:HELP NAME='XXXC'.コマンド名
+:P.コマンドの概要説明 ...
+:EHELP.
+:HELP NAME='XXXC/PARM1'.パラメーター名 - ヘルプ
+:P.パラメーターの説明 ...
+:EHELP.
+
+.* (6) 個別オプションヘルプ（タイトルのみ・本文は HOPT に集約）
+:HELP NAME='XXX/OPT2'.2= 変更
+:EHELP.
+:HELP NAME='XXX/OPT3'.3= 保留
+:EHELP.
+.* ...（他のオプション）...
+
+.* (7) 個別キーヘルプ（タイトルのみ・本文は KEYL に集約）
+:HELP NAME='XXX/KF1'.F1=ヘルプ - ヘルプ
+:EHELP.
+:HELP NAME='XXX/KF3'.F3=終了 - ヘルプ
+:EHELP.
+.* ...（他のキー）...
+
+:EPNLGRP.</code></pre>
+
+    <h3>ヘルプID 設計早見表</h3>
+    <table>
+      <tr>
+        <th>ヘルプID</th>
+        <th>本文</th>
+        <th>:XH3. 見出し</th>
+        <th>参照元タグ</th>
+      </tr>
+      <tr>
+        <td><code>XXX/MAIN</code></td>
+        <td>あり（パネル概要 + 列説明）</td>
+        <td><code>:XH3.列の説明</code></td>
+        <td><code>PANEL HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXX/KEYL</code></td>
+        <td>あり（全キー説明）</td>
+        <td><code>:XH3.機能キー</code></td>
+        <td><code>KEYL HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXX/HOPT</code></td>
+        <td>あり（全オプション説明）</td>
+        <td><code>:XH3.オプション</code></td>
+        <td><code>LISTCOL HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXX/HFIL</code> 〜 <code>HCPY</code></td>
+        <td>なし（タイトルのみ）</td>
+        <td>なし</td>
+        <td><code>LISTCOL HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXX/OPT2</code> 〜 <code>OPT14</code></td>
+        <td>なし（タイトルのみ）</td>
+        <td>なし</td>
+        <td><code>LISTACT HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXX/KF1</code> 〜 <code>KPGUP</code></td>
+        <td>なし（タイトルのみ）</td>
+        <td>なし</td>
+        <td><code>KEYI HELP=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXXC</code></td>
+        <td>あり（コマンドプロンプト概要）</td>
+        <td>なし</td>
+        <td>CMD の <code>HLPID=</code></td>
+      </tr>
+      <tr>
+        <td><code>XXXC/PARM</code></td>
+        <td>あり（パラメーター説明）</td>
+        <td>なし</td>
+        <td>CMD の <code>HLPPNLGRP=</code></td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- Section 8 -->
+  <section id="s8">
+    <h2>8. コンパイルと確認手順</h2>
+
+    <h3>コンパイルコマンド</h3>
+    <pre><code>QSYS/CRTPNLGRP PNLGRP(MAI/WRKMSPLF)
+               SRCFILE(MAIV300S/QPNLSRC)
+               SRCMBR(WRKMSPLF)
+               OPTION(*EVENTF)
+               AUT(*EXCLUDE)</code></pre>
+
+    <div class="alert alert-warn">
+      <strong>コンパイル前の必須手順</strong>
+      5250 画面で <code>WRKMSPLF</code>（パネルグループを使うプログラム）を開いている場合は
+      <strong>F3 で必ず終了</strong>してからコンパイルすること。
+      オブジェクトがロックされていると <code>CPF5C25</code>（オブジェクト使用中）エラーになる。
+    </div>
+
+    <h3>5250 での動作確認手順</h3>
+    <table>
+      <tr>
+        <th>確認項目</th>
+        <th>操作</th>
+        <th>期待結果</th>
+      </tr>
+      <tr>
+        <td>全体ヘルプ表示</td>
+        <td>コマンドライン（<code>===&gt;</code>）にカーソルを置き F1</td>
+        <td>パネルタイトル → 列の説明 → オプション → 機能キー の順に表示</td>
+      </tr>
+      <tr>
+        <td>見出し高輝度確認</td>
+        <td>全体ヘルプをスクロール</td>
+        <td>「列の説明」「オプション」「機能キー」が高輝度で1回ずつ表示</td>
+      </tr>
+      <tr>
+        <td>OPT コンテキストヘルプ</td>
+        <td>OPT 列にカーソルを置き F1</td>
+        <td>「オプション (OPT) - ヘルプ」タイトル＋オプション本文が表示</td>
+      </tr>
+      <tr>
+        <td>列コンテキストヘルプ</td>
+        <td>ファイル列などにカーソルを置き F1</td>
+        <td>「ファイル (FILE) - ヘルプ」タイトルが表示（本文は全体ヘルプで確認）</td>
+      </tr>
+      <tr>
+        <td>コマンドプロンプトヘルプ</td>
+        <td>コマンド行で <code>WRKMSPLF</code> と入力し F4 → F1</td>
+        <td><code>WRKMSPLFC</code> ヘルプが表示</td>
+      </tr>
+    </table>
+
+    <h3>コンパイル警告の見方</h3>
+    <table>
+      <tr>
+        <th>メッセージID</th>
+        <th>重大度</th>
+        <th>内容</th>
+        <th>対処</th>
+      </tr>
+      <tr>
+        <td><code>CPD5AD8</code></td>
+        <td>10（警告）</td>
+        <td>HELP タグのタイトルテキストが36桁超（切り捨てられる可能性）</td>
+        <td>無視可。日本語タイトルは36桁超になりがち</td>
+      </tr>
+      <tr>
+        <td><code>CPD5BCB</code></td>
+        <td>10（警告）</td>
+        <td>CCSID 変換エラー（システムメッセージ検索時）</td>
+        <td>無視可。日本語環境での既知警告</td>
+      </tr>
+      <tr>
+        <td><code>CPD5B80</code></td>
+        <td>00（通知）</td>
+        <td><code>DEPTH='*'</code> が具体的な行数に解決された</td>
+        <td>無視可</td>
+      </tr>
+      <tr>
+        <td><code>CPD5A8C</code></td>
+        <td>30（エラー）</td>
+        <td>タグ使用エラー（<code>:SL.</code> など不正タグ）</td>
+        <td>要修正。対象タグを <code>:XH3.</code> または正しいタグに変更</td>
+      </tr>
+      <tr>
+        <td><code>CPC5A01</code></td>
+        <td>—</td>
+        <td>パネルグループが正常に作成された</td>
+        <td>成功メッセージ</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- Section 9 -->
+  <section id="s9">
+    <h2>9. よくあるエラーと対処</h2>
+
+    <table>
+      <tr>
+        <th>症状</th>
+        <th>原因</th>
+        <th>対処</th>
+      </tr>
+      <tr>
+        <td>全体ヘルプで「オプション」が2回表示される</td>
+        <td><code>MAIN</code> に <code>:IMHELP NAME='…/HOPT'.</code> が残っている</td>
+        <td>その <code>:IMHELP</code> 行を削除する（<code>LISTCOL</code> が自動連結するため不要）</td>
+      </tr>
+      <tr>
+        <td>F1 で全体ヘルプではなくコンテキストヘルプが表示される</td>
+        <td>カーソルがコマンドライン以外（OPT 列など）にある</td>
+        <td>コマンドライン（<code>===&gt;</code>）にカーソルを置いてから F1</td>
+      </tr>
+      <tr>
+        <td>見出しが高輝度にならない（普通テキストで表示）</td>
+        <td><code>:SL.</code> や <code>:P.</code> など見出し以外のタグを使っている</td>
+        <td><code>:XH3.</code> タグに変更する</td>
+      </tr>
+      <tr>
+        <td><code>CPD5A8C</code> コンパイルエラー</td>
+        <td>HELP テキスト内で使用不可のタグ（<code>:SL.</code> 等）を使っている</td>
+        <td>対象行を確認し正しいタグ（<code>:XH3.</code> / <code>:PARML.</code> 等）に変更</td>
+      </tr>
+      <tr>
+        <td>コンパイルは通るがヘルプが表示されない</td>
+        <td>ヘルプIDの綴りが PANEL/LISTCOL/KEYL の <code>HELP=</code> と不一致</td>
+        <td>ヘルプID の大文字・スラッシュ区切りを完全一致させる</td>
+      </tr>
+      <tr>
+        <td><code>CPF5C25</code>（オブジェクト使用中）でコンパイル失敗</td>
+        <td>5250 画面でパネルグループを使うプログラムが開いている</td>
+        <td>F3 でプログラムを終了してからコンパイルする</td>
+      </tr>
+      <tr>
+        <td>SRCPF の行が 80 バイトで切れて内容が欠ける</td>
+        <td>QPNLSRC の SRCDTA 列は最大 80 バイト。日本語は 1 文字 2 バイト</td>
+        <td>1行あたり日本語約 40 文字以内に収める。続きは次の行に分割</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-info">
+      <strong>参考：WRKMSPLF.PNLGRP での実例</strong>
+      本ノウハウは MAI/400 プロジェクトの <code>MAIV300S/QPNLSRC/WRKMSPLF.PNLGRP</code>
+      開発時に検証・確認したもの。IBM i 7.5 (BLUENOTE)、QCCSID 5035 (Japanese EBCDIC) 環境。
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  MAI/400 Project &nbsp;|&nbsp; UIM パネルグループ ヘルプ定義 ノウハウ集
+  &nbsp;|&nbsp; IBM i 7.5 / QCCSID 5035 &nbsp;|&nbsp; 作成: 2026-09
+</footer>
+
+</body>
+</html>
