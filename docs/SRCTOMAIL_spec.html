@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プログラム仕様書 — SRCTOMAIL</title>
+  <style>
+    :root {
+      --primary:   #1a4a7a;
+      --accent:    #2e7fcf;
+      --bg-header: #eef4fb;
+      --bg-table:  #f9fbfd;
+      --border:    #c8d8ea;
+      --text:      #1e2630;
+      --mono:      "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo UI", "Yu Gothic UI", "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #f5f7fa;
+      padding: 24px;
+    }
+    /* ─── ヘッダーカード ─── */
+    .doc-header {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      padding: 20px 28px 16px;
+    }
+    .doc-header h1 { font-size: 22px; letter-spacing: .04em; }
+    .doc-header .subtitle { font-size: 13px; opacity: .8; margin-top: 4px; }
+
+    /* ─── メタ情報バー ─── */
+    .meta-bar {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .meta-bar dl {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
+      border-right: 1px solid var(--border);
+      min-width: 140px;
+    }
+    .meta-bar dl:last-child { border-right: none; }
+    .meta-bar dt { font-size: 11px; color: #6a7f96; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-bar dd { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 2px; }
+
+    /* ─── 本文 ─── */
+    .content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 28px 32px 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 28px 0 12px;
+    }
+    h3 {
+      font-size: 14px;
+      color: var(--primary);
+      margin: 18px 0 8px;
+      padding-left: 6px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 4px;
+    }
+    p { line-height: 1.75; margin-bottom: 8px; }
+    ul { padding-left: 20px; line-height: 1.9; }
+    li { margin-bottom: 2px; }
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #eef2f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #24476b;
+    }
+
+    /* ─── テーブル ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-table); }
+    tbody tr:hover { background: #dceeff; }
+    tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody td:first-child { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+    .req { color: #c0392b; font-weight: 700; }
+    .opt { color: #888; }
+
+    /* ─── バージョン履歴 ─── */
+    .version-table thead th { background: #3a5870; }
+
+    /* ─── フロー図 ─── */
+    .flowbox {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 3px 0;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+      margin-top: 2px;
+      min-width: 80px;
+      text-align: center;
+    }
+    .badge.err  { background: #c0392b; }
+    .badge.cond { background: #27ae60; }
+    .badge.loop { background: #8e44ad; }
+    .step-text  { line-height: 1.6; }
+    .indent1 { margin-left: 30px; }
+    .indent2 { margin-left: 60px; }
+    .arrow { color: var(--accent); font-size: 16px; margin: 0 4px; }
+
+    /* ─── 関数一覧 ─── */
+    .fn-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .fn-card {
+      background: var(--bg-table);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .fn-card .fn-sig {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .fn-card p { font-size: 12.5px; margin: 0; }
+
+    /* ─── メッセージ一覧 ─── */
+    .msg-id { font-family: var(--mono); font-weight: 700; }
+    .msg-info { color: #2980b9; }
+    .msg-warn { color: #e67e22; }
+    .msg-err  { color: #c0392b; }
+
+    /* ─── フッター ─── */
+    footer {
+      text-align: right;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<!-- =========================================================
+     ヘッダー
+     ========================================================= -->
+<div class="doc-header">
+  <h1>プログラム仕様書　SRCTOMAIL</h1>
+  <div class="subtitle">AS/400 ソースファイル → SMTP メール送信プログラム (ILE C)</div>
+</div>
+
+<div class="meta-bar">
+  <dl><dt>ライブラリ</dt><dd>MAIV300S</dd></dl>
+  <dl><dt>ソースファイル</dt><dd>QCSRC</dd></dl>
+  <dl><dt>メンバー</dt><dd>SRCTOMAIL.C</dd></dl>
+  <dl><dt>オブジェクトタイプ</dt><dd>*PGM</dd></dl>
+  <dl><dt>言語</dt><dd>ILE C</dd></dl>
+  <dl><dt>作成者</dt><dd>Y.Ide</dd></dl>
+  <dl><dt>作成日</dt><dd>2000/02/18</dd></dl>
+  <dl><dt>最終バージョン</dt><dd>03.01</dd></dl>
+</div>
+
+<!-- =========================================================
+     本文
+     ========================================================= -->
+<div class="content">
+
+  <!-- ─── 1. 機能概要 ─── -->
+  <h2>1. 機能概要</h2>
+  <p>
+    <strong>SRCTOMAIL</strong> は、IBM i (AS/400) の物理ソースファイルまたは通常の物理ファイルのメンバーを読み込み、
+    その内容をメール本文として SMTP プロトコルでメール送信する ILE C プログラムです。
+    SMTP サービスプログラム (<code>SMTPSRV / SMTPSRVS</code>) を内部で呼び出して実際の通信を行います。
+  </p>
+  <p>主な機能は以下のとおりです。</p>
+  <ul>
+    <li>ソースファイルメンバー / データファイルメンバーのメール本文送信</li>
+    <li>MIME マルチパートによる IFS ファイル添付</li>
+    <li>To / Cc / Bcc / Reply-To ヘッダー対応（各最大 300 件）</li>
+    <li>EBCDIC → JIS / Shift-JIS / EUC / ASCII 文字コード変換 (iconv)</li>
+    <li>カタカナ SBCS ↔ DBCS 変換オプション</li>
+    <li>SMTP 認証 (PLAIN / LOGIN) 対応</li>
+    <li>STARTTLS / SSL (GSKit DCM) による暗号化通信対応</li>
+    <li>送信アドレス検証、診断メッセージ通知</li>
+  </ul>
+
+  <!-- ─── 2. バージョン履歴 ─── -->
+  <h2>2. バージョン履歴</h2>
+  <table class="version-table">
+    <thead>
+      <tr><th>バージョン</th><th>内容</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>01.00</td><td>オリジナル作成</td></tr>
+      <tr><td>01.01</td><td>MIME バージョン対応</td></tr>
+      <tr><td>01.02</td><td>To: / Cc: / Bcc: / Reply-To: ヘッダー追加</td></tr>
+      <tr><td>01.03</td><td>カタカナ変換対応</td></tr>
+      <tr><td>01.04</td><td>バグ修正、<code>CnvToASC()</code> 追加</td></tr>
+      <tr><td>01.05</td><td>先頭 ESC (1B284A) 削除処理</td></tr>
+      <tr><td>02.00</td><td>サービスプログラム <code>SMTPSRV</code> 利用に変更</td></tr>
+      <tr><td>02.01</td><td>SO/SI をブランクに置換</td></tr>
+      <tr><td>02.02</td><td>Base64 FIX (iconv 対応)</td></tr>
+      <tr><td>02.03</td><td>CCSID 290 カタカナ変換バグ修正</td></tr>
+      <tr><td>02.04</td><td>SBCS/DBCS 変換対応</td></tr>
+      <tr><td>02.05</td><td><code>SMTPEtcWrite()</code> 追加</td></tr>
+      <tr><td>02.06</td><td>ピリオド処理追加</td></tr>
+      <tr><td>02.07</td><td>漢字ファイル名文字化け対応</td></tr>
+      <tr><td>02.08</td><td>例外ハンドラー追加</td></tr>
+      <tr><td>02.09</td><td>SMTP-AUTH (<code>SMTPSRVS</code>) 対応</td></tr>
+      <tr><td>02.10</td><td>SMTP 無変換オプション追加</td></tr>
+      <tr><td>02.11</td><td>PLAIN 認証 NULL バイト末尾処理修正</td></tr>
+      <tr><td>02.12</td><td><code>SMTPCrWrite</code> / <code>SMTPCommaWrite</code> 追加</td></tr>
+      <tr><td>02.13</td><td>受信者アドレス検証</td></tr>
+      <tr><td>02.14</td><td><code>setObjName</code> の戻り値を長さに変更</td></tr>
+      <tr><td>02.15</td><td>Message-ID にマイクロ秒を使用</td></tr>
+      <tr><td>02.16</td><td><code>DspEXTMSG</code> (DIAG + EXIT) 追加</td></tr>
+      <tr><td>02.17</td><td><code>SMTPValidAddr</code> 追加</td></tr>
+      <tr><td>02.30</td><td>SMTPS (STARTTLS/PORT 587) 対応</td></tr>
+      <tr><td>03.00</td><td>DCM API / SMTPS (STARTTLS) / SSL (PORT 465) 対応</td></tr>
+      <tr><td>03.01</td><td><code>MAI9899</code> *ESCAPE 受信時に <code>*INFO</code> メッセージを送信するよう変更</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 3. 呼び出し方法（コマンド） ─── -->
+  <h2>3. 呼び出し方法 — コマンド SRCTOMAIL</h2>
+  <p>
+    コマンド定義 <code>MAIV300S/QCMDSRC(SRCTOMAIL.CMD)</code> で定義されています。
+    プログラムは <code>MAI/SRCTOMAIL</code> として呼び出されます。
+  </p>
+
+  <h3>パラメーター一覧</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>キーワード</th>
+        <th>型 / 長さ</th>
+        <th>必須</th>
+        <th>既定値</th>
+        <th>説明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>TO</td>
+        <td>*CHAR(80) × 最大300</td>
+        <td class="req">必須</td>
+        <td>—</td>
+        <td>宛先メールアドレス。最大 300 件指定可。</td>
+      </tr>
+      <tr>
+        <td>SUBJECT</td>
+        <td>*CHAR(128)</td>
+        <td class="opt">省略可</td>
+        <td>（空）</td>
+        <td>メール件名（128 文字）。</td>
+      </tr>
+      <tr>
+        <td>FILE</td>
+        <td>修飾名 (FILE/LIB)</td>
+        <td class="req">必須</td>
+        <td>—</td>
+        <td>送信するメンバーが格納されたファイル名（ライブラリ修飾可）。</td>
+      </tr>
+      <tr>
+        <td>MBR</td>
+        <td>*NAME(10)</td>
+        <td class="opt">省略可</td>
+        <td>*FIRST</td>
+        <td>送信するメンバー名。省略時は最初のメンバー。</td>
+      </tr>
+      <tr>
+        <td>FROMCCSID</td>
+        <td>*CHAR(5)</td>
+        <td class="opt">省略可</td>
+        <td>5035</td>
+        <td>入力ファイルの文字コード (CCSID)。</td>
+      </tr>
+      <tr>
+        <td>TOCCSID</td>
+        <td>*CHAR(5)</td>
+        <td class="opt">省略可</td>
+        <td>*JIS (5054)</td>
+        <td>メール本文の出力文字コード。<br>
+          特殊値: <code>*JIS</code>(5054) / <code>*SJIS</code>(932) / <code>*CP943</code>(943) / <code>*EUC</code>(5050)</td>
+      </tr>
+      <tr>
+        <td>KATAKANA</td>
+        <td>*CHAR(5) 制限値</td>
+        <td class="opt">省略可</td>
+        <td>*DBCS</td>
+        <td>カタカナの取り扱い。<code>*DBCS</code>: DBCS として扱う / <code>*NONE</code>: 変換しない。</td>
+      </tr>
+      <tr>
+        <td>SFTBLANK</td>
+        <td>*INT4</td>
+        <td class="opt">省略可</td>
+        <td>*YES (1)</td>
+        <td>シフト文字 (SO/SI) をスペースに置換するか。<code>*YES</code> / <code>*NO</code>。</td>
+      </tr>
+      <tr>
+        <td>NOCNV</td>
+        <td>*INT4</td>
+        <td class="opt">省略可</td>
+        <td>*NO (0)</td>
+        <td>文字コード変換を行わずに送信する場合 <code>*YES</code>。</td>
+      </tr>
+      <tr>
+        <td>DEBUG</td>
+        <td>*INT4</td>
+        <td class="opt">省略可</td>
+        <td>*NO (0)</td>
+        <td>デバッグログ出力。<code>*YES</code> で SMTP 通信ログを出力。</td>
+      </tr>
+      <tr>
+        <td>FROM</td>
+        <td>*CHAR(80)</td>
+        <td class="req">必須</td>
+        <td>—</td>
+        <td>送信元メールアドレス。</td>
+      </tr>
+      <tr>
+        <td>SERVER</td>
+        <td>*CHAR(60)</td>
+        <td class="req">必須</td>
+        <td>—</td>
+        <td>SMTP サーバーのホスト名または IP アドレス。</td>
+      </tr>
+      <tr>
+        <td>SMTPPORT</td>
+        <td>*INT4</td>
+        <td class="opt">省略可</td>
+        <td>25 (*SMTP)</td>
+        <td>SMTP ポート番号。<code>*SMTP</code>(25) / <code>*SMTPS</code>(587) / <code>*SSL</code>(465)。</td>
+      </tr>
+      <tr>
+        <td>SMTPUSR</td>
+        <td>*CHAR(50)</td>
+        <td class="opt">省略可</td>
+        <td>*NONE</td>
+        <td>SMTP 認証ユーザー名。<code>*NONE</code> で認証なし。</td>
+      </tr>
+      <tr>
+        <td>SMTPPWD</td>
+        <td>*CHAR(50)</td>
+        <td class="opt">省略可</td>
+        <td>—</td>
+        <td>SMTP 認証パスワード（入力非表示）。</td>
+      </tr>
+      <tr>
+        <td>SSL</td>
+        <td>*INT4</td>
+        <td class="opt">省略可</td>
+        <td>*NO (0)</td>
+        <td>SSL/TLS (GSKit) を使用するか。<code>*YES</code> で DCM アプリケーション ID を登録。</td>
+      </tr>
+      <tr>
+        <td>GSKAPPID</td>
+        <td>*CHAR(50)</td>
+        <td class="opt">省略可</td>
+        <td>MAI_SMTPS_CLIENT</td>
+        <td>GSKit DCM アプリケーション ID。SSL=*YES の場合に使用。</td>
+      </tr>
+      <tr>
+        <td>ATTACH</td>
+        <td>*PNAME(512) × 最大300</td>
+        <td class="opt">省略可</td>
+        <td>—</td>
+        <td>IFS 添付ファイルのパス名。最大 300 件指定可。</td>
+      </tr>
+      <tr>
+        <td>CC</td>
+        <td>*CHAR(80) × 最大300</td>
+        <td class="opt">省略可</td>
+        <td>—</td>
+        <td>CC 宛先アドレス。最大 300 件（追加プロンプト表示）。</td>
+      </tr>
+      <tr>
+        <td>BCC</td>
+        <td>*CHAR(80) × 最大300</td>
+        <td class="opt">省略可</td>
+        <td>—</td>
+        <td>BCC 宛先アドレス。最大 300 件（追加プロンプト表示）。</td>
+      </tr>
+      <tr>
+        <td>REPLYTO</td>
+        <td>*CHAR(80)</td>
+        <td class="opt">省略可</td>
+        <td>—</td>
+        <td>Reply-To アドレス（追加プロンプト表示）。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 4. 処理フロー ─── -->
+  <h2>4. 処理フロー</h2>
+  <div class="flowbox">
+    <div class="step"><span class="badge">START</span><span class="step-text"><strong>main()</strong> 開始</span></div>
+    <div class="step indent1"><span class="badge">PARAM</span><span class="step-text">argv[] からパラメーター取得・グローバル変数へ格納</span></div>
+
+    <div class="step indent1"><span class="badge">INFO</span><span class="step-text"><code>#pragma exception_handler</code> で <code>MAI9899</code> *ESCAPE のみをハンドル登録</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>SSL &gt; 0</code> → <code>SMTPRegDCM(GSKAPPID, SMTPPort)</code> で DCM 登録<br>
+      失敗時: <strong>STM1000</strong> (*ESCAPE) メッセージ送信 → 終了</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>EdtName()</code> でライブラリ修飾ファイル名を組み立て → <code>infile</code> にセット</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>_Ropen(infile, "rr")</code> で入力ファイルをオープン<br>
+      失敗時: <strong>STM1010</strong> (*ESCAPE) → 終了</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>_Ropnfbk()</code> でオープンフィードバック取得 — レコード件数・レコード長・ソースファイル判定</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text">レコード件数 = 0 → <strong>STM1020</strong> (*ESCAPE) → 終了</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPSetDebug()</code> / <code>SMTPSetSftSp()</code> / <code>SMTPSetConvert()</code> で各種オプション設定</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPOpen(SERVER, SMTPPort)</code> で SMTP 接続確立</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPFrom()</code> / <code>SMTPFromNoConvert()</code> で送信元設定</span></div>
+
+    <div class="step indent1"><span class="badge loop">LOOP</span><span class="step-text">TO アドレスを順に処理 (<code>SMTPValidAddr</code> → <code>SMTPRcpt</code> / 無効なら <strong>STM1030</strong> *DIAG)</span></div>
+    <div class="step indent1"><span class="badge loop">LOOP</span><span class="step-text">CC アドレスを順に処理（同上）</span></div>
+    <div class="step indent1"><span class="badge loop">LOOP</span><span class="step-text">BCC アドレスを順に処理（同上）</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPDate()</code> / <code>SMTPSubj()</code> / <code>SMTPOther("Reply-To:", ...)</code> / <code>SMTPMsgID()</code> でメールヘッダー生成</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text">ATTACH 指定あり → <code>SMTPMIME("multipart/mixed")</code> / なし → <code>SMTPMIME("text/plain")</code></span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPBody()</code> でボディ部開始</span></div>
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text">ATTACH あり → <code>SMTPMpartText()</code> でマルチパートテキスト境界出力</span></div>
+
+    <div class="step indent1"><span class="badge">INFO</span><span class="step-text"><strong>STM1040</strong> (*STATUS) — "送信予定は&amp;1レコード長&amp;2件です" を表示</span></div>
+
+    <div class="step indent1"><span class="badge loop">LOOP</span><span class="step-text">全レコードを順次読み込み (<code>_Rreadn</code>):<br>
+      ソースファイルの場合は先頭 12 バイト（シーケンス番号+日付）をスキップして <code>SMTPWrite()</code> に渡す</span></div>
+
+    <div class="step indent1"><span class="badge loop">LOOP</span><span class="step-text">ATTACH ファイル処理:<br>
+      <code>setObjName()</code> でファイル名抽出 → <code>SMTPMpartAttach()</code> で添付<br>
+      名前が空 → <strong>STM1050</strong> (*STATUS) 通知<br>
+      添付エラー → <strong>STM1060</strong> (*DIAG + EXIT)</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text">ATTACH あり → <code>SMTPMpartClose()</code> でマルチパート境界クローズ</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>SMTPUSR == "*NONE"</code> → <code>SMTPSend()</code> / それ以外 → <code>SMTPSendAuth(USR,PWD,SSL,APPID)</code> で送信</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>SMTPClose()</code> / <code>_Rclose(fp)</code> でリソース解放</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>mai9899_caught == 1</code> → <code>DspINFOMSG_ID("MAI9899")</code> で *INFO メッセージを送信 (v3.01)</span></div>
+
+    <div class="step"><span class="badge err">END</span><span class="step-text">正常終了</span></div>
+  </div>
+
+  <!-- ─── 5. グローバル変数 ─── -->
+  <h2>5. グローバル変数</h2>
+  <table>
+    <thead>
+      <tr><th>変数名</th><th>型 / サイズ</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PTOn</td><td>short int</td><td>TO アドレス件数</td></tr>
+      <tr><td>PTO[300][80]</td><td>char</td><td>TO アドレス配列（最大 300 件 × 80 文字）</td></tr>
+      <tr><td>PFROM[81]</td><td>char</td><td>送信元メールアドレス</td></tr>
+      <tr><td>PSERVER[61]</td><td>char</td><td>SMTP サーバーホスト名</td></tr>
+      <tr><td>PFILE[20]</td><td>char</td><td>入力ファイル名（修飾名 20 文字）</td></tr>
+      <tr><td>PMBR[11]</td><td>char</td><td>入力メンバー名</td></tr>
+      <tr><td>PSUBJECT[129]</td><td>char</td><td>メール件名</td></tr>
+      <tr><td>PFROMCCSID[6]</td><td>char</td><td>入力 CCSID 文字列</td></tr>
+      <tr><td>PTOCCSID[6]</td><td>char</td><td>出力 CCSID 文字列</td></tr>
+      <tr><td>PKATAKANA[6]</td><td>char</td><td>カタカナ変換オプション文字列</td></tr>
+      <tr><td>PATTACHn</td><td>short int</td><td>添付ファイル件数</td></tr>
+      <tr><td>PATTACH[300][512]</td><td>char</td><td>添付ファイル IFS パス配列</td></tr>
+      <tr><td>PCCn</td><td>short int</td><td>CC アドレス件数</td></tr>
+      <tr><td>PCC[300][80]</td><td>char</td><td>CC アドレス配列</td></tr>
+      <tr><td>PBCCn</td><td>short int</td><td>BCC アドレス件数</td></tr>
+      <tr><td>PBCC[300][80]</td><td>char</td><td>BCC アドレス配列</td></tr>
+      <tr><td>PREPLYTO[81]</td><td>char</td><td>Reply-To アドレス</td></tr>
+      <tr><td>PDEBUG</td><td>int</td><td>デバッグフラグ (0/1)</td></tr>
+      <tr><td>PSFTBLANK</td><td>int</td><td>SO/SI ブランク置換フラグ (0/1)</td></tr>
+      <tr><td>PSMTPPort</td><td>int</td><td>SMTP ポート番号</td></tr>
+      <tr><td>PSMTPAuthUsr[51]</td><td>char</td><td>SMTP 認証ユーザー名</td></tr>
+      <tr><td>PSMTPAuthPwd[51]</td><td>char</td><td>SMTP 認証パスワード</td></tr>
+      <tr><td>PSSL</td><td>int</td><td>SSL/TLS フラグ (0/1)</td></tr>
+      <tr><td>PNOCNV</td><td>int</td><td>文字コード変換スキップフラグ (0/1)</td></tr>
+      <tr><td>PGSKAPPID[51]</td><td>char</td><td>GSKit DCM アプリケーション ID</td></tr>
+      <tr><td>fp</td><td>_RFILE *</td><td>入力ファイルポインター</td></tr>
+      <tr><td>opfb</td><td>_XXOPFB_T *</td><td>オープンフィードバック構造体ポインター</td></tr>
+      <tr><td>num_rec</td><td>int</td><td>ファイルのレコード件数</td></tr>
+      <tr><td>len_rec</td><td>short</td><td>レコード長</td></tr>
+      <tr><td>isSRCF</td><td>char</td><td>ソースファイル判定フラグ ('Y' / 'N')</td></tr>
+      <tr><td>isSSL</td><td>int</td><td>SSL 使用フラグ（作業用）</td></tr>
+      <tr><td>isSMTPS</td><td>int</td><td>STARTTLS (SMTPS) 使用フラグ（作業用）</td></tr>
+      <tr><td>rec</td><td>int</td><td>レコード読み込みループカウンター</td></tr>
+      <tr><td>infile[35]</td><td>char</td><td>_Ropen 用修飾ファイル名作業領域 (LIB/FILE(MBR) 形式)</td></tr>
+      <tr><td>rc</td><td>int</td><td>汎用戻り値作業領域</td></tr>
+      <tr><td>debugsw</td><td>int</td><td>デバッグスイッチ作業変数</td></tr>
+      <tr><td>mai9899_caught</td><td>int</td><td>MAI9899 例外捕捉フラグ (0/1)。ハンドラーが呼ばれると 1 になる。(v3.01)</td></tr>
+      <tr><td>buf[32767]</td><td>char</td><td>レコード読み込みバッファー</td></tr>
+      <tr><td>ifsname[513]</td><td>char</td><td>添付ファイル IFS パス作業領域</td></tr>
+      <tr><td>objname[513]</td><td>char</td><td>添付ファイルの実ファイル名作業領域</td></tr>
+      <tr><td>fccsid / tccsid</td><td>int</td><td>変換元 / 変換先 CCSID (整数)</td></tr>
+      <tr><td>kana</td><td>int</td><td>カタカナ変換フラグ (0/1)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 6. 内部関数 ─── -->
+  <h2>6. 内部関数</h2>
+  <div class="fn-list">
+
+    <div class="fn-card">
+      <div class="fn-sig">main(int argc, char *argv[])</div>
+      <p>プログラムのエントリーポイント。パラメーター受け取りから SMTP 送信完了までの一連の処理を制御する。</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">int setObjName(void)</div>
+      <p>グローバル変数 <code>ifsname</code> から IFS パスの最後のパスコンポーネント（ファイル名）を取り出し、<code>objname</code> にセットする。<br>
+      戻り値: ファイル名の長さ（0 のときはファイル名が空）。(v2.14 追加)</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">int EdtName(char *lib, char *fil, char *mbr, char *name)</div>
+      <p>ライブラリ名・ファイル名・メンバー名を結合して、<code>_Ropen</code> で使用できる <code>LIB/FILE(MBR)</code> 形式の文字列を生成する。<br>
+      EBCDIC のブランク (<code>0x40</code>) と特殊値 <code>*</code> を考慮して整形する。<br>
+      戻り値: 生成した文字列の長さ。</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void DspSTSMSG_ID(char *msgid, void *msgdata, int msgdata_len)</div>
+      <p><code>MAIMSG</code> メッセージファイルのメッセージを <code>*STATUS</code> として <code>*EXT</code> キューに送信する。デバッグモード時は <code>*DIAG</code> にも送信する。</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void DspDIAGMSG_ID(char *msgid, void *msgdata, int msgdata_len)</div>
+      <p>メッセージを <code>*DIAG</code> として送信する。処理は継続する。</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void DspESCMSG_ID(char *msgid, void *msgdata, int msgdata_len)</div>
+      <p>ファイルをクローズしてからメッセージを <code>*ESCAPE</code> として送信し、<code>exit(0)</code> でプログラムを終了する。</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void DspEXTMSG_ID(char *msgid, void *msgdata, int msgdata_len)</div>
+      <p>ファイルをクローズしてから診断メッセージ (<code>*DIAG</code>) を送信し、<code>exit(0)</code> で終了する。添付ファイルエラー時に使用。(v2.16 追加)</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void DspINFOMSG_ID(char *msgid, void *msgdata, int msgdata_len)</div>
+      <p>メッセージを <code>*INFO</code> として <code>*EXT</code> キューに送信する。例外ハンドラーや送信完了後の通知に使用。(v3.01 追加)</p>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-sig">void _handler(void)</div>
+      <p>例外ハンドラー。<code>#pragma exception_handler</code> で <code>MAI9899</code> *ESCAPE のみをハンドルするために登録。<code>mai9899_caught</code> フラグを 1 にセットして <code>DspINFOMSG_ID("MAI9899")</code> を呼び出す。(v3.01 変更)</p>
+    </div>
+
+  </div>
+
+  <!-- ─── 7. 使用する外部関数（SMTPサービスプログラム） ─── -->
+  <h2>7. 使用する外部関数 — SMTP サービスプログラム (<code>SMTP.H</code>)</h2>
+  <table>
+    <thead>
+      <tr><th>関数名</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SMTPRegDCM(appid, port)</td><td>GSKit DCM アプリケーション ID を SSL ポートに登録する。(v03.00)</td></tr>
+      <tr><td>SMTPSetDebug(flag)</td><td>デバッグモードを設定する。</td></tr>
+      <tr><td>SMTPSetSftSp(flag)</td><td>SO/SI (シフト文字) をスペースに置換するか設定する。</td></tr>
+      <tr><td>SMTPSetConvert(from, to, kana)</td><td>EBCDIC → 指定 CCSID への文字コード変換を設定する。</td></tr>
+      <tr><td>SMTPOpen(server, port)</td><td>SMTP サーバーへの接続を確立する。</td></tr>
+      <tr><td>SMTPFrom(from) / SMTPFromNoConvert(from)</td><td>送信元 (MAIL FROM) を設定する。後者は変換なし。</td></tr>
+      <tr><td>SMTPRcpt(prefix, addr) / SMTPRcptNoConvert(prefix, addr)</td><td>受信者 (RCPT TO) を追加し、ヘッダー行を生成する。</td></tr>
+      <tr><td>SMTPValidAddr(addr)</td><td>メールアドレスの書式検証を行う。正常: >0 / 不正: ≤0。</td></tr>
+      <tr><td>SMTPDate()</td><td>Date: ヘッダーを生成する。</td></tr>
+      <tr><td>SMTPSubj(subject)</td><td>Subject: ヘッダーを MIME エンコードして生成する。</td></tr>
+      <tr><td>SMTPOther(key, value)</td><td>任意のメールヘッダーフィールドを追加する。</td></tr>
+      <tr><td>SMTPMsgID()</td><td>Message-ID: ヘッダーを生成する（マイクロ秒を使用）。</td></tr>
+      <tr><td>SMTPMIME(type)</td><td>MIME Content-Type を設定する。</td></tr>
+      <tr><td>SMTPBody()</td><td>ヘッダーとボディの区切り (空行) を出力する。</td></tr>
+      <tr><td>SMTPMpartText()</td><td>マルチパートのテキストパート境界を出力する。</td></tr>
+      <tr><td>SMTPMpartAttach(path, ctype, name, dispname)</td><td>IFS ファイルを Base64 エンコードして添付パートに追加する。</td></tr>
+      <tr><td>SMTPMpartClose()</td><td>マルチパートの終了境界を出力する。</td></tr>
+      <tr><td>SMTPWrite(buf)</td><td>ボディの 1 行を書き込む。</td></tr>
+      <tr><td>SMTPCrWrite()</td><td>メールヘッダーに改行を書き込む。</td></tr>
+      <tr><td>SMTPCommaWrite()</td><td>メールヘッダーにカンマ区切りを書き込む。</td></tr>
+      <tr><td>SMTPSend()</td><td>認証なしで SMTP DATA を送信する。</td></tr>
+      <tr><td>SMTPSendAuth(usr, pwd, ssl, appid)</td><td>SMTP AUTH (PLAIN/LOGIN) で認証後に送信する。</td></tr>
+      <tr><td>SMTPClose()</td><td>SMTP 接続をクローズする。</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 8. システム API ─── -->
+  <h2>8. 使用するシステム API / 標準ライブラリ</h2>
+  <table>
+    <thead>
+      <tr><th>API / 関数</th><th>ヘッダー</th><th>用途</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>QMHSNDPM</td><td>QSYSINC/H/QMHSNDPM</td><td>プログラムメッセージ送信 (STATUS/DIAG/ESCAPE)</td></tr>
+      <tr><td>_Ropen / _Rclose / _Rreadn</td><td>recio.h</td><td>レコード I/O ファイルのオープン・クローズ・読み込み</td></tr>
+      <tr><td>_Ropnfbk</td><td>recio.h</td><td>オープンフィードバック情報の取得</td></tr>
+      <tr><td>memcpy / memset / strlen / strncmp / atoi</td><td>string.h / stdlib.h</td><td>文字列・メモリ操作</td></tr>
+      <tr><td>#pragma exception_handler</td><td>except.h</td><td>例外ハンドラーの登録 (CPF9898 *ESCAPE)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 9. メッセージ一覧 ─── -->
+  <h2>9. メッセージ一覧 (メッセージファイル: MAIMSG)</h2>
+  <table>
+    <thead>
+      <tr><th>メッセージ ID</th><th>種別</th><th>内容</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="msg-id">STM1000</td>
+        <td><span class="msg-err">*ESCAPE</span></td>
+        <td>DCM アプリケーション ID の登録に失敗しました。（置換変数: &amp;1 = アプリケーション ID）</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1010</td>
+        <td><span class="msg-err">*ESCAPE</span></td>
+        <td>入力ファイルがオープンできません。</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1020</td>
+        <td><span class="msg-err">*ESCAPE</span></td>
+        <td>レコード件数が 0 件です。</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1030</td>
+        <td><span class="msg-warn">*DIAG</span></td>
+        <td>送信できないアドレスです。（置換変数: &amp;1 = アドレス文字列）</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1040</td>
+        <td><span class="msg-info">*STATUS</span></td>
+        <td>送信予定は &amp;1 レコード長 &amp;2 件です。（置換変数: BIN4 × 2 = レコード長・件数）</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1050</td>
+        <td><span class="msg-info">*STATUS</span></td>
+        <td>添付ファイル名がブランクです。</td>
+      </tr>
+      <tr>
+        <td class="msg-id">STM1060</td>
+        <td><span class="msg-warn">*DIAG + EXIT</span></td>
+        <td>添付ファイルの処理でエラーが発生しました。</td>
+      </tr>
+      <tr>
+        <td class="msg-id">MAI9899</td>
+        <td><span class="msg-info">*INFO</span></td>
+        <td>例外ハンドラー (<code>_handler</code>) で捕捉されたことを示す情報メッセージ。送信完了後にも再送信される。(v3.01)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 10. 定数定義 ─── -->
+  <h2>10. 定数定義 (SMTP.H)</h2>
+  <table>
+    <thead>
+      <tr><th>定数名</th><th>値</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>C5026</td><td>5026</td><td>EBCDIC CCSID 5026 (カタカナ混在)</td></tr>
+      <tr><td>C5035</td><td>5035</td><td>EBCDIC CCSID 5035 (日本語)</td></tr>
+      <tr><td>JIS</td><td>5054</td><td>JIS (ISO-2022-JP)</td></tr>
+      <tr><td>SJIS</td><td>932</td><td>Shift-JIS</td></tr>
+      <tr><td>CP943</td><td>943</td><td>CP943 (IBM 拡張 Shift-JIS)</td></tr>
+      <tr><td>ASCII</td><td>819</td><td>ISO 8859-1 (Latin-1)</td></tr>
+      <tr><td>TRUE / FALSE</td><td>1 / 0</td><td>論理値</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 11. エラー処理方針 ─── -->
+  <h2>11. エラー処理方針</h2>
+  <ul>
+    <li><strong>致命的エラー</strong>（ファイルオープン失敗・DCM 登録失敗・レコード 0 件）は <code>DspESCMSG_ID</code> により <code>*ESCAPE</code> メッセージを送信してプログラムを終了する。</li>
+    <li><strong>添付ファイルエラー</strong>は <code>DspEXTMSG_ID</code> により <code>*DIAG</code> を送信し <code>exit(0)</code> で終了する（呼び出し元ジョブには *ESCAPE は発生しない）。</li>
+    <li><strong>不正なメールアドレス</strong>は <code>DspDIAGMSG_ID</code> により診断メッセージを通知し、そのアドレスをスキップして処理を継続する。</li>
+    <li><code>#pragma exception_handler</code> により <code>CPF9898 *ESCAPE</code> をハンドルする。ハンドラー <code>_handler()</code> は何もせず return する。</li>
+  </ul>
+
+  <!-- ─── 12. 関連オブジェクト ─── -->
+  <h2>12. 関連オブジェクト</h2>
+  <table>
+    <thead>
+      <tr><th>オブジェクト</th><th>ライブラリ</th><th>種類</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SRCTOMAIL</td><td>MAI</td><td>*PGM (CLE)</td><td>SMTP MAIL SENDER SRCF =&gt; MAIL V3.00（ILE C プログラム）</td></tr>
+      <tr><td>SRCTOMAIL</td><td>MAI</td><td>*CMD</td><td>SRCF TO SMTP MAIL COMMAND V3</td></tr>
+      <tr><td>SRCTOMAIL</td><td>MAI</td><td>*PNLGRP</td><td>SRCTOMAILコマンドのヘルプパネルグループ</td></tr>
+      <tr><td>SMTPSRVS</td><td>MAI</td><td>*SRVPGM (CLE)</td><td>SMTP SERVICE PROGRAM（ILE C サービスプログラム）</td></tr>
+      <tr><td>MAIMSG</td><td>*LIBL</td><td>*MSGF</td><td>メッセージファイル (STMxxxx / MAI9899)</td></tr>
+      <tr><td>SMTP.H (H/SMTP)</td><td>MAIV300S</td><td>*SRCMBR</td><td>SMTP 関数プロトタイプ定義ヘッダー（拡張子 .C だが内容はヘッダー）</td></tr>
+      <tr><td>SRCTOMAIL.C</td><td>MAIV300S/QCSRC</td><td>*SRCMBR</td><td>SRCTOMAIL プログラム本体ソース</td></tr>
+      <tr><td>SRCTOMAIL.CMD</td><td>MAIV300S/QCMDSRC</td><td>*SRCMBR</td><td>コマンド定義ソース</td></tr>
+      <tr><td>SRCTOMAIL.PNLGRP</td><td>MAIV300S/QHLPSRC</td><td>*SRCMBR</td><td>コマンドヘルプパネルグループソース</td></tr>
+      <tr><td>MSRCTOMAIL.CLP</td><td>MAIV300S/QMAKESRC</td><td>*SRCMBR</td><td>SRCTOMAIL フルビルド手順 (MAKE-CLP)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 13. ビルド手順 ─── -->
+  <h2>13. ビルド手順 (MSRCTOMAIL.CLP)</h2>
+  <table>
+    <thead>
+      <tr><th>ステップ</th><th>コマンド</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>CRTCMOD MODULE(*CURLIB/SMTPSRVS)</code></td><td>SMTPSRVS ILE C モジュール作成 (QCSRC)</td></tr>
+      <tr><td>2</td><td><code>CRTCMOD MODULE(SRCTOMAIL)</code></td><td>SRCTOMAIL ILE C モジュール作成 (QCSRC)</td></tr>
+      <tr><td>3</td><td><code>CRTSRVPGM SRVPGM(MAI/SMTPSRVS)</code></td><td>SMTPSRVS サービスプログラム作成 (QSRVSRC)</td></tr>
+      <tr><td>4</td><td><code>CRTPGM PGM(MAI/SRCTOMAIL)</code></td><td>SRCTOMAIL プログラム作成・SMTPSRVS をバインド</td></tr>
+      <tr><td>5</td><td><code>CRTPNLGRP PNLGRP(MAI/SRCTOMAIL)</code></td><td>ヘルプパネルグループ作成 (QHLPSRC)</td></tr>
+      <tr><td>6</td><td><code>CRTCMD CMD(MAI/SRCTOMAIL)</code></td><td>コマンド作成 (QCMDSRC)・MAIMSG をプロンプトファイルに使用</td></tr>
+      <tr><td>7</td><td><code>CHGOBJOWN NEWOWN(QPGMR)</code></td><td>PGM / SRVPGM / CMD / PNLGRP のオーナーを QPGMR に変更</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 14. 特記事項 ─── -->
+  <h2>14. 特記事項</h2>
+  <ul>
+    <li>ソースファイルメンバーを読み込む場合、先頭 12 バイト（シーケンス番号 6 + 日付 6）はスキップしてメール本文に含める。</li>
+    <li>IFS 添付ファイルのファイル名は、<code>setObjName()</code> 内で IFS パスの最後の <code>/</code> 以降の文字列を取り出すことで決定する。漢字ファイル名も対応 (v2.07)。</li>
+    <li>SMTP ポート 465 (SSL) を使用する場合、<code>SMTPRegDCM</code> で GSKit DCM アプリケーション ID を登録してから接続する。</li>
+    <li>SMTP 認証 (<code>SMTPUSR != *NONE</code>) の場合は <code>SMTPSendAuth</code> を呼び出す。</li>
+    <li>TO / CC / BCC の最初のアドレスには <code>"To: " / "Cc: " / "Bcc:"</code> プレフィックスを付与し、2 件目以降は 4 スペースのインデントで継続行として出力する。</li>
+    <li>バッファーサイズは最大 32,767 バイト（<code>buf[32767]</code>）であり、32,767 バイトを超えるレコード長には対応していない。</li>
+    <li><code>#pragma exception_handler</code> は <code>MAI9899</code> *ESCAPE のみをハンドル対象とする（第5・第6引数で限定）。捕捉後は <code>mai9899_caught</code> フラグをセットし、<code>main()</code> 末尾で <code>DspINFOMSG_ID("MAI9899")</code> を再送信する。(v3.01)</li>
+    <li>すべての本番オブジェクト (PGM / SRVPGM / CMD / PNLGRP) は <code>MAI</code> ライブラリに配置し、オーナーは <code>QPGMR</code> に変更する。</li>
+  </ul>
+
+</div>
+
+<footer>
+  プログラム仕様書 SRCTOMAIL — 生成日: <script>document.write(new Date().toLocaleDateString('ja-JP'));</script> &nbsp;|&nbsp; MAI400 プロジェクト / MAIV300S ライブラリ
+</footer>
+
+</body>
+</html>

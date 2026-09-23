@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMTPSRVS — SMTP サービスプログラム 説明書</title>
+  <style>
+    :root {
+      --primary:   #1a4a8a;
+      --accent:    #2e7dd1;
+      --bg:        #f4f7fc;
+      --card-bg:   #ffffff;
+      --border:    #d0dce8;
+      --text:      #1e2d3d;
+      --code-bg:   #eaf0f8;
+      --tag-green: #1b7f4f;
+      --tag-blue:  #1a5fa8;
+      --tag-gray:  #596677;
+      --warn:      #b45309;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #0d2a5c 100%);
+      color: #fff;
+      padding: 2.5rem 2rem 2rem;
+      border-bottom: 4px solid var(--accent);
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 4px;
+      font-size: .78rem;
+      padding: .2rem .7rem;
+      margin-bottom: .8rem;
+      letter-spacing: .04em;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    header p.subtitle {
+      margin-top: .4rem;
+      font-size: 1rem;
+      opacity: .85;
+    }
+    .meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem 1.6rem;
+      margin-top: 1.2rem;
+      font-size: .85rem;
+      opacity: .9;
+    }
+    .meta-grid span b { opacity: .7; margin-right: .3rem; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── TOC ── */
+    nav.toc {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.4rem 1.8rem;
+      margin-bottom: 2.4rem;
+    }
+    nav.toc h2 {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    nav.toc ol {
+      padding-left: 1.4rem;
+      columns: 2;
+      column-gap: 2rem;
+    }
+    nav.toc li { margin: .25rem 0; font-size: .9rem; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+
+    /* ── Section ── */
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 2rem;
+    }
+    section h2 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: .75rem;
+      margin-bottom: 1.2rem;
+    }
+    section h3 {
+      font-size: 1rem;
+      color: var(--primary);
+      margin: 1.4rem 0 .6rem;
+    }
+    p { margin-bottom: .8rem; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+    thead tr { background: var(--primary); color: #fff; }
+    thead th {
+      padding: .65rem .9rem;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: var(--code-bg); }
+    tbody tr:hover { background: #dce8f5; }
+    tbody td {
+      padding: .55rem .9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    /* ── Code / Inline ── */
+    code {
+      font-family: "Fira Code", "Courier New", monospace;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .1em .45em;
+      font-size: .85em;
+      color: #1a3a6a;
+    }
+    pre {
+      background: #0d1e35;
+      color: #c9d9f0;
+      border-radius: 6px;
+      padding: 1.2rem 1.4rem;
+      overflow-x: auto;
+      font-size: .82rem;
+      line-height: 1.6;
+      font-family: "Fira Code", "Courier New", monospace;
+    }
+    pre code { background: none; border: none; color: inherit; font-size: inherit; padding: 0; }
+
+    /* ── Tags / Badges ── */
+    .tag {
+      display: inline-block;
+      border-radius: 12px;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .15rem .65rem;
+      margin: .1rem .1rem;
+      letter-spacing: .03em;
+    }
+    .tag-pub  { background: #d1fae5; color: var(--tag-green); border: 1px solid #6ee7b7; }
+    .tag-priv { background: #dbeafe; color: var(--tag-blue);  border: 1px solid #93c5fd; }
+    .tag-ssl  { background: #fef3c7; color: var(--warn);       border: 1px solid #fcd34d; }
+
+    /* ── Version timeline ── */
+    .timeline { list-style: none; padding: 0; }
+    .timeline li {
+      display: flex;
+      gap: 1rem;
+      padding: .55rem 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: .875rem;
+    }
+    .timeline li:last-child { border-bottom: none; }
+    .timeline .ver {
+      min-width: 4.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: monospace;
+    }
+
+    /* ── Flow diagram (SVG) ── */
+    .flow-wrap {
+      overflow-x: auto;
+      text-align: center;
+      padding: 1rem 0;
+    }
+    .flow-wrap svg { max-width: 100%; height: auto; }
+
+    /* ── Alert box ── */
+    .alert {
+      border-left: 4px solid var(--warn);
+      background: #fff7ed;
+      border-radius: 0 6px 6px 0;
+      padding: .8rem 1rem;
+      font-size: .875rem;
+      margin: 1rem 0;
+    }
+    .alert b { color: var(--warn); }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      nav.toc ol { columns: 1; }
+      header h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="badge">IBM i · ILE C · MAIV300S/QCSRC</div>
+  <h1>SMTPSRVS</h1>
+  <p class="subtitle">SMTP サービスプログラム — 詳細説明書</p>
+  <div class="meta-grid">
+    <span><b>ライブラリ</b>MAIV300S</span>
+    <span><b>ソースファイル</b>QCSRC</span>
+    <span><b>メンバー</b>SMTPSRVS.C</span>
+    <span><b>言語</b>ILE C</span>
+    <span><b>バージョン</b>03.00 / 03.01</span>
+    <span><b>作成者</b>Y.Ide</span>
+    <span><b>初版</b>2009/06/15</span>
+    <span><b>行数</b>2,626 行</span>
+  </div>
+</header>
+
+<!-- ===== CONTAINER ===== -->
+<div class="container">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#overview">概要</a></li>
+      <li><a href="#history">バージョン履歴</a></li>
+      <li><a href="#architecture">アーキテクチャ</a></li>
+      <li><a href="#flow">メール送信フロー</a></li>
+      <li><a href="#public-api">公開関数 (API) 一覧</a></li>
+      <li><a href="#internal">内部関数一覧</a></li>
+      <li><a href="#globals">グローバル変数</a></li>
+      <li><a href="#dependencies">依存 API / ライブラリ</a></li>
+      <li><a href="#error">エラーハンドリング</a></li>
+      <li><a href="#ccsid">文字コード変換</a></li>
+    </ol>
+  </nav>
+
+  <!-- ===== 1. 概要 ===== -->
+  <section id="overview">
+    <h2>1. 概要</h2>
+    <p>
+      <code>SMTPSRVS</code> は IBM i 上で動作する <strong>SMTP メール送信サービスプログラム</strong> の ILE C ソースです。
+      SMTP プロトコルを使ってメールを送信するために必要なすべての低レベル処理（ソケット通信・文字変換・MIME エンコード・SSL/TLS・SMTP 認証）を提供します。
+    </p>
+    <p>
+      このモジュール単体では動作せず、呼び出し元プログラム（<code>SRCTOMAIL</code>、<code>SPLTOMAIL</code>、<code>DBTOMAIL</code> 等）からサービスプログラムとしてバインドされて利用されます。
+    </p>
+    <h3>主な機能</h3>
+    <ul style="padding-left:1.4rem; font-size:.9rem; line-height:2;">
+      <li>SMTP 接続管理（平文 Port 25 / SSL Port 465 / STARTTLS Port 587）</li>
+      <li>SMTP 認証（AUTH PLAIN / AUTH LOGIN）</li>
+      <li>メールヘッダー生成（From / To / Cc / Bcc / Subject / Date / Message-Id 等）</li>
+      <li>文字コード変換（EBCDIC → JIS / Shift_JIS / EUC-JP / ASCII）</li>
+      <li>半角カナ → 全角変換（CCSID 5035 / 5026 両対応）</li>
+      <li>MIME エンコーディング（Base64・RFC1522 件名エンコード・マルチパート添付）</li>
+      <li>DCM アプリケーション ID の登録・解除（GSKit TLS 用）</li>
+      <li>AES 暗号化されたライセンスキーファイルの検証</li>
+    </ul>
+  </section>
+
+  <!-- ===== 2. バージョン履歴 ===== -->
+  <section id="history">
+    <h2>2. バージョン履歴</h2>
+    <ul class="timeline">
+      <li><span class="ver">02.09</span><span>SMTP AUTH 認証機能を追加</span></li>
+      <li><span class="ver">02.10</span><span>文字変換なしオプション（NoConvert）を追加</span></li>
+      <li><span class="ver">02.11</span><span>PLAIN 認証フォーマット修正：<code>&lt;00&gt;xx&lt;00&gt;pp&lt;00&gt;</code> → <code>&lt;00&gt;xx&lt;00&gt;pp</code></span></li>
+      <li><span class="ver">02.12</span><span><code>SMTPCrWrite</code>、<code>SMTPCommaWrite</code> を追加</span></li>
+      <li><span class="ver">02.13</span><span><code>X-Mailer: MAI/400 Version 2.13</code> ヘッダーを追加</span></li>
+      <li><span class="ver">02.14</span><span>件名の MIME エンコード（<code>SMTPSubj</code>）を追加</span></li>
+      <li><span class="ver">02.15</span><span>Message-Id 生成にマイクロ秒を使用（<code>SMTPMsgID</code>）</span></li>
+      <li><span class="ver">02.16</span><span><code>SMTPValidAddr</code>（メールアドレス検証）を追加</span></li>
+      <li><span class="ver">02.30</span><span>TLS（GSKit）による暗号化通信に対応</span></li>
+      <li><span class="ver">03.00</span><span>ライセンスキー認証・DCM 登録（<code>SMTPRegDCM</code>）・SSL Port 465・STARTTLS Port 587 に対応。<code>X-Mailer: MAI/400 Version 3.00</code></span></li>
+      <li><span class="ver">03.01</span><span><code>GSK_CLIENT_AUTH_PASSTHRU</code> の設定を追加</span></li>
+    </ul>
+  </section>
+
+  <!-- ===== 3. アーキテクチャ ===== -->
+  <section id="architecture">
+    <h2>3. アーキテクチャ</h2>
+    <p>
+      下図は <code>SMTPSRVS</code> の構成と、呼び出し元プログラムとの関係を示します。
+    </p>
+    <div class="flow-wrap">
+      <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans JP,sans-serif" font-size="12">
+        <!-- Caller box -->
+        <rect x="20" y="30" width="200" height="110" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+        <text x="120" y="58" text-anchor="middle" font-weight="700" fill="#1e3a5f" font-size="13">呼び出し元プログラム</text>
+        <text x="120" y="78" text-anchor="middle" fill="#374151" font-size="11">SRCTOMAIL</text>
+        <text x="120" y="95" text-anchor="middle" fill="#374151" font-size="11">SPLTOMAIL</text>
+        <text x="120" y="112" text-anchor="middle" fill="#374151" font-size="11">DBTOMAIL</text>
+        <text x="120" y="129" text-anchor="middle" fill="#374151" font-size="11">その他アプリ</text>
+
+        <!-- Arrow caller→service -->
+        <line x1="220" y1="85" x2="270" y2="85" stroke="#1a4a8a" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="245" y="78" text-anchor="middle" fill="#1a4a8a" font-size="10">関数呼び出し</text>
+
+        <!-- SMTPSRVS main box -->
+        <rect x="270" y="10" width="340" height="380" rx="8" fill="#f0f7ff" stroke="#2e7dd1" stroke-width="2"/>
+        <text x="440" y="35" text-anchor="middle" font-weight="700" fill="#1a4a8a" font-size="14">SMTPSRVS</text>
+
+        <!-- Phase boxes -->
+        <rect x="290" y="50" width="140" height="130" rx="5" fill="#fff" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="360" y="70" text-anchor="middle" font-weight="700" fill="#1e3a5f">メール組立</text>
+        <text x="360" y="88" text-anchor="middle" fill="#374151" font-size="10">SMTPOpen</text>
+        <text x="360" y="103" text-anchor="middle" fill="#374151" font-size="10">SMTPFrom / SMTPRcpt</text>
+        <text x="360" y="118" text-anchor="middle" fill="#374151" font-size="10">SMTPSubj / SMTPDate</text>
+        <text x="360" y="133" text-anchor="middle" fill="#374151" font-size="10">SMTPMIME / SMTPBody</text>
+        <text x="360" y="148" text-anchor="middle" fill="#374151" font-size="10">SMTPWrite</text>
+        <text x="360" y="163" text-anchor="middle" fill="#374151" font-size="10">SMTPMpartAttach</text>
+
+        <rect x="450" y="50" width="140" height="130" rx="5" fill="#fff" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="520" y="70" text-anchor="middle" font-weight="700" fill="#1e3a5f">メール送信</text>
+        <text x="520" y="88" text-anchor="middle" fill="#374151" font-size="10">SMTPSend</text>
+        <text x="520" y="103" text-anchor="middle" fill="#374151" font-size="10">SMTPSendAuth</text>
+        <text x="520" y="118" text-anchor="middle" fill="#374151" font-size="10">initSocket</text>
+        <text x="520" y="133" text-anchor="middle" fill="#374151" font-size="10">initSocketAuth</text>
+        <text x="520" y="148" text-anchor="middle" fill="#374151" font-size="10">sendSocket / recvSocket</text>
+        <text x="520" y="163" text-anchor="middle" fill="#374151" font-size="10">closeSocket</text>
+
+        <rect x="290" y="200" width="140" height="100" rx="5" fill="#fff" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="360" y="220" text-anchor="middle" font-weight="700" fill="#1e3a5f">文字変換</text>
+        <text x="360" y="238" text-anchor="middle" fill="#374151" font-size="10">CnvToAsc / CnvToEbc</text>
+        <text x="360" y="253" text-anchor="middle" fill="#374151" font-size="10">CnvToJis / Convert</text>
+        <text x="360" y="268" text-anchor="middle" fill="#374151" font-size="10">HanToZen / HanToZen290</text>
+        <text x="360" y="283" text-anchor="middle" fill="#374151" font-size="10">RFC1522e / B64Encode</text>
+
+        <rect x="450" y="200" width="140" height="100" rx="5" fill="#fff" stroke="#fcd34d" stroke-width="1.2"/>
+        <text x="520" y="220" text-anchor="middle" font-weight="700" fill="#92400e">SSL/TLS &amp; 認証</text>
+        <text x="520" y="238" text-anchor="middle" fill="#374151" font-size="10">initGSK (GSKit)</text>
+        <text x="520" y="253" text-anchor="middle" fill="#374151" font-size="10">initAuthPLAIN</text>
+        <text x="520" y="268" text-anchor="middle" fill="#374151" font-size="10">initAuthLOGIN</text>
+        <text x="520" y="283" text-anchor="middle" fill="#374151" font-size="10">initAuthSSL</text>
+
+        <rect x="290" y="320" width="140" height="55" rx="5" fill="#fff" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="360" y="340" text-anchor="middle" font-weight="700" fill="#1e3a5f">ライセンス検証</text>
+        <text x="360" y="358" text-anchor="middle" fill="#374151" font-size="10">ChkLicKey / AES 復号</text>
+
+        <rect x="450" y="320" width="140" height="55" rx="5" fill="#fff" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="520" y="340" text-anchor="middle" font-weight="700" fill="#1e3a5f">DCM 管理</text>
+        <text x="520" y="358" text-anchor="middle" fill="#374151" font-size="10">SMTPRegDCM / regGSKAppId</text>
+
+        <!-- Arrow service→smtp server -->
+        <line x1="610" y1="130" x2="680" y2="130" stroke="#1a4a8a" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="645" y="122" text-anchor="middle" fill="#1a4a8a" font-size="10">TCP/SSL</text>
+
+        <!-- SMTP Server box -->
+        <rect x="680" y="85" width="120" height="90" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.5"/>
+        <text x="740" y="115" text-anchor="middle" font-weight="700" fill="#065f46" font-size="13">SMTP</text>
+        <text x="740" y="133" text-anchor="middle" fill="#065f46">サーバー</text>
+        <text x="740" y="152" text-anchor="middle" fill="#374151" font-size="10">Port 25/465/587</text>
+
+        <!-- Arrow defs -->
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1a4a8a"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== 4. メール送信フロー ===== -->
+  <section id="flow">
+    <h2>4. メール送信フロー（SMTPSendAuth）</h2>
+    <div class="flow-wrap">
+      <svg viewBox="0 0 780 680" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans JP,sans-serif" font-size="12">
+        <defs>
+          <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+          </marker>
+          <marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#065f46"/>
+          </marker>
+        </defs>
+
+        <!-- Lifeline labels -->
+        <rect x="30"  y="10" width="110" height="36" rx="5" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.2"/>
+        <text x="85"  y="33" text-anchor="middle" font-weight="700" fill="#1e3a5f">呼び出し元</text>
+        <rect x="290" y="10" width="110" height="36" rx="5" fill="#f0f7ff" stroke="#2e7dd1" stroke-width="1.5"/>
+        <text x="345" y="33" text-anchor="middle" font-weight="700" fill="#1a4a8a">SMTPSRVS</text>
+        <rect x="580" y="10" width="110" height="36" rx="5" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.2"/>
+        <text x="635" y="33" text-anchor="middle" font-weight="700" fill="#065f46">SMTPサーバー</text>
+
+        <!-- Lifelines -->
+        <line x1="85"  y1="46" x2="85"  y2="660" stroke="#93c5fd" stroke-dasharray="4,3" stroke-width="1"/>
+        <line x1="345" y1="46" x2="345" y2="660" stroke="#2e7dd1" stroke-dasharray="4,3" stroke-width="1"/>
+        <line x1="635" y1="46" x2="635" y2="660" stroke="#6ee7b7" stroke-dasharray="4,3" stroke-width="1"/>
+
+        <!-- Messages -->
+        <!-- 1 -->
+        <line x1="85" y1="75" x2="340" y2="75" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="210" y="68" text-anchor="middle" fill="#374151">SMTPOpen( server, port )</text>
+
+        <!-- 2 -->
+        <line x1="85" y1="105" x2="340" y2="105" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="210" y="98" text-anchor="middle" fill="#374151">SMTPFrom / SMTPRcpt / SMTPSubj …</text>
+        <rect x="340" y="90" width="10" height="30" fill="#2e7dd1" opacity=".4"/>
+        <text x="358" y="110" fill="#6b7280" font-size="10">一時ファイルへ書き込み</text>
+
+        <!-- 3 -->
+        <line x1="85" y1="145" x2="340" y2="145" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="210" y="138" text-anchor="middle" fill="#374151">SMTPBody / SMTPWrite</text>
+
+        <!-- 4 -->
+        <line x1="85" y1="175" x2="340" y2="175" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="210" y="168" text-anchor="middle" fill="#374151">SMTPSendAuth( usr, pwd, SMTPS, appid )</text>
+
+        <!-- connect -->
+        <line x1="345" y1="205" x2="630" y2="205" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="198" text-anchor="middle" fill="#374151">connect()</text>
+
+        <!-- EHLO -->
+        <line x1="345" y1="230" x2="630" y2="230" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="223" text-anchor="middle" fill="#374151">EHLO hostname</text>
+        <line x1="630" y1="250" x2="350" y2="250" stroke="#065f46" stroke-width="1.5" marker-end="url(#a3)"/>
+        <text x="487" y="245" text-anchor="middle" fill="#065f46">250-AUTH PLAIN LOGIN / 250-STARTTLS</text>
+
+        <!-- STARTTLS branch -->
+        <rect x="352" y="265" width="268" height="18" rx="3" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+        <text x="486" y="278" text-anchor="middle" fill="#92400e" font-size="10">[ STARTTLS 対応の場合 ]</text>
+        <line x1="345" y1="293" x2="630" y2="293" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="286" text-anchor="middle" fill="#374151">STARTTLS</text>
+        <line x1="630" y1="313" x2="350" y2="313" stroke="#065f46" stroke-width="1.5" marker-end="url(#a3)"/>
+        <text x="487" y="307" text-anchor="middle" fill="#065f46">220 Ready</text>
+        <text x="345" y="332" fill="#374151" font-size="10">  ↓ initGSK( GSKit SSL ハンドシェイク )</text>
+
+        <!-- AUTH -->
+        <rect x="352" y="345" width="268" height="18" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+        <text x="486" y="358" text-anchor="middle" fill="#1e3a5f" font-size="10">[ PLAIN 認証 ]</text>
+        <line x1="345" y1="373" x2="630" y2="373" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="366" text-anchor="middle" fill="#374151">AUTH PLAIN &lt;Base64(user+pass)&gt;</text>
+        <line x1="630" y1="393" x2="350" y2="393" stroke="#065f46" stroke-width="1.5" marker-end="url(#a3)"/>
+        <text x="487" y="387" text-anchor="middle" fill="#065f46">235 Authentication successful</text>
+
+        <!-- RSET/MAIL FROM/RCPT TO/DATA -->
+        <line x1="345" y1="415" x2="630" y2="415" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="408" text-anchor="middle" fill="#374151">RSET</text>
+        <line x1="345" y1="435" x2="630" y2="435" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="428" text-anchor="middle" fill="#374151">MAIL FROM:&lt;from@addr&gt;</text>
+        <line x1="345" y1="455" x2="630" y2="455" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="448" text-anchor="middle" fill="#374151">RCPT TO:&lt;to@addr&gt; …(複数)</text>
+        <line x1="345" y1="475" x2="630" y2="475" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="468" text-anchor="middle" fill="#374151">DATA</text>
+
+        <!-- body loop -->
+        <rect x="352" y="490" width="268" height="18" rx="3" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+        <text x="486" y="503" text-anchor="middle" fill="#166534" font-size="10">[ 本文・ヘッダー各行 (一時ファイルより) ]</text>
+        <line x1="345" y1="520" x2="630" y2="520" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="513" text-anchor="middle" fill="#374151">sendSocket / sendSocket2 (CRLF 付加)</text>
+
+        <!-- end / quit -->
+        <line x1="345" y1="550" x2="630" y2="550" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="543" text-anchor="middle" fill="#374151">CRLF.CRLF (データ終端)</text>
+        <line x1="345" y1="575" x2="630" y2="575" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="487" y="568" text-anchor="middle" fill="#374151">QUIT</text>
+
+        <!-- SMTPClose -->
+        <line x1="85" y1="610" x2="340" y2="610" stroke="#374151" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="210" y="603" text-anchor="middle" fill="#374151">SMTPClose()</text>
+        <text x="345" y="630" fill="#374151" font-size="10">  ↓ ソケット / GSKit / 一時ファイル クリーンアップ</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== 5. 公開関数 ===== -->
+  <section id="public-api">
+    <h2>5. 公開関数 (API) 一覧</h2>
+    <p>以下はサービスプログラムとして呼び出し元に公開される関数です。</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>関数名</th>
+            <th>シグネチャ</th>
+            <th>役割</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SMTPRegDCM</code> <span class="tag tag-ssl">SSL</span></td>
+            <td><code>int SMTPRegDCM(char *GSKAPPID, int SMTPPort)</code></td>
+            <td>DCM へアプリケーション ID を登録し、SSL（Port 465）または STARTTLS（Port 587）モードを設定する。DCM LPP のインストール確認も行う。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSetSftSp</code></td>
+            <td><code>int SMTPSetSftSp(int SetSftSP)</code></td>
+            <td>制御文字をスペースに置換するソフトスペースモードを ON（1）/ OFF（0）で切り替える。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSetConvert</code></td>
+            <td><code>int SMTPSetConvert(int fromccsid, int toccsid, int katakana)</code></td>
+            <td>EBCDIC → JIS / Shift_JIS / EUC-JP 等の汎用変換コンバーターを <code>iconv_open</code> で初期化する。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPOpen</code></td>
+            <td><code>int SMTPOpen(char *SMTPServer, int SMTPPort)</code></td>
+            <td>SMTP サーバーアドレス解決、一時ファイル作成、変換コンバーター（acd/ecd/jcd）初期化。ライセンスキーチェックを実行。失敗時は <code>-1</code> を返す。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPClose</code></td>
+            <td><code>int SMTPClose(void)</code></td>
+            <td>コンバーター・一時ファイル・ソケットのクリーンアップ。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPFromNoConvert</code></td>
+            <td><code>int SMTPFromNoConvert(char *From)</code></td>
+            <td>EBCDIC 変換なしで <code>From:</code> ヘッダーを一時ファイルに書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPFrom</code></td>
+            <td><code>int SMTPFrom(char *From)</code></td>
+            <td>DBCS → JIS 変換（RFC1522 エンコード）しつつ <code>From:</code> ヘッダーを書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPRcptNoConvert</code></td>
+            <td><code>int SMTPRcptNoConvert(char *RcptType, char *Rcpt)</code></td>
+            <td>変換なしで宛先（To / Cc / Bcc）ヘッダーを書き込む。BCC は一時ファイルに出力しない。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPRcpt</code></td>
+            <td><code>int SMTPRcpt(char *RcptType, char *Rcpt)</code></td>
+            <td>DBCS → JIS 変換しつつ宛先ヘッダーを書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSubj</code></td>
+            <td><code>int SMTPSubj(char *Subj)</code></td>
+            <td>件名を半角→全角変換後、DBCS 部分を RFC1522 エンコード（<code>=?ISO-2022-JP?B?...?=</code>）して <code>Subject:</code> ヘッダーに書き込む。32バイト超えのDBCSは折り返し処理あり。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPDate</code></td>
+            <td><code>int SMTPDate(void)</code></td>
+            <td>RFC 形式（<code>%a, %d %b %Y %H:%M:%S +0900</code>）の <code>Date:</code> ヘッダーを書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPMsgID</code></td>
+            <td><code>int SMTPMsgID(void)</code></td>
+            <td>QDATETIME（マイクロ秒）＋ジョブ番号＋From アドレスで <code>Message-Id:</code> を生成・書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPMIME</code></td>
+            <td><code>int SMTPMIME(char *Content)</code></td>
+            <td><code>MIME-Version: 1.0</code> と <code>Content-Type</code> ヘッダーを書き込む。charset は ToCCSID に基づき自動選択。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPMpartText</code></td>
+            <td><code>int SMTPMpartText(void)</code></td>
+            <td>マルチパートのテキスト部境界（<code>--boundary</code>）と <code>Content-Type: text/plain</code> を書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPMpartAttach</code></td>
+            <td><code>int SMTPMpartAttach(char *IFSname, char *ContentType, char *Name, char *Desc)</code></td>
+            <td>IFS ファイルを 57 バイト単位で読み込み、Base64 エンコードして添付ファイルとして書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPMpartClose</code></td>
+            <td><code>int SMTPMpartClose(void)</code></td>
+            <td>マルチパートの終端境界（<code>--boundary--</code>）を書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPOther</code></td>
+            <td><code>int SMTPOther(char *Type, char *TypeStr)</code></td>
+            <td>任意のカスタムヘッダー行（<code>Type TypeStr\n</code>）を書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPEtcWrite</code></td>
+            <td><code>int SMTPEtcWrite(char *etcStr)</code></td>
+            <td>任意の文字列をそのまま一時ファイルに書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPCrWrite</code></td>
+            <td><code>int SMTPCrWrite(void)</code></td>
+            <td>改行（<code>\n</code>）を一時ファイルに書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPCommaWrite</code></td>
+            <td><code>int SMTPCommaWrite(void)</code></td>
+            <td>カンマ（<code>,</code>）を一時ファイルに書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPValidAddr</code></td>
+            <td><code>int SMTPValidAddr(char *MailAddr)</code></td>
+            <td>メールアドレスの簡易検証。<code>@</code> が含まれない場合は <code>-1</code> を返す。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPBody</code></td>
+            <td><code>int SMTPBody(void)</code></td>
+            <td><code>X-Mailer: MAI/400 Version 3.00</code> ヘッダーと空行（ヘッダー/ボディ区切り）を書き込む。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPWrite</code></td>
+            <td><code>int SMTPWrite(char *Text)</code></td>
+            <td>本文1行を書き込む。<code>KanaSW=1</code> の場合は半角→全角変換を実施。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSend</code></td>
+            <td><code>int SMTPSend(void)</code></td>
+            <td>認証なし SMTP 送信（<code>HELO</code>/<code>MAIL FROM</code>/<code>RCPT TO</code>/<code>DATA</code>）。Base64 部分は変換せずそのまま送信。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSendAuth</code> <span class="tag tag-ssl">SSL</span></td>
+            <td><code>int SMTPSendAuth(char *AuthUsr, char *AuthPwd, int SMTPS, char *GSKAPPID)</code></td>
+            <td>認証あり SMTP 送信。<code>EHLO</code> → 認証方式選択 → SSL ハンドシェイク（STARTTLS対応）→ <code>RSET</code>/<code>MAIL FROM</code>/<code>RCPT TO</code>/<code>DATA</code>/<code>QUIT</code> を実行。</td>
+          </tr>
+          <tr>
+            <td><code>SMTPSetDebug</code></td>
+            <td><code>void SMTPSetDebug(int debug)</code></td>
+            <td>デバッグモード ON/OFF。<code>1</code> を指定すると SMTP コマンド送受信内容を <code>*DIAG</code>/<code>*STATUS</code> メッセージで出力する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 6. 内部関数 ===== -->
+  <section id="internal">
+    <h2>6. 内部関数一覧</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>関数名</th>
+            <th>役割</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>initSocket</code></td><td>平文 SMTP 接続。<code>HELO</code>/<code>MAIL FROM</code>/<code>RCPT TO</code>/<code>DATA</code> まで送信。SSL フラグが立っている場合は <code>initGSK</code> を呼び出す。</td></tr>
+          <tr><td><code>initSocketAuth</code></td><td>認証・SSL 対応 SMTP 接続。<code>EHLO</code> レスポンスを解析して認証方式と STARTTLS 対応を判定する。</td></tr>
+          <tr><td><code>initGSK</code></td><td>GSKit SSL/TLS 環境・セッションを初期化。タイムアウト・クライアント認証パススルー等を設定。SSL ハンドシェイク失敗時は最大3回リトライする。</td></tr>
+          <tr><td><code>initAuthSSL</code></td><td>SSL 確立後に再 <code>EHLO</code> を送信し、認証方式（PLAIN/LOGIN）を再判定する。</td></tr>
+          <tr><td><code>initAuthPLAIN</code></td><td>AUTH PLAIN 認証。<code>\0user\0pass</code> を Base64 エンコードして <code>AUTH PLAIN</code> コマンドで送信する。</td></tr>
+          <tr><td><code>initAuthLOGIN</code></td><td>AUTH LOGIN 認証。ユーザー名・パスワードを個別に Base64 エンコードして送信する。</td></tr>
+          <tr><td><code>sendSocket</code></td><td>EBCDIC → ASCII 変換後、CRLF を付加してソケット送信（SSL/非SSL 切り替え対応）。</td></tr>
+          <tr><td><code>sendSocket2</code></td><td>本文行の送信。ピリオドで始まる行はエスケープ（<code>..</code>）。DBCS 混在行は <code>Convert</code> で変換。</td></tr>
+          <tr><td><code>recvSocket</code></td><td>ソケットから1行受信。SSL 時は <code>gsk_secure_soc_read</code>、非SSL 時は <code>recv</code> で1バイトずつ読む。</td></tr>
+          <tr><td><code>closeSocket</code></td><td>データ終端 (<code>\r\n.\r\n</code>) 送信 → <code>QUIT</code> → GSKit セッション/環境クローズ → ソケットクローズ。</td></tr>
+          <tr><td><code>setFrom</code></td><td>From 文字列から <code>&lt;...&gt;</code> または <code>(...)</code> パターンを解析して純粋なメールアドレスを <code>FromAd</code> に格納する。</td></tr>
+          <tr><td><code>setRcpt</code></td><td>受信者アドレスを解析して <code>Rcptlist</code> 配列に追加する。</td></tr>
+          <tr><td><code>initBoundary</code></td><td>マルチパートの固定 boundary 文字列を <code>Boundary</code> に設定する。</td></tr>
+          <tr><td><code>CnvToAsc</code></td><td>EBCDIC (5035) → ASCII/Shift_JIS (932) 変換（<code>iconv</code> acd）。</td></tr>
+          <tr><td><code>CnvToEbc</code></td><td>ASCII (932) → EBCDIC (5035) 変換（<code>iconv</code> ecd）。</td></tr>
+          <tr><td><code>CnvToJis</code></td><td>EBCDIC → JIS (5054) 変換後、末尾に ASCII 復帰シーケンス（<code>ESC(B</code>）を付加する。</td></tr>
+          <tr><td><code>Convert</code></td><td>汎用 CCSID 変換（<code>SMTPSetConvert</code> で設定した <code>icd</code> コンバーター使用）。変換エラー時はバイトをスキップして継続する。</td></tr>
+          <tr><td><code>RFC1522e</code></td><td>JIS 文字列を Base64 で RFC1522 エンコード（<code>=?ISO-2022-JP?B?...?=</code>）する。</td></tr>
+          <tr><td><code>B64Encode</code></td><td>バイナリデータを Base64 文字列（<code>B64Chars</code> テーブル使用）に変換する。パディング処理あり。</td></tr>
+          <tr><td><code>HanToZen</code></td><td>CCSID 5035 の半角カナ（SBCS）を全角 DBCS に変換。濁点・半濁点の合成処理あり。</td></tr>
+          <tr><td><code>HanToZen290</code></td><td>CCSID 5026 の半角カナを全角 DBCS に変換（CCSID 290 対応版）。</td></tr>
+          <tr><td><code>chkString</code></td><td>0x40 未満の制御文字をスペース（0x40）に置換。<code>doSftSp=1</code> 時は SO/SI の前後にスペースを挿入する。</td></tr>
+          <tr><td><code>TrimBlank</code></td><td>EBCDIC スペース（0x40）を文字列末尾から削除する。</td></tr>
+          <tr><td><code>getJobNum</code></td><td><code>QUSRJOBI</code> API を呼び出してジョブ番号を取得する。</td></tr>
+          <tr><td><code>ChkLicKey</code></td><td>ライセンスキーファイル（<code>MAI/LICKEY</code>）を開き、AES 復号後にライセンス種別・シリアル番号・有効期限を検証する。戻り値：1=有効、0=TRIAL、-1=無効/期限切れ。</td></tr>
+          <tr><td><code>SetupSecretKey</code></td><td>AES-CBC 暗号化パラメーター構造体（<code>Qc3_Format_ALGD0200_T</code>）とキー記述子を初期化する。</td></tr>
+          <tr><td><code>EncryptData</code></td><td><code>Qc3EncryptData</code> API を使って AES-CBC でデータを暗号化する。</td></tr>
+          <tr><td><code>DecryptData</code></td><td><code>Qc3DecryptData</code> API を使って AES-CBC でデータを復号する。</td></tr>
+          <tr><td><code>regGSKAppId</code></td><td><code>QsyRegisterAppForCertUse</code> で DCM にクライアントアプリケーション ID を登録する。既登録時は <code>CPF220F</code> を受けて 0 を返す。</td></tr>
+          <tr><td><code>deregGSKAppId</code></td><td><code>QsyDeregisterAppForCertUse</code> で DCM からアプリケーション ID を解除する。</td></tr>
+          <tr><td><code>checkLPP</code></td><td><code>QSZRTVPR</code> で 5770SS1 Option 34（Digital Certificate Manager）のインストール状態を確認する。</td></tr>
+          <tr><td><code>DspSTSMSG</code></td><td><code>QMHSNDPM</code> で <code>*STATUS</code> および <code>*DIAG</code> メッセージを送信する。</td></tr>
+          <tr><td><code>DspDIAGMSG</code></td><td><code>QMHSNDPM</code> で <code>*DIAG</code> メッセージを送信する。</td></tr>
+          <tr><td><code>DspESCMSG</code></td><td><code>SMTPClose</code> を呼び出してから <code>*ESCAPE</code> メッセージを送信し、<code>exit(-1)</code> で終了する。</td></tr>
+          <tr><td><code>DspDIAGMSG_ID</code></td><td>MAIMSG メッセージファイルのメッセージ ID を指定して <code>*DIAG</code> メッセージを送信する。</td></tr>
+          <tr><td><code>DspESCMSG_ID</code></td><td>MAIMSG メッセージファイルのメッセージ ID を指定して <code>*ESCAPE</code> メッセージを送信し終了する。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 7. グローバル変数 ===== -->
+  <section id="globals">
+    <h2>7. グローバル変数（主要）</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>変数名</th><th>型</th><th>説明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>sd</code></td><td><code>int</code></td><td>ソケットディスクリプタ</td></tr>
+          <tr><td><code>fp</code></td><td><code>FILE *</code></td><td>メール組立用一時ファイルポインタ</td></tr>
+          <tr><td><code>fname</code></td><td><code>char[L_tmpnam]</code></td><td>一時ファイルパス（<code>tmpnam</code> で生成）</td></tr>
+          <tr><td><code>gskHandleEnv</code></td><td><code>gsk_handle</code></td><td>GSKit 環境ハンドル</td></tr>
+          <tr><td><code>gskHandleSes</code></td><td><code>gsk_handle</code></td><td>GSKit セッションハンドル</td></tr>
+          <tr><td><code>isSSL</code></td><td><code>int</code></td><td>SSL 接続中フラグ（Port 465 または STARTTLS 確立後に 1）</td></tr>
+          <tr><td><code>isSMTPS</code></td><td><code>int</code></td><td>STARTTLS モードフラグ（Port 587）</td></tr>
+          <tr><td><code>isSTARTTLS</code></td><td><code>int</code></td><td>EHLO レスポンスで STARTTLS を検出したフラグ</td></tr>
+          <tr><td><code>isPLAIN</code></td><td><code>int</code></td><td>AUTH PLAIN 対応フラグ</td></tr>
+          <tr><td><code>isLOGIN</code></td><td><code>int</code></td><td>AUTH LOGIN 対応フラグ</td></tr>
+          <tr><td><code>isCRAM_MD5</code></td><td><code>int</code></td><td>CRAM-MD5 対応フラグ（検出のみ、未実装）</td></tr>
+          <tr><td><code>isGSKAPPID</code></td><td><code>char[51]</code></td><td>DCM アプリケーション ID</td></tr>
+          <tr><td><code>FromAd</code></td><td><code>char[1024]</code></td><td><code>MAIL FROM</code> に使う純粋なメールアドレス</td></tr>
+          <tr><td><code>Rcptlist</code></td><td><code>char[1024][1024]</code></td><td>RCPT TO リスト（最大 1,024 件）</td></tr>
+          <tr><td><code>RcptCount</code></td><td><code>int</code></td><td>RCPT TO の件数</td></tr>
+          <tr><td><code>FromCCSID</code></td><td><code>int</code></td><td>変換元 CCSID（デフォルト: 5035）</td></tr>
+          <tr><td><code>ToCCSID</code></td><td><code>int</code></td><td>変換先 CCSID（デフォルト: JIS=5054）</td></tr>
+          <tr><td><code>KanaSW</code></td><td><code>int</code></td><td>半角→全角変換スイッチ</td></tr>
+          <tr><td><code>doSftSp</code></td><td><code>int</code></td><td>ソフトスペース置換スイッチ</td></tr>
+          <tr><td><code>DebugSW</code></td><td><code>int</code></td><td>デバッグモードスイッチ</td></tr>
+          <tr><td><code>Boundary</code></td><td><code>char[50]</code></td><td>MIME マルチパートの固定 boundary 文字列</td></tr>
+          <tr><td><code>icd</code> / <code>acd</code> / <code>ecd</code> / <code>jcd</code></td><td><code>iconv_t</code></td><td>各種 CCSID 変換コンバーター</td></tr>
+          <tr><td><code>LocalHostName</code></td><td><code>char[512]</code></td><td>HELO/EHLO に使用するローカルホスト名</td></tr>
+          <tr><td><code>wbuf</code></td><td><code>char[32767]</code></td><td>汎用ワークバッファ</td></tr>
+          <tr><td><code>SecretKey</code></td><td><code>char *</code></td><td>AES 暗号化のシークレットキー（固定値）</td></tr>
+          <tr><td><code>lic</code></td><td><code>int</code></td><td>ライセンス検証結果（1=有効, 0=TRIAL, -1=無効）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 8. 依存 API / ライブラリ ===== -->
+  <section id="dependencies">
+    <h2>8. 依存 API / ライブラリ</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>API / ヘッダー</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>gskssl.h</code> / <code>gsk_*</code></td><td>TLS/SSL 暗号化通信（GSKit）。環境・セッション管理、読み書き API。</td></tr>
+          <tr><td><code>QSYSINC/H/ICONV</code></td><td>EBCDIC ↔ ASCII / JIS 等の文字コード変換（<code>iconv_open</code>/<code>iconv</code>/<code>iconv_close</code>）。</td></tr>
+          <tr><td><code>QMHSNDPM</code></td><td>IBM i プログラムメッセージ送信（STATUS / DIAG / ESCAPE）。</td></tr>
+          <tr><td><code>QWCRSVAL</code></td><td>システム値取得（<code>QSRLNBR</code>：シリアル番号、<code>QDATETIME</code>：マイクロ秒日時）。</td></tr>
+          <tr><td><code>QUSRJOBI</code></td><td>ジョブ情報取得（ジョブ番号を Message-Id 生成に使用）。</td></tr>
+          <tr><td><code>recio.h</code> / <code>_Ropen</code></td><td>物理ファイルレコード IO（ライセンスキーファイル <code>MAI/LICKEY</code> 読み込み）。</td></tr>
+          <tr><td><code>QC3CCI</code> / <code>QC3DTAEN</code> / <code>QC3DTADE</code></td><td>IBM i 暗号化 API（<code>Qc3EncryptData</code> / <code>Qc3DecryptData</code>）。AES-CBC 方式。</td></tr>
+          <tr><td><code>QSZRTVPR</code></td><td>LPP インストール状態取得（DCM = 5770SS1 Option 34 の確認）。</td></tr>
+          <tr><td><code>QSYRGAP</code> / <code>QSYDRGAP</code></td><td>DCM アプリケーション ID の登録（<code>QsyRegisterAppForCertUse</code>）・解除（<code>QsyDeregisterAppForCertUse</code>）。</td></tr>
+          <tr><td>BSD ソケット API</td><td>TCP/IP 通信（<code>socket</code> / <code>connect</code> / <code>send</code> / <code>recv</code> / <code>select</code>）。ノンブロッキングコネクト対応。</td></tr>
+          <tr><td><code>QUSRSPLA</code></td><td>スプールファイルアクセス（呼び出し元 SPLTOMAIL で使用）。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 9. エラーハンドリング ===== -->
+  <section id="error">
+    <h2>9. エラーハンドリング方針</h2>
+    <div class="alert">
+      <b>注意：</b> 致命的エラー発生時はプログラムが <code>exit(-1)</code> で即座に終了します。呼び出し元は IBM i の <code>*ESCAPE</code> メッセージを処理するモニター（<code>MONMSG</code>）を実装してください。
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>エラー種別</th><th>使用関数</th><th>動作</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>致命的エラー<br><small>接続失敗・認証失敗・ファイル操作エラー等</small></td>
+            <td><code>DspESCMSG</code><br><code>DspESCMSG_ID</code></td>
+            <td><code>SMTPClose</code> でリソース解放 → <code>QMHSNDPM</code> で <code>*ESCAPE</code> メッセージ送信 → <code>exit(-1)</code></td>
+          </tr>
+          <tr>
+            <td>警告・診断<br><small>RCPT TO 失敗・SSL 詳細ログ等</small></td>
+            <td><code>DspDIAGMSG</code><br><code>DspDIAGMSG_ID</code></td>
+            <td><code>*DIAG</code> メッセージを送信して処理を継続する。</td>
+          </tr>
+          <tr>
+            <td>ステータス表示<br><small>デバッグ時の SMTP コマンド内容</small></td>
+            <td><code>DspSTSMSG</code></td>
+            <td><code>*STATUS</code> および <code>*DIAG</code> メッセージを送信する。<code>DebugSW=1</code> 時のみ呼ばれる。</td>
+          </tr>
+          <tr>
+            <td>GSKit 初期化失敗</td>
+            <td><code>initGSK</code></td>
+            <td>SSL ハンドシェイク失敗は 3 秒ウェイト × 2 回リトライ。それでも失敗した場合は <code>DspDIAGMSG</code> で詳細を出力。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>メッセージファイル</h3>
+    <ul style="padding-left:1.4rem; font-size:.9rem; line-height:2;">
+      <li><code>QCPFMSG</code>（<code>*LIBL</code>）― システムメッセージ。<code>CPF9898</code> ID を使って任意文字列を送信。</li>
+      <li><code>MAIMSG</code>（<code>*LIBL</code>）― MAI/400 専用メッセージファイル。<code>MAI0010</code>〜<code>MAI0240</code> 等のメッセージ ID を使用。</li>
+    </ul>
+  </section>
+
+  <!-- ===== 10. 文字コード変換 ===== -->
+  <section id="ccsid">
+    <h2>10. 文字コード変換</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>定数名</th><th>CCSID 値</th><th>説明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>C5026</code></td><td>5026</td><td>EBCDIC 日本語カタカナ（CCSID 5026 / 290）</td></tr>
+          <tr><td><code>C5035</code></td><td>5035</td><td>EBCDIC 日本語カタカナ（CCSID 5035 / 1027）</td></tr>
+          <tr><td><code>JIS</code></td><td>5054</td><td>ISO-2022-JP（JIS）</td></tr>
+          <tr><td><code>SJIS</code></td><td>932</td><td>Shift_JIS</td></tr>
+          <tr><td><code>CP943</code></td><td>943</td><td>Shift_JIS（IBM CP943）</td></tr>
+          <tr><td><code>EUC</code></td><td>5050</td><td>EUC-JP</td></tr>
+          <tr><td><code>ASCII</code></td><td>819</td><td>US-ASCII（ISO 8859-1）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>コンバーター対応表</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>変数</th><th>変換方向</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>icd</code></td><td>FromCCSID → ToCCSID</td><td>汎用変換（<code>SMTPSetConvert</code> で設定）</td></tr>
+          <tr><td><code>acd</code></td><td>5035 → 932 (Shift_JIS)</td><td>EBCDIC → ASCII（ソケット送信用）</td></tr>
+          <tr><td><code>ecd</code></td><td>932 → 5035</td><td>ASCII → EBCDIC（SMTP レスポンス受信用）</td></tr>
+          <tr><td><code>jcd</code></td><td>5035 → 5054 (JIS)</td><td>ヘッダー・件名の JIS エンコード用</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:.8rem; font-size:.875rem;">
+      半角カナ変換では <code>HanToZen</code>（CCSID 5035）と <code>HanToZen290</code>（CCSID 5026）が <code>c290</code> 変換テーブル・<code>ntbl</code>（濁点）・<code>mtbl</code>（半濁点）を使って DBCS 全角カナに変換します。
+    </p>
+  </section>
+
+  <footer style="text-align:center; color:#9ca3af; font-size:.8rem; margin-top:2rem; padding-bottom:1rem;">
+    MAIV300S/QCSRC(SMTPSRVS) — MAI/400 SMTP Service Program v3.00 &nbsp;|&nbsp; 自動生成ドキュメント
+  </footer>
+
+</div><!-- /container -->
+</body>
+</html>

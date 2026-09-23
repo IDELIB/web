@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プログラム仕様書 — SPLTOPDF</title>
+  <style>
+    :root {
+      --primary:   #1a4a7a;
+      --accent:    #2e7fcf;
+      --bg-header: #eef4fb;
+      --bg-table:  #f9fbfd;
+      --border:    #c8d8ea;
+      --text:      #1e2630;
+      --mono:      "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo UI", "Yu Gothic UI", "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #f5f7fa;
+      padding: 24px;
+    }
+    .doc-header {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      padding: 20px 28px 16px;
+    }
+    .doc-header h1 { font-size: 22px; letter-spacing: .04em; }
+    .doc-header .subtitle { font-size: 13px; opacity: .8; margin-top: 4px; }
+    .meta-bar {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .meta-bar dl {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
+      border-right: 1px solid var(--border);
+      min-width: 140px;
+    }
+    .meta-bar dl:last-child { border-right: none; }
+    .meta-bar dt { font-size: 11px; color: #6a7f96; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-bar dd { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 2px; }
+    .content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 28px 32px 40px;
+    }
+    h2 {
+      font-size: 16px;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 28px 0 12px;
+    }
+    h3 {
+      font-size: 14px;
+      color: var(--primary);
+      margin: 18px 0 8px;
+      padding-left: 6px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 4px;
+    }
+    p { line-height: 1.75; margin-bottom: 8px; }
+    ul { padding-left: 20px; line-height: 1.9; }
+    li { margin-bottom: 2px; }
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #eef2f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #24476b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-table); }
+    tbody tr:hover { background: #dceeff; }
+    tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody td:first-child { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+    .req { color: #c0392b; font-weight: 700; }
+    .opt { color: #888; }
+    .version-table thead th { background: #3a5870; }
+    .flowbox {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 2;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 3px 0;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+      margin-top: 2px;
+      min-width: 80px;
+      text-align: center;
+    }
+    .badge.err  { background: #c0392b; }
+    .badge.cond { background: #27ae60; }
+    .badge.loop { background: #8e44ad; }
+    .step-text { line-height: 1.6; }
+    .indent1 { margin-left: 30px; }
+    .indent2 { margin-left: 60px; }
+    .indent3 { margin-left: 90px; }
+    footer {
+      text-align: right;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>プログラム仕様書　SPLTOPDF</h1>
+  <div class="subtitle">AS/400 スプールファイル → IFS PDF 変換プログラム (ILE CL)</div>
+</div>
+
+<div class="meta-bar">
+  <dl><dt>ライブラリ</dt><dd>MAIV300S</dd></dl>
+  <dl><dt>ソースファイル</dt><dd>QCLSRC</dd></dl>
+  <dl><dt>メンバー</dt><dd>SPLTOPDF.CLP</dd></dl>
+  <dl><dt>オブジェクトタイプ</dt><dd>*PGM</dd></dl>
+  <dl><dt>言語</dt><dd>ILE CL</dd></dl>
+  <dl><dt>作成者</dt><dd>Y.Ide</dd></dl>
+  <dl><dt>作成日</dt><dd>2026/08/26</dd></dl>
+</div>
+
+<div class="content">
+
+  <!-- ─── 1. 機能概要 ─── -->
+  <h2>1. 機能概要</h2>
+  <p>
+    <strong>SPLTOPDF</strong> は、IBM i のスプールファイルを IFS (統合ファイルシステム) 上の
+    PDF ファイルに変換して保存する ILE CL プログラムです。
+  </p>
+  <p>
+    スプールファイルのプリンター装置タイプ (<code>PRTDEVTYP</code>) に応じて、以下の 2 つの変換ルートを使い分けます。
+  </p>
+  <ul>
+    <li><strong>*SCS ルート</strong>: 独自 PDF エンジンを使用。<code>SPLTOPF</code> で物理ファイルに展開後、<code>CPYTOSTMF</code> でテキスト変換し、<code>TXTTOPDF</code> (ILE C) で PDF 生成する。TTF フォント指定・CCSID 指定が可能。</li>
+    <li><strong>その他ルート</strong>: システム標準の <code>CPYSPLF WSCST(*PDF)</code> を使用して PDF に変換する。*AFPDS / *IPDS など *SCS 以外のスプール向け。</li>
+  </ul>
+  <p>
+    出力先フォルダー・PDF ファイル名・TTF フォント・入力 CCSID・重複ファイル処理をパラメーターで制御できます。
+    PDF 生成完了後は <code>MAIMSG/PDF1015</code> (<code>*COMP</code>) メッセージで出力パスを呼び出し元に通知します。
+    <code>SPLTOMAIL</code> コマンドから <code>ATTACH(*PDF)</code> モード時に内部的に呼び出されるほか、
+    単独コマンド (<code>MAI/SPLTOPDF</code>) としても使用できます。
+  </p>
+
+  <!-- ─── 2. 呼び出し方法 ─── -->
+  <h2>2. 呼び出し方法 — コマンド SPLTOPDF</h2>
+  <p>
+    コマンド定義 <code>MAIV300S/QCMDSRC(SPLTOPDF.CMD)</code> で定義されています。
+    プログラムは <code>MAI/SPLTOPDF</code> として呼び出されます。
+  </p>
+
+  <h3>パラメーター一覧</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>キーワード</th>
+        <th>型 / 長さ</th>
+        <th>必須</th>
+        <th>既定値</th>
+        <th>説明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FILE</td>
+        <td>*NAME(10)</td>
+        <td class="req">必須</td>
+        <td>—</td>
+        <td>PDF 変換するスプールファイル名。</td>
+      </tr>
+      <tr>
+        <td>JOB</td>
+        <td>QJOB（修飾名）<br>ジョブ名/ユーザー/番号</td>
+        <td class="opt">省略可</td>
+        <td>* (現行ジョブ)</td>
+        <td>スプールファイルが存在するジョブ。<code>*</code> で現行ジョブ。</td>
+      </tr>
+      <tr>
+        <td>SPLNBR</td>
+        <td>*DEC(6)</td>
+        <td class="opt">省略可</td>
+        <td>*LAST (-1)</td>
+        <td>スプール番号。<code>*ONLY</code>(0) / <code>*LAST</code>(-1) または 1〜999999。</td>
+      </tr>
+      <tr>
+        <td>DIR</td>
+        <td>*PNAME(512)</td>
+        <td class="opt">省略可</td>
+        <td>*HOME</td>
+        <td>PDF ファイルを保存する IFS ディレクトリーの絶対パス。<br>
+            <code>*HOME</code>: 現行ユーザーのホームディレクトリー (<code>/home/USERID</code>)。</td>
+      </tr>
+      <tr>
+        <td>PDFFILE</td>
+        <td>*PNAME(128)</td>
+        <td class="opt">省略可</td>
+        <td>*SPLF</td>
+        <td>出力 PDF ファイル名。<br>
+            <code>*SPLF</code>: スプールファイル名 + スプール番号 + <code>.pdf</code>（例: <code>QSYSPRT_3.pdf</code>）。</td>
+      </tr>
+      <tr>
+        <td>FONT</td>
+        <td>*PNAME(512)</td>
+        <td class="opt">省略可</td>
+        <td>*DFT</td>
+        <td>PDF 生成に使用する TTF フォントファイルの IFS 絶対パス。<br>
+            <code>*DFT</code>: <code>/MAI/fonts/SourceHanSans-VF.ttf</code>（源ノ角ゴシック）。<br>
+            <small>※ *SCS ルート時のみ有効。その他ルートでは使用しない。</small></td>
+      </tr>
+      <tr>
+        <td>FROMCCSID</td>
+        <td>*CHAR(5)</td>
+        <td class="opt">省略可</td>
+        <td>*JOB</td>
+        <td>スプールファイルの入力 CCSID。<br>
+            <code>*JOB</code>: 現行ジョブの CCSID を使用（CCSID=0 の場合は <code>RTVSYSVAL QCCSID</code>）。<br>
+            数値指定: 例 <code>5035</code>。<br>
+            <small>※ *SCS ルート時のみ有効。その他ルートでは使用しない。</small></td>
+      </tr>
+      <tr>
+        <td>DUPOPT</td>
+        <td>*CHAR(8)</td>
+        <td class="opt">省略可</td>
+        <td>*REPLACE</td>
+        <td>出力先に同名 PDF が既に存在する場合の処理。<br>
+            <code>*REPLACE</code>: 上書き（既存ファイルを置き換える）。<br>
+            <code>*NONE</code>: 中止（<code>CPF9898 *ESCAPE</code> を送出）。<br>
+            <code>*RENAME</code>: 自動リネーム（<code>FILE_NNN_1.pdf</code>、<code>FILE_NNN_2.pdf</code> … のように連番サフィックスを付加して空き名を探す）。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 3. 処理フロー ─── -->
+  <h2>3. 処理フロー</h2>
+  <div class="flowbox">
+    <div class="step"><span class="badge">START</span><span class="step-text"><strong>SPLTOPDF</strong> 開始</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>MONMSG CPF0000</code> → エラー時は <code>ERRLABEL</code> へジャンプ（大域エラーハンドラー）</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>ADDLIBLE LIB(QFNTCPL)</code> で日本語フォントライブラリーを追加<br>
+      <code>CPF2103</code>（既追加）は無視</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text"><code>QUSRSPLA</code> API 呼び出し (SPLA0100 フォーマット、長さ 1142 バイト) でスプール属性取得<br>
+      → 実スプール番号 (offset 77)・デバイスタイプ (offset 309)・プリンター装置タイプ (offset 319) を抽出</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">CCSID 解決: <code>FROMCCSID=*JOB</code> → <code>RTVJOBA CCSID</code>、0 の場合は <code>RTVSYSVAL QCCSID</code><br>
+      → <code>&amp;TXTCCSID</code>（ヌル終端文字列）に格納して <code>TXTTOPDF</code> へ渡す準備</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">フォントパス解決: <code>FONT=*DFT</code> → <code>/MAI/fonts/SourceHanSans-VF.ttf</code> に展開<br>
+      → <code>&amp;FONTTRIMN</code>（ヌル終端）に格納</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">PDF ファイル名解決: <code>PDFFILE=*SPLF</code> → <code>FILE_NNN.pdf</code>（スプールファイル名 + 実スプール番号）に展開</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">出力フォルダー解決: <code>DIR=*HOME</code> → <code>RTVUSRPRF</code> で現行ユーザー名取得 → <code>/home/USERID</code> に展開</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">出力フルパス構築: <code>&amp;STMF = &amp;DIR / &amp;PDFFILE</code><br>
+      ヌル終端版 <code>&amp;STMFN</code> も同時に生成</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>DUPOPT = *NONE</code> または <code>*RENAME</code> → 重複ファイルチェックブロック実行</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>DSPLNK OBJ(&amp;STMF) OUTPUT(*PRINT)</code> でファイル存在確認<br>
+      <code>CPFA0A9</code>（オブジェクト未発見）→ <code>NODUP</code> へジャンプ（重複なし、処理続行）</span></div>
+    <div class="step indent2"><span class="badge cond">IF</span><span class="step-text">ファイル存在 かつ <code>DUPOPT = *NONE</code><br>
+      → <code>SNDPGMMSG MSGID(CPF9898) MSGTYPE(*ESCAPE)</code> で中断</span></div>
+    <div class="step indent2"><span class="badge cond">IF</span><span class="step-text">ファイル存在 かつ <code>DUPOPT = *RENAME</code></span></div>
+    <div class="step indent3"><span class="badge">STEP</span><span class="step-text">ファイル名のステム (<code>&amp;PDFBASE</code>) と拡張子 (<code>&amp;PDFEXT</code>) を分離<br>
+      <code>%LOWER</code> で小文字化 → <code>%SCAN('.pdf')</code> で <code>.pdf</code> 位置を検出</span></div>
+    <div class="step indent3"><span class="badge loop">LOOP</span><span class="step-text"><code>RENAMELOOP:</code> 連番 (<code>&amp;RENAMESEQ</code> = 1, 2, …) を付加した候補パス <code>&amp;STMFCHK</code> を生成<br>
+      <code>DSPLNK OBJ(&amp;STMFCHK)</code> で空きを探す<br>
+      <code>CPFA0A9</code> → <code>FREENAME:</code> 空きパスを <code>&amp;STMF</code> / <code>&amp;STMFN</code> に採用してループ終了</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>&amp;PRTDEVTYP の先頭4文字 = '*SCS'</code> → <strong>*SCS ルート</strong></span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text">一時テキストファイルパス生成: <code>&amp;TMPSTMF = &amp;STMF + '.tmp'</code>（ヌル終端版 <code>&amp;TMPSTMFN</code> も生成）</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>SPLTOPF(&amp;FILE, &amp;QJOB, &amp;SPLNBR4)</code> 呼び出し → スプールを <code>QTEMP/PRTPF</code> 物理ファイルに変換<br>
+      <small>※ <code>&amp;SPLNBR4</code> は LEN(4,0) に変換して SPLTOPF のパラメーター型に合わせる</small></span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>CPYTOSTMF FROMMBR('/QSYS.LIB/QTEMP.LIB/PRTPF.FILE/PRTPF.MBR')</code><br>
+      → <code>TOSTMF(&amp;TMPSTMF) DBFCCSID(*FILE) STMFCODPAG(*STMF) STMFOPT(*REPLACE)</code><br>
+      PRTPF (CCSID 65535) をジョブ CCSID で IFS テキストファイルに変換</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>TXTTOPDF(&amp;TMPSTMFN, &amp;STMFN, &amp;TXTCCSID, &amp;FONTTRIMN)</code> 呼び出し<br>
+      → IFS テキストファイルを TTF フォントで PDF 変換、<code>&amp;STMF</code> に出力</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>RMVLNK OBJLNK(&amp;TMPSTMF)</code> で IFS 一時テキストファイルを削除<br>
+      <code>CPFA09C / CPCA089 / CPF0000</code> は無視（既に削除済み等の場合）</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>SNDPGMMSG MSGID(PDF1015) MSGF(*LIBL/MAIMSG) MSGDTA(&amp;PDF15DTA) MSGTYPE(*COMP)</code><br>
+      → 出力 IFS パスを *CCHAR *VARY 2 形式のメッセージデータで送信</span></div>
+
+    <div class="step indent1"><span class="badge cond">IF</span><span class="step-text"><code>&amp;PRTDEVTYP の先頭4文字 ≠ '*SCS'</code> → <strong>その他ルート (CPYSPLF WSCST(*PDF))</strong></span></div>
+    <div class="step indent2"><span class="badge loop">LOOP</span><span class="step-text">SPLNBR = -1 (*LAST) / 0 (*ONLY) / 1以上 の 3 ケースを個別に処理<br>
+      JOB = <code>*</code>（現行ジョブ）か否かで <code>CPYSPLF</code> の <code>JOB</code> パラメーターを切り替え</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>CPYSPLF FILE(&amp;FILE) TOFILE(*TOSTMF) SPLNBR(...) TOSTMF(&amp;STMF) WSCST(*PDF) STMFOPT(*REPLACE)</code><br>
+      → システム標準の PDF 変換で IFS に直接出力</span></div>
+    <div class="step indent2"><span class="badge">STEP</span><span class="step-text"><code>SNDPGMMSG MSGID(PDF1015) MSGF(*LIBL/MAIMSG) MSGDTA(&amp;PDF15DTA) MSGTYPE(*COMP)</code><br>
+      → 出力 IFS パスを *CCHAR *VARY 2 形式のメッセージデータで送信</span></div>
+
+    <div class="step indent1"><span class="badge">STEP</span><span class="step-text">正常終了 → <code>GOTO ENDLABEL</code></span></div>
+    <div class="step indent1"><span class="badge err">ERR</span><span class="step-text"><code>ERRLABEL:</code> <code>SNDPGMMSG MSGID(CPF9899) MSGF(QCPFMSG) MSGTYPE(*ESCAPE)</code><br>
+      → エラー発生時に *ESCAPE メッセージを送出して呼び出し元に伝播</span></div>
+    <div class="step"><span class="badge err">END</span><span class="step-text">正常終了</span></div>
+  </div>
+
+  <!-- ─── 4. 内部変数 ─── -->
+  <h2>4. 内部変数</h2>
+  <table>
+    <thead>
+      <tr><th>変数名</th><th>型 / 長さ</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>&amp;FILE</td><td>*CHAR(10)</td><td>スプールファイル名（パラメーター）</td></tr>
+      <tr><td>&amp;QJOB</td><td>*CHAR(26)</td><td>ジョブ修飾名（パラメーター）</td></tr>
+      <tr><td>&amp;SPLNBR</td><td>*DEC(6,0)</td><td>スプール番号（パラメーター）</td></tr>
+      <tr><td>&amp;DIR</td><td>*CHAR(512)</td><td>出力フォルダー IFS パス（パラメーター）</td></tr>
+      <tr><td>&amp;PDFFILE</td><td>*CHAR(128)</td><td>PDF ファイル名（パラメーター）</td></tr>
+      <tr><td>&amp;FONT</td><td>*CHAR(512)</td><td>TTF フォント IFS パス（パラメーター）</td></tr>
+      <tr><td>&amp;FROMCCSID</td><td>*CHAR(5)</td><td>入力 CCSID 文字列（パラメーター）</td></tr>
+      <tr><td>&amp;DUPOPT</td><td>*CHAR(8)</td><td>重複ファイル処理オプション（パラメーター）: <code>*REPLACE</code> / <code>*NONE   </code> / <code>*RENAME </code></td></tr>
+      <tr><td>&amp;JOB / &amp;USR / &amp;NBR</td><td>*CHAR(10/10/6)</td><td>&amp;QJOB から分解したジョブ名・ユーザー・番号</td></tr>
+      <tr><td>&amp;SPLFA</td><td>*CHAR(1142)</td><td>QUSRSPLA API 出力バッファー（SPLA0100 フォーマット）</td></tr>
+      <tr><td>&amp;LEN</td><td>*CHAR(4)</td><td>QUSRSPLA 出力バッファー長（BIN 4: 1142）</td></tr>
+      <tr><td>&amp;JOBI / &amp;SPLFI</td><td>*CHAR(16)</td><td>QUSRSPLA の入力キー（ジョブ識別・スプール識別）。ブランク = 不使用。</td></tr>
+      <tr><td>&amp;PSPLNBR</td><td>*CHAR(4)</td><td>QUSRSPLA に渡すスプール番号（BIN 4 形式）</td></tr>
+      <tr><td>&amp;DEVTYPE</td><td>*CHAR(10)</td><td>スプール装置タイプ（offset 309: PRINTER/DISKETTE/TAPE）</td></tr>
+      <tr><td>&amp;PRTDEVTYP</td><td>*CHAR(10)</td><td>プリンター装置タイプ（offset 319: *SCS/*AFPDS/*IPDS 等）。ルート分岐の判定に使用。</td></tr>
+      <tr><td>&amp;SPLNBRACT</td><td>*DEC(6,0)</td><td>実スプール番号（SPLFA offset 77 から取得。*SPLF ファイル名生成に使用）</td></tr>
+      <tr><td>&amp;SPLNBRC</td><td>*CHAR(6)</td><td>&amp;SPLNBRACT を文字列に変換した作業変数</td></tr>
+      <tr><td>&amp;SPLNBR4</td><td>*DEC(4,0)</td><td>SPLTOPF 呼び出し用スプール番号（LEN(4,0)に変換）</td></tr>
+      <tr><td>&amp;JOBCCSID</td><td>*DEC(5,0)</td><td>RTVJOBA / RTVSYSVAL で取得したジョブ CCSID（数値）</td></tr>
+      <tr><td>&amp;JOBCCSIDS</td><td>*CHAR(5)</td><td>&amp;JOBCCSID を文字列に変換した作業変数</td></tr>
+      <tr><td>&amp;TXTCCSID</td><td>*CHAR(6)</td><td>TXTTOPDF に渡す CCSID 文字列（ヌル終端、6 バイト）</td></tr>
+      <tr><td>&amp;NULL</td><td>*CHAR(1) X'00'</td><td>ヌル終端文字。ILE C の CALL PARM 用。</td></tr>
+      <tr><td>&amp;USRNAME</td><td>*CHAR(10)</td><td>RTVUSRPRF で取得した現行ユーザー名（*HOME 解決に使用）</td></tr>
+      <tr><td>&amp;STMF</td><td>*CHAR(640)</td><td>出力 PDF の IFS フルパス（CL コマンド用、ヌル不要）</td></tr>
+      <tr><td>&amp;TMPSTMF</td><td>*CHAR(640)</td><td>一時テキストファイル IFS パス（= &amp;STMF + '.tmp'）</td></tr>
+      <tr><td>&amp;FONTTRIM</td><td>*CHAR(512)</td><td>右トリムしたフォントパス（CL コマンド用）</td></tr>
+      <tr><td>&amp;STMFN</td><td>*CHAR(641)</td><td>&amp;STMF のヌル終端版（TXTTOPDF CALL PARM 用）</td></tr>
+      <tr><td>&amp;TMPSTMFN</td><td>*CHAR(641)</td><td>&amp;TMPSTMF のヌル終端版（TXTTOPDF CALL PARM 用）</td></tr>
+      <tr><td>&amp;FONTTRIMN</td><td>*CHAR(513)</td><td>&amp;FONTTRIM のヌル終端版（TXTTOPDF CALL PARM 用）</td></tr>
+      <tr><td>&amp;PDFBASE</td><td>*CHAR(128)</td><td>*RENAME 処理用: PDF ファイル名からステム部分（拡張子除去後）を格納</td></tr>
+      <tr><td>&amp;PDFEXT</td><td>*CHAR(8)</td><td>*RENAME 処理用: 拡張子部分（<code>.pdf</code> または空白）</td></tr>
+      <tr><td>&amp;RENAMESEQ</td><td>*DEC(5,0) 初期値 1</td><td>*RENAME 処理用: 連番カウンター（1, 2, …）</td></tr>
+      <tr><td>&amp;SEQSTR</td><td>*CHAR(5)</td><td>*RENAME 処理用: &amp;RENAMESEQ を文字列化した作業変数（先頭ゼロ除去済み）</td></tr>
+      <tr><td>&amp;STMFCHK</td><td>*CHAR(640)</td><td>*RENAME 処理用: ファイル存在確認に使う候補パス</td></tr>
+      <tr><td>&amp;PDFLOWER</td><td>*CHAR(128)</td><td>*RENAME 処理用: <code>&amp;PDFFILE</code> の小文字コピー（<code>%LOWER</code> 変換）。<code>.pdf</code> サフィックス検出用。</td></tr>
+      <tr><td>&amp;DOTPOS</td><td>*UINT(4)</td><td>*RENAME 処理用: <code>%SCAN('.pdf')</code> で求めた <code>.pdf</code> の開始位置（ILE CL <code>*UINT</code> 型）</td></tr>
+      <tr><td>&amp;STMFLEN</td><td>*DEC(5,0)</td><td>PDF1015 メッセージデータ用: <code>%CHECKR</code> で求めた <code>&amp;STMF</code> の有効文字長</td></tr>
+      <tr><td>&amp;PDF15DTA</td><td>*CHAR(642)</td><td>PDF1015 メッセージデータ: 先頭 2 バイトに <code>&amp;STMFLEN</code> (BIN)、続いてパス文字列（<em>*CCHAR *VARY 2</em> 形式）</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 5. 使用する外部プログラム / API ─── -->
+  <h2>5. 使用する外部プログラム / API</h2>
+  <table>
+    <thead>
+      <tr><th>プログラム / API</th><th>種別</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>QUSRSPLA</td><td>IBM i API (*PGM)</td><td>スプールファイル属性取得。SPLA0100 フォーマット (1142 バイト) で装置タイプ・実スプール番号等を取得する。</td></tr>
+      <tr><td>SPLTOPF</td><td>MAI/*PGM (CLP)</td><td>スプールファイルを <code>QTEMP/PRTPF</code> 物理ファイルに展開する (*SCS ルートのみ)。</td></tr>
+      <tr><td>TXTTOPDF</td><td>MAI/*PGM (ILE C)</td><td>IFS テキストファイルを TTF フォントを使用して PDF に変換する (*SCS ルートのみ)。引数はすべてヌル終端 C 文字列。</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 6. 使用する CL コマンド ─── -->
+  <h2>6. 使用する CL コマンド</h2>
+  <table>
+    <thead>
+      <tr><th>コマンド</th><th>使用ルート</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>ADDLIBLE LIB(QFNTCPL)</td><td>共通</td><td>日本語フォントライブラリーを追加。CPF2103（既追加）は無視。</td></tr>
+      <tr><td>RTVJOBA CCSID()</td><td>*SCS ルート (*JOB 指定時)</td><td>現行ジョブの CCSID を取得。0 の場合は RTVSYSVAL QCCSID にフォールバック。</td></tr>
+      <tr><td>RTVSYSVAL SYSVAL(QCCSID)</td><td>*SCS ルート (JOBCCSID=0 時)</td><td>システム値 QCCSID を取得。</td></tr>
+      <tr><td>RTVUSRPRF USRPRF(*CURRENT)</td><td>共通 (DIR=*HOME 時)</td><td>現行ユーザーのプロファイル名を取得して /home/USERID を構築。</td></tr>
+      <tr><td>DSPLNK OBJ() OUTPUT(*PRINT)</td><td>DUPOPT=*NONE/*RENAME 時</td><td>ファイル存在確認。<code>CPFA0A9</code>（オブジェクト未発見）で存在なしと判断。</td></tr>
+      <tr><td>CPYTOSTMF</td><td>*SCS ルート</td><td>QTEMP/PRTPF を IFS 一時テキストファイルに変換。DBFCCSID(*FILE) / STMFCODPAG(*STMF) / STMFOPT(*REPLACE)。</td></tr>
+      <tr><td>RMVLNK OBJLNK()</td><td>*SCS ルート</td><td>一時テキストファイルを削除。CPFA09C / CPCA089 / CPF0000 は無視。</td></tr>
+      <tr><td>CPYSPLF WSCST(*PDF)</td><td>その他ルート</td><td>システム標準の PDF 変換。SPLNBR(*LAST/*ONLY/番号) × JOB指定有無 の組み合わせで分岐。</td></tr>
+      <tr><td>SNDPGMMSG MSGID(PDF1015) MSGF(*LIBL/MAIMSG)</td><td>共通（両ルート正常完了後）</td><td>PDF 生成完了を <code>*COMP</code> メッセージで通知。MSGDTA に出力 IFS パスを <em>*CCHAR *VARY 2</em> 形式で格納。</td></tr>
+      <tr><td>SNDPGMMSG MSGID(CPF9899) MSGTYPE(*ESCAPE)</td><td>エラー処理</td><td>ERRLABEL で捕捉したエラーを *ESCAPE として呼び出し元に伝播する。</td></tr>
+      <tr><td>SNDPGMMSG MSGID(CPF9898) MSGTYPE(*ESCAPE)</td><td>DUPOPT=*NONE 時・重複検出</td><td>出力先ファイルが既に存在する場合に *ESCAPE を送出して中断する。</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 7. QUSRSPLA SPLA0100 フォーマット（使用フィールド）─── -->
+  <h2>7. QUSRSPLA SPLA0100 オフセット（使用フィールド）</h2>
+  <table>
+    <thead>
+      <tr><th>オフセット</th><th>長さ</th><th>型</th><th>変数</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>77</td><td>4</td><td>BIN4</td><td>&amp;SPLNBRACT</td><td>実スプール番号。<code>*SPLF</code> ファイル名生成 (<code>FILE_NNN.pdf</code>) に使用。</td></tr>
+      <tr><td>309</td><td>10</td><td>CHAR</td><td>&amp;DEVTYPE</td><td>装置タイプ (PRINTER / DISKETTE / TAPE 等)。現時点では参照のみ。</td></tr>
+      <tr><td>319</td><td>10</td><td>CHAR</td><td>&amp;PRTDEVTYP</td><td>プリンター装置タイプ (*SCS / *AFPDS / *IPDS 等)。変換ルートの分岐に使用。</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 8. エラー処理方針 ─── -->
+  <h2>8. エラー処理方針</h2>
+  <ul>
+    <li>プログラム先頭の <code>MONMSG CPF0000 EXEC(GOTO CMDLBL(ERRLABEL))</code> で全 CPF エラーをキャッチする大域モニターを設定する。</li>
+    <li><code>ERRLABEL</code> では <code>SNDPGMMSG MSGID(CPF9899) MSGF(QCPFMSG) MSGTYPE(*ESCAPE)</code> で *ESCAPE メッセージを送出し、呼び出し元 (<code>SPLTOMAIL</code> 等) にエラーを伝播する。</li>
+    <li><code>DUPOPT=*NONE</code> 時に出力先ファイルが既存であれば <code>CPF9898 *ESCAPE</code> を送出して即座に中断する。</li>
+    <li><code>ADDLIBLE</code> の <code>CPF2103</code>（ライブラリー既追加）は個別に <code>MONMSG</code> で無視する。</li>
+    <li><code>RMVLNK</code> の <code>CPFA09C / CPCA089 / CPF0000</code>（一時ファイル削除失敗）は個別に <code>MONMSG</code> で無視する。</li>
+    <li><code>DSPLNK</code> の <code>CPFA0A9</code>（ファイル未発見）は <code>DUPOPT</code> 処理内で <code>NODUP</code> / <code>FREENAME</code> ラベルへのジャンプに利用する。</li>
+  </ul>
+
+  <!-- ─── 9. DUPOPT 重複処理まとめ ─── -->
+  <h2>9. DUPOPT 重複ファイル処理まとめ</h2>
+  <table>
+    <thead>
+      <tr><th>DUPOPT</th><th>既存ファイルあり</th><th>既存ファイルなし</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>*REPLACE</code></td><td>上書き（<code>STMFOPT(*REPLACE)</code> で自動置換）</td><td>新規作成</td></tr>
+      <tr><td><code>*NONE   </code></td><td><code>CPF9898 *ESCAPE</code> を送出して中断</td><td>新規作成</td></tr>
+      <tr><td><code>*RENAME </code></td><td><code>FILE_NNN_1.pdf</code>、<code>FILE_NNN_2.pdf</code> … と連番を試みて空き名で作成</td><td>新規作成</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 10. 変換ルートまとめ ─── -->
+  <h2>10. 変換ルート判定まとめ</h2>
+  <table>
+    <thead>
+      <tr><th>PRTDEVTYP (offset 319)</th><th>変換ルート</th><th>使用プログラム/コマンド</th><th>フォント指定</th><th>CCSID 指定</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>*SCS       </code></td><td>独自 PDF エンジン</td><td>SPLTOPF → CPYTOSTMF → TXTTOPDF</td><td>有効 (FONT パラメーター)</td><td>有効 (FROMCCSID パラメーター)</td></tr>
+      <tr><td><code>*AFPDS</code> / <code>*IPDS</code> / その他</td><td>システム標準</td><td>CPYSPLF WSCST(*PDF)</td><td>無効（システム依存）</td><td>無効（システム依存）</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 11. 関連オブジェクト ─── -->
+  <h2>11. 関連オブジェクト</h2>
+  <table>
+    <thead>
+      <tr><th>オブジェクト</th><th>ライブラリ</th><th>種類</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SPLTOPDF</td><td>MAI</td><td>*PGM (CLP)</td><td>SPLF TO PDF SPLPF-&gt;PRTPF-&gt;STMF-&gt;PDF（本プログラム）</td></tr>
+      <tr><td>SPLTOPDF</td><td>MAI</td><td>*CMD</td><td>SPLF TO PDF コマンド</td></tr>
+      <tr><td>SPLTOPDF</td><td>MAI</td><td>*PNLGRP</td><td>SPLTOPDFコマンドのヘルプパネルグループ</td></tr>
+      <tr><td>TXTTOPDF</td><td>MAI</td><td>*PGM (ILE C)</td><td>IFS TEXT TO PDF — TTF フォント使用 PDF 生成エンジン</td></tr>
+      <tr><td>SPLTOPF</td><td>MAI</td><td>*PGM (CLP)</td><td>SPLF TO QTEMP/PRTPF — スプールを物理ファイルに変換</td></tr>
+      <tr><td>SPLTOPF</td><td>MAI</td><td>*CMD</td><td>SPLF TO QTEMP/PRTPF コマンド</td></tr>
+      <tr><td>MAIMSG</td><td>MAI</td><td>*MSGF</td><td>MAI メッセージファイル（PDF1015 完了通知メッセージを含む）</td></tr>
+      <tr><td>SPLTOPDF.CLP</td><td>MAIV300S/QCLSRC</td><td>*SRCMBR</td><td>SPLTOPDF プログラム本体ソース（現行版）</td></tr>
+      <tr><td>SPLTOPDF.1.CLP</td><td>MAIV300S/QCLSRC</td><td>*SRCMBR</td><td>SPLTOPDF 旧版ソース（履歴保管）</td></tr>
+      <tr><td>SPLTOPDF.CMD</td><td>MAIV300S/QCMDSRC</td><td>*SRCMBR</td><td>コマンド定義ソース</td></tr>
+      <tr><td>SPLTOPDF.PNLGRP</td><td>MAIV300S/QHLPSRC</td><td>*SRCMBR</td><td>コマンドヘルプパネルグループソース</td></tr>
+      <tr><td>MSPLTOMAIL.CLP</td><td>MAIV300S/QMAKESRC</td><td>*SRCMBR</td><td>SPLTOPDF を含む SPLTOMAIL フルビルド手順</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 12. ビルド手順 ─── -->
+  <h2>12. ビルド手順</h2>
+  <p><code>MSPLTOMAIL.CLP</code> の一部として以下のコマンドでビルドされます。</p>
+  <table>
+    <thead>
+      <tr><th>コマンド</th><th>生成オブジェクト</th><th>オプション</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>CRTBNDCL PGM(MAI/SPLTOPDF)</code></td><td>MAI/SPLTOPDF *PGM</td><td>SRCFILE(*CURLIB/QCLSRC) SRCMBR(SPLTOPDF) DBGVIEW(*ALL) AUT(*EXCLUDE) TEXT('SPLF TO IFS STREAM FILE (PDF)')</td></tr>
+      <tr><td><code>CRTPNLGRP PNLGRP(MAI/SPLTOPDF)</code></td><td>MAI/SPLTOPDF *PNLGRP</td><td>MAIV300S/QHLPSRC(SPLTOPDF) — MSPLTOMAIL.CLP には未記載、個別実行</td></tr>
+      <tr><td><code>CRTCMD CMD(MAI/SPLTOPDF)</code></td><td>MAI/SPLTOPDF *CMD</td><td>MAIV300S/QCMDSRC(SPLTOPDF) — MSPLTOMAIL.CLP には未記載、個別実行</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── 13. 特記事項 ─── -->
+  <h2>13. 特記事項</h2>
+  <ul>
+    <li>ルート判定は <code>QUSRSPLA SPLA0100</code> フォーマットの <strong>offset 319 (PRTDEVTYP)</strong> の先頭 4 文字が <code>'*SCS'</code> かどうかで行う。</li>
+    <li><strong>*SCS ルート</strong>では TTF フォントを使用した独自 PDF エンジン (<code>TXTTOPDF</code>) を使用するため、日本語フォント (<code>SourceHanSans-VF.ttf</code>) の配置が必要。デフォルトパスは <code>/MAI/fonts/SourceHanSans-VF.ttf</code>。</li>
+    <li><strong>TXTTOPDF へ渡す引数はすべてヌル終端 C 文字列</strong>であるため、CL 変数に <code>X'00'</code> を連結した <code>&amp;STMFN</code>・<code>&amp;TMPSTMFN</code>・<code>&amp;FONTTRIMN</code>・<code>&amp;TXTCCSID</code> を使用する。</li>
+    <li>SPLTOPF のパラメーター型は <code>*DEC LEN(4,0)</code> であるため、<code>&amp;SPLNBR</code> (LEN 6,0) を <code>&amp;SPLNBR4</code> (LEN 4,0) に変換してから呼び出す。</li>
+    <li><code>CPYTOSTMF</code> では <code>DBFCCSID(*FILE)</code> / <code>STMFCODPAG(*STMF)</code> を指定し、変換なしで IFS に書き出す。CCSID 変換は <code>TXTTOPDF</code> 側で行う。</li>
+    <li><code>*SPLF</code> ファイル名は <code>FILE_NNN.pdf</code> 形式（FILE = スプールファイル名、NNN = 実スプール番号）。スプール番号は <code>QUSRSPLA</code> が返す実番号を使用する（入力 SPLNBR が *LAST の場合でも実番号が格納される）。</li>
+    <li><code>DUPOPT=*RENAME</code> では <code>%LOWER</code> と <code>%SCAN</code> で <code>.pdf</code> 拡張子を検出し、ステム部分と連番を組み合わせて空きファイル名を探す。<code>&amp;DOTPOS</code> に ILE CL 固有の <code>*UINT</code> 型を使用しているため、<strong>CRTBNDCL (ILE CL) でのコンパイルが必須</strong>。</li>
+    <li>PDF 生成完了後は <strong><code>MAIMSG/PDF1015</code></strong> (<code>*COMP</code>) メッセージで出力 IFS パスを呼び出し元に送信する。メッセージデータは <em>*CCHAR *VARY 2</em> 形式（先頭 2 バイトが BIN でパス長、続いてパス文字列）。</li>
+    <li><code>RMVLNK</code> の <code>MONMSG</code> は <code>CPFA09C CPCA089 CPF0000</code> の 3 メッセージを無視する。</li>
+    <li><code>QFNTCPL</code> ライブラリーは <code>ADDLIBLE</code> で追加するが、すでにライブラリーリストにある場合の <code>CPF2103</code> は無視する。</li>
+    <li>プログラムは <code>AUT(*EXCLUDE)</code> で作成される。</li>
+  </ul>
+
+</div>
+
+<footer>
+  プログラム仕様書 SPLTOPDF — 生成日: <script>document.write(new Date().toLocaleDateString('ja-JP'));</script> &nbsp;|&nbsp; MAI400 プロジェクト / MAIV300S ライブラリ
+</footer>
+
+</body>
+</html>

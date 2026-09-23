@@ -186,25 +186,6 @@
       border-radius: 4px;
     }
 
-    .screen-image {
-      margin: 16px 0 20px;
-      text-align: center;
-      background: #111;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-    }
-    .screen-image img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-    .screen-image figcaption {
-      color: #d7dce2;
-      font-size: 12px;
-      margin-top: 8px;
-    }
-
     /* ─── フッター ─── */
     .footer {
       font-size: 12px;
@@ -245,11 +226,11 @@
     </dl>
     <dl>
       <dt>ライブラリ</dt>
-      <dd>Runtime: MAI / Source: MAIV300S</dd>
+      <dd>MAIV300S / MAI</dd>
     </dl>
     <dl>
       <dt>作成者 / 日付</dt>
-      <dd>IDELIB (2026/09/12)</dd>
+      <dd>Y.Ide (2026/09/01)</dd>
     </dl>
   </div>
 
@@ -293,15 +274,15 @@
         </tr>
         <tr>
           <td>ライブラリ</td>
-          <td><code>MAI</code> (Runtime) / <code>MAIV300S</code> (Source)</td>
+          <td><code>MAIV300S</code></td>
         </tr>
         <tr>
           <td>作成者</td>
-          <td>IDELIB</td>
+          <td>Y.Ide</td>
         </tr>
         <tr>
           <td>作成日</td>
-          <td>2026/09/12</td>
+          <td>2026/09/01</td>
         </tr>
         <tr>
           <td>バージョン</td>
@@ -1666,10 +1647,18 @@ sequenceDiagram
     <h2 id="sec10">10. 画面説明</h2>
 
     <h3>メイン画面 (MAINPNL)</h3>
-    <figure class="screen-image">
-      <img src="WRKMSPLF_Sample_Masked.png" alt="WRKMSPLF スプール・ファイル処理画面のサンプル（システム名マスク済み）">
-      <figcaption>WRKMSPLF メイン画面（実機画面サンプル）</figcaption>
-    </figure>
+    <pre><code>                         スプール・ファイルの処理                   SYSTEM
+                                                                    xx/xx/xx xx:xx:xx
+ オプションを入力して、実行キーを押してください。
+  2=変更  3=保留  4=削除  5=表示  6=解放  7=メッセージ  8=属性
+  9=印刷状況  11=PDF  12=テキスト  13=コピー  14=メール
+
+ OPT  ファイル   ユーザー   装置/待ち行列  ユーザー・データ  STS  合計数  部数
+      QPJOBLOG   QSYSOPR    PRT01          QPJOBLOG          RDY      2      1
+      QPDSPJOB   IDE        PRT01                            HLD     10      1
+ ===&gt;
+ F3=終了  F4=プロンプト  F5=最新表示  F9=コマンドの再生
+ F10=ジョブ・ログ表示  F12=取消し  F24=キーの続き</code></pre>
 
     <h3>主要な表示列</h3>
     <table>
@@ -1784,7 +1773,7 @@ sequenceDiagram
     </table>
 
     <div class="footer">
-      Date: 2026-09-12 / Runtime Library: MAI / Source Library: MAIV300S &mdash; Author: IDELIB
+      仕様書作成日: 2026年 / ライブラリ: MAIV300S
     </div>
 
   </div>
