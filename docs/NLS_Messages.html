@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAI/400 NLS メッセージ一覧</title>
+  <style>
+    :root {
+      --primary:   #1a4a7a;
+      --accent:    #2e7fcf;
+      --bg-header: #eef4fb;
+      --bg-table:  #f9fbfd;
+      --border:    #c8d8ea;
+      --text:      #1e2630;
+      --mono:      "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo UI", "Yu Gothic UI", "Segoe UI", sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: #f5f7fa;
+      padding: 20px;
+    }
+
+    .doc-header {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      padding: 18px 28px 14px;
+    }
+    .doc-header h1 { font-size: 20px; letter-spacing: .04em; }
+    .doc-header .subtitle { font-size: 12px; opacity: .8; margin-top: 4px; }
+
+    .meta-bar {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .meta-bar dl {
+      display: flex;
+      flex-direction: column;
+      padding: 8px 18px;
+      border-right: 1px solid var(--border);
+      min-width: 120px;
+    }
+    .meta-bar dl:last-child { border-right: none; }
+    .meta-bar dt { font-size: 10px; color: #6a7f96; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-bar dd { font-size: 12px; font-weight: 600; color: var(--primary); margin-top: 2px; }
+
+    .content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 24px 28px 40px;
+    }
+
+    /* section heading */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding: 6px 0 6px 12px;
+      margin: 28px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .group-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 10px;
+      padding: 1px 10px;
+    }
+    .group-desc {
+      font-size: 12px;
+      font-weight: 400;
+      color: #6a7f96;
+    }
+
+    /* main table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    thead th.lang-ja { background: #2d6a2d; }
+    thead th.lang-en { background: #1a5a9a; }
+    thead th.lang-fr { background: #0055a4; }
+    thead th.lang-de { background: #3d5a8a; }
+    thead th.lang-es { background: #a02010; }
+    thead th.lang-it { background: #007a30; }
+
+    tbody tr:nth-child(even) { background: var(--bg-table); }
+    tbody tr:hover { background: #dceeff; }
+    tbody td {
+      padding: 5px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody td.msgid {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      color: var(--primary);
+    }
+    tbody td.msg-ja { color: #1a3a1a; }
+    tbody td.msg-en { color: #1a3a6a; }
+    tbody td.msg-fr { color: #0040a0; }
+    tbody td.msg-de { color: #2a3a6a; }
+    tbody td.msg-es { color: #7a1008; }
+    tbody td.msg-it { color: #005020; }
+
+    /* sticky header */
+    .tbl-wrap { overflow-x: auto; }
+    thead th { position: sticky; top: 0; z-index: 1; }
+
+    /* filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-bar input {
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      width: 240px;
+    }
+    .filter-bar label { font-size: 12px; color: #6a7f96; }
+    .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+    .grp-btn {
+      padding: 3px 10px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      color: var(--primary);
+      transition: background .15s;
+    }
+    .grp-btn:hover, .grp-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* counts */
+    .count-bar {
+      font-size: 11px;
+      color: #6a7f96;
+      margin-bottom: 6px;
+    }
+    .count-bar span { font-weight: 700; color: var(--primary); }
+
+    footer {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 11px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>MAI/400 NLS メッセージ一覧</h1>
+  <div class="subtitle">MAIMSG / MAIPMT &mdash; 6 ライブラリ全メッセージ多言語対応表</div>
+</div>
+<div class="meta-bar">
+  <dl><dt>対象ファイル</dt><dd>MAIMSG / MAIPMT</dd></dl>
+  <dl><dt>対象ライブラリ</dt><dd>MAI / MAI2924〜32</dd></dl>
+  <dl><dt>MAIMSG 件数</dt><dd>155 件</dd></dl>
+  <dl><dt>MAIPMT 件数</dt><dd>19 件</dd></dl>
+  <dl><dt>更新日</dt><dd>2026-09-27</dd></dl>
+</div>
+
+<div class="content">
+
+  <!-- filter -->
+  <div class="filter-bar">
+    <input type="text" id="searchBox" placeholder="MSG ID またはテキストで絞り込み..." oninput="filterRows()">
+    <label>グループ:</label>
+    <div class="btn-group" id="grpBtns">
+      <button class="grp-btn active" onclick="filterGroup('ALL',this)">ALL</button>
+      <button class="grp-btn" onclick="filterGroup('CMD',this)">CMD</button>
+      <button class="grp-btn" onclick="filterGroup('DBT',this)">DBT</button>
+      <button class="grp-btn" onclick="filterGroup('MAI',this)">MAI</button>
+      <button class="grp-btn" onclick="filterGroup('PDF',this)">PDF</button>
+      <button class="grp-btn" onclick="filterGroup('SPL',this)">SPL</button>
+      <button class="grp-btn" onclick="filterGroup('STM',this)">STM</button>
+      <button class="grp-btn" onclick="filterGroup('TXT',this)">TXT</button>
+    </div>
+  </div>
+  <div class="count-bar">表示中: <span id="visCount">174</span> / 174 件</div>
+
+  <!-- ============================================================
+       MAIPMT
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">MAIPMT</span>
+    WRKMSPLF コマンドプロンプト
+    <span class="group-desc">— CMD0001〜CMD0019 (19件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-maipmt">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="CMD"><td class="msgid">CMD0001</td><td class="msg-ja">スプール・ファイルの処理</td><td class="msg-en">スプール・ファイルの処理</td><td class="msg-fr">Traitement fichiers spool</td><td class="msg-de">Spool-Dateien verarbeiten</td><td class="msg-es">Trabajar con archivos spool</td><td class="msg-it">Gestione file spool</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0002</td><td class="msg-ja">選択</td><td class="msg-en">Select</td><td class="msg-fr">Selection</td><td class="msg-de">Auswahl</td><td class="msg-es">Seleccion</td><td class="msg-it">Selezione</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0003</td><td class="msg-ja">ユーザー</td><td class="msg-en">User</td><td class="msg-fr">Utilisateur</td><td class="msg-de">Benutzer</td><td class="msg-es">Usuario</td><td class="msg-it">Utente</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0004</td><td class="msg-ja">印刷装置</td><td class="msg-en">Printer device</td><td class="msg-fr">Imprimante</td><td class="msg-de">Druckergeraet</td><td class="msg-es">Dispositivo impresora</td><td class="msg-it">Stampante</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0005</td><td class="msg-ja">フォーム・タイプ</td><td class="msg-en">Form type</td><td class="msg-fr">Type formulaire</td><td class="msg-de">Formulartyp</td><td class="msg-es">Tipo formulario</td><td class="msg-it">Tipo modulo</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0006</td><td class="msg-ja">ユーザー・データ</td><td class="msg-en">User data</td><td class="msg-fr">Donnees utilisateur</td><td class="msg-de">Benutzerdaten</td><td class="msg-es">Datos usuario</td><td class="msg-it">Dati utente</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0007</td><td class="msg-ja">ASP</td><td class="msg-en">ASP</td><td class="msg-fr">ASP</td><td class="msg-de">ASP</td><td class="msg-es">ASP</td><td class="msg-it">ASP</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0008</td><td class="msg-ja">スプール・ファイル</td><td class="msg-en">Spooled file</td><td class="msg-fr">Fichier spool</td><td class="msg-de">Spool-Datei</td><td class="msg-es">Archivo spool</td><td class="msg-it">File spool</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0009</td><td class="msg-ja">ジョブ</td><td class="msg-en">Job</td><td class="msg-fr">Travail</td><td class="msg-de">Job</td><td class="msg-es">Trabajo</td><td class="msg-it">Lavoro</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0010</td><td class="msg-ja">ジョブ名</td><td class="msg-en">Job name</td><td class="msg-fr">Nom travail</td><td class="msg-de">Jobname</td><td class="msg-es">Nombre trabajo</td><td class="msg-it">Nome lavoro</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0011</td><td class="msg-ja">&nbsp;&nbsp;ユーザー</td><td class="msg-en">&nbsp;&nbsp;User</td><td class="msg-fr">&nbsp;&nbsp;Utilisateur</td><td class="msg-de">&nbsp;&nbsp;Benutzer</td><td class="msg-es">&nbsp;&nbsp;Usuario</td><td class="msg-it">&nbsp;&nbsp;Utente</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0012</td><td class="msg-ja">&nbsp;&nbsp;番号</td><td class="msg-en">&nbsp;&nbsp;Number</td><td class="msg-fr">&nbsp;&nbsp;Numero</td><td class="msg-de">&nbsp;&nbsp;Nummer</td><td class="msg-es">&nbsp;&nbsp;Numero</td><td class="msg-it">&nbsp;&nbsp;Numero</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0013</td><td class="msg-ja">期間</td><td class="msg-en">Period</td><td class="msg-fr">Periode</td><td class="msg-de">Zeitraum</td><td class="msg-es">Periodo</td><td class="msg-it">Periodo</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0014</td><td class="msg-ja">開始時刻</td><td class="msg-en">Start time</td><td class="msg-fr">Heure debut</td><td class="msg-de">Startzeit</td><td class="msg-es">Hora inicio</td><td class="msg-it">Ora inizio</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0015</td><td class="msg-ja">開始日付</td><td class="msg-en">Start date</td><td class="msg-fr">Date debut</td><td class="msg-de">Startdatum</td><td class="msg-es">Fecha inicio</td><td class="msg-it">Data inizio</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0016</td><td class="msg-ja">終了時刻</td><td class="msg-en">End time</td><td class="msg-fr">Heure fin</td><td class="msg-de">Endzeit</td><td class="msg-es">Hora fin</td><td class="msg-it">Ora fine</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0017</td><td class="msg-ja">終了日付</td><td class="msg-en">End date</td><td class="msg-fr">Date fin</td><td class="msg-de">Enddatum</td><td class="msg-es">Fecha fin</td><td class="msg-it">Data fine</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0018</td><td class="msg-ja">ASP装置</td><td class="msg-en">ASP device</td><td class="msg-fr">Unite ASP</td><td class="msg-de">ASP-Geraet</td><td class="msg-es">Dispositivo ASP</td><td class="msg-it">Dispositivo ASP</td></tr>
+      <tr data-grp="CMD"><td class="msgid">CMD0019</td><td class="msg-ja">出力</td><td class="msg-en">Output</td><td class="msg-fr">Sortie</td><td class="msg-de">Ausgabe</td><td class="msg-es">Salida</td><td class="msg-it">Output</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - DBT系
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">DBT</span>
+    DBTOMAIL コマンドプロンプト
+    <span class="group-desc">— DBT0000〜DBT0210 (22件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-dbt">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="DBT"><td class="msgid">DBT0000</td><td class="msg-ja">データベース・メール送信</td><td class="msg-en">DB to CSV Mail</td><td class="msg-fr">Envoyer DB en CSV par messagerie</td><td class="msg-de">DB-Datei als CSV-Mail senden</td><td class="msg-es">Enviar BD como CSV por correo</td><td class="msg-it">Invia DB come CSV per posta</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0010</td><td class="msg-ja">宛先:</td><td class="msg-en">To:</td><td class="msg-fr">A :</td><td class="msg-de">An:</td><td class="msg-es">Para:</td><td class="msg-it">A:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0020</td><td class="msg-ja">発信元:</td><td class="msg-en">From:</td><td class="msg-fr">De :</td><td class="msg-de">Von:</td><td class="msg-es">De:</td><td class="msg-it">Da:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0030</td><td class="msg-ja">メールサーバー:</td><td class="msg-en">SMTP server:</td><td class="msg-fr">Serveur SMTP :</td><td class="msg-de">SMTP-Server:</td><td class="msg-es">Servidor SMTP:</td><td class="msg-it">Server SMTP:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0040</td><td class="msg-ja">件名:</td><td class="msg-en">Subject:</td><td class="msg-fr">Objet :</td><td class="msg-de">Betreff:</td><td class="msg-es">Asunto:</td><td class="msg-it">Oggetto:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0050</td><td class="msg-ja">ファイル名:</td><td class="msg-en">Source file:</td><td class="msg-fr">Fichier source :</td><td class="msg-de">Quelldatei:</td><td class="msg-es">Archivo fuente:</td><td class="msg-it">File sorgente:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0060</td><td class="msg-ja">メンバー名:</td><td class="msg-en">Member:</td><td class="msg-fr">Membre :</td><td class="msg-de">Element:</td><td class="msg-es">Miembro:</td><td class="msg-it">Membro:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0070</td><td class="msg-ja">添付ファイル名:</td><td class="msg-en">Attachment file name:</td><td class="msg-fr">Nom du fichier joint :</td><td class="msg-de">Dateiname des Anhangs:</td><td class="msg-es">Nombre archivo adjunto:</td><td class="msg-it">Nome file allegato:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0080</td><td class="msg-ja">ファイルCCSID:</td><td class="msg-en">Source CCSID:</td><td class="msg-fr">CCSID source :</td><td class="msg-de">Quell-CCSID:</td><td class="msg-es">CCSID fuente:</td><td class="msg-it">CCSID sorgente:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0090</td><td class="msg-ja">CSV出力CCSID:</td><td class="msg-en">CSV CCSID:</td><td class="msg-fr">CCSID CSV :</td><td class="msg-de">CSV-CCSID:</td><td class="msg-es">CCSID CSV:</td><td class="msg-it">CCSID CSV:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0100</td><td class="msg-ja">デバッグモードで実行</td><td class="msg-en">Debug trace:</td><td class="msg-fr">Trace de debogage :</td><td class="msg-de">Debug-Protokoll:</td><td class="msg-es">Rastreo de depuracion:</td><td class="msg-it">Traccia di debug:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0110</td><td class="msg-ja">レコード件数上限:</td><td class="msg-en">Record limit:</td><td class="msg-fr">Limite enregistrements :</td><td class="msg-de">Datensatzlimit:</td><td class="msg-es">Limite de registros:</td><td class="msg-it">Limite record:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0120</td><td class="msg-ja">ポート番号:</td><td class="msg-en">SMTP port:</td><td class="msg-fr">Port SMTP :</td><td class="msg-de">SMTP-Port:</td><td class="msg-es">Puerto SMTP:</td><td class="msg-it">Porta SMTP:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0130</td><td class="msg-ja">SMTPユーザー名:</td><td class="msg-en">SMTP user ID:</td><td class="msg-fr">Utilisateur SMTP :</td><td class="msg-de">SMTP-Benutzername:</td><td class="msg-es">Usuario SMTP:</td><td class="msg-it">Utente SMTP:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0140</td><td class="msg-ja">SMTPパスワード:</td><td class="msg-en">SMTP password:</td><td class="msg-fr">Mot de passe SMTP :</td><td class="msg-de">SMTP-Kennwort:</td><td class="msg-es">Contrasena SMTP:</td><td class="msg-it">Password SMTP:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0150</td><td class="msg-ja">SSL/TLS使用:</td><td class="msg-en">SSL/TLS:</td><td class="msg-fr">SSL/TLS :</td><td class="msg-de">SSL/TLS:</td><td class="msg-es">SSL/TLS:</td><td class="msg-it">SSL/TLS:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0160</td><td class="msg-ja">GSKアプリケーションID:</td><td class="msg-en">GSKit application ID:</td><td class="msg-fr">ID application GSKit :</td><td class="msg-de">GSKit-Anwendungs-ID:</td><td class="msg-es">ID aplicacion GSKit:</td><td class="msg-it">ID applicazione GSKit:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0170</td><td class="msg-ja">ヘッダー漢字エンコードなし</td><td class="msg-en">No CCSID conversion:</td><td class="msg-fr">Sans conversion CCSID :</td><td class="msg-de">Keine CCSID-Konvertierung:</td><td class="msg-es">Sin conversion CCSID:</td><td class="msg-it">Senza conversione CCSID:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0180</td><td class="msg-ja">CC:</td><td class="msg-en">CC:</td><td class="msg-fr">CC :</td><td class="msg-de">CC:</td><td class="msg-es">CC:</td><td class="msg-it">CC:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0190</td><td class="msg-ja">BCC:</td><td class="msg-en">BCC:</td><td class="msg-fr">CCI :</td><td class="msg-de">BCC:</td><td class="msg-es">CCO:</td><td class="msg-it">CCN:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0200</td><td class="msg-ja">Reply-To:</td><td class="msg-en">Reply-To:</td><td class="msg-fr">Repondre a :</td><td class="msg-de">Antwort an:</td><td class="msg-es">Responder a:</td><td class="msg-it">Rispondi a:</td></tr>
+      <tr data-grp="DBT"><td class="msgid">DBT0210</td><td class="msg-ja">ライブラリー:</td><td class="msg-en">Library:</td><td class="msg-fr">Bibliotheque :</td><td class="msg-de">Bibliothek:</td><td class="msg-es">Biblioteca:</td><td class="msg-it">Libreria:</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - MAI系 (共通実行メッセージ)
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">MAI</span>
+    共通実行時メッセージ
+    <span class="group-desc">— MAI0010〜MAI9899 (33件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-mai">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="MAI"><td class="msgid">MAI0010</td><td class="msg-ja">DCM INSTALLED CHECK OK</td><td class="msg-en">DCM INSTALLED CHECK OK</td><td class="msg-fr">Verification installation DCM OK</td><td class="msg-de">DCM-Installationspruefung OK</td><td class="msg-es">Verificacion instalacion DCM correcta</td><td class="msg-it">Verifica installazione DCM OK</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0020</td><td class="msg-ja">SSL/TLSにはDCMの導入が必須です。</td><td class="msg-en">DCM is required for SSL/TLS.</td><td class="msg-fr">DCM requis pour SSL/TLS.</td><td class="msg-de">DCM ist fuer SSL/TLS erforderlich.</td><td class="msg-es">DCM requerido para SSL/TLS.</td><td class="msg-it">DCM richiesto per SSL/TLS.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0030</td><td class="msg-ja">DCM APPLICATION IDが正しくない。</td><td class="msg-en">DCM APPLICATION ID is invalid.</td><td class="msg-fr">ID application DCM invalide.</td><td class="msg-de">DCM-Anwendungs-ID ist ungueltig.</td><td class="msg-es">ID de aplicacion DCM no valido.</td><td class="msg-it">ID applicazione DCM non valido.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0040</td><td class="msg-ja">MAI/400のライセンスキーが無効です</td><td class="msg-en">MAI/400 license key is invalid.</td><td class="msg-fr">Cle de licence MAI/400 invalide.</td><td class="msg-de">MAI/400-Lizenzschluessel ist ungueltig.</td><td class="msg-es">Clave de licencia MAI/400 no valida.</td><td class="msg-it">Chiave di licenza MAI/400 non valida.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0050</td><td class="msg-ja">MAI/400試用版ライセンスです</td><td class="msg-en">MAI/400 trial license.</td><td class="msg-fr">Licence evaluation MAI/400.</td><td class="msg-de">MAI/400-Testlizenz.</td><td class="msg-es">Licencia de evaluacion MAI/400.</td><td class="msg-it">Licenza di valutazione MAI/400.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0060</td><td class="msg-ja">メールサーバーが不明</td><td class="msg-en">Mail server is unknown.</td><td class="msg-fr">Serveur de messagerie inconnu.</td><td class="msg-de">Mail-Server ist unbekannt.</td><td class="msg-es">Servidor de correo desconocido.</td><td class="msg-it">Server di posta sconosciuto.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0070</td><td class="msg-ja">/TMPにファイルが作成できない</td><td class="msg-en">Cannot create file in /TMP.</td><td class="msg-fr">Impossible de creer un fichier dans /TMP.</td><td class="msg-de">Datei in /TMP kann nicht erstellt werden.</td><td class="msg-es">No se puede crear archivo en /TMP.</td><td class="msg-it">Impossibile creare un file in /TMP.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0080</td><td class="msg-ja">一時ワークファイル名が不明</td><td class="msg-en">Temporary work file name is unknown.</td><td class="msg-fr">Nom fichier de travail temporaire inconnu.</td><td class="msg-de">Temporaerer Dateiname ist unbekannt.</td><td class="msg-es">Nombre de archivo de trabajo temporal desconocido.</td><td class="msg-it">Nome file di lavoro temporaneo sconosciuto.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0090</td><td class="msg-ja">一時ワークファイルがオープンできない</td><td class="msg-en">Cannot open temporary work file.</td><td class="msg-fr">Impossible d ouvrir le fichier de travail temporaire.</td><td class="msg-de">Temporaere Arbeitsdatei kann nicht geoeffnet werden.</td><td class="msg-es">No se puede abrir el archivo de trabajo temporal.</td><td class="msg-it">Impossibile aprire il file di lavoro temporaneo.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0100</td><td class="msg-ja">SSL/TLSの初期化に失敗しました。</td><td class="msg-en">SSL/TLS initialization failed.</td><td class="msg-fr">Echec initialisation SSL/TLS.</td><td class="msg-de">SSL/TLS-Initialisierung fehlgeschlagen.</td><td class="msg-es">Fallo en la inicializacion SSL/TLS.</td><td class="msg-it">Inizializzazione SSL/TLS non riuscita.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0110</td><td class="msg-ja">SSL/TLSの初期化に成功しました。</td><td class="msg-en">SSL/TLS initialization succeeded.</td><td class="msg-fr">Initialisation SSL/TLS reussie.</td><td class="msg-de">SSL/TLS-Initialisierung erfolgreich.</td><td class="msg-es">Inicializacion SSL/TLS correcta.</td><td class="msg-it">Inizializzazione SSL/TLS completata.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0120</td><td class="msg-ja">メールサーバがSTARTSSLをサポートしていません。</td><td class="msg-en">Mail server does not support STARTTLS.</td><td class="msg-fr">Le serveur de messagerie ne supporte pas STARTTLS.</td><td class="msg-de">Mail-Server unterstuetzt STARTTLS nicht.</td><td class="msg-es">El servidor de correo no soporta STARTTLS.</td><td class="msg-it">Il server di posta non supporta STARTTLS.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0130</td><td class="msg-ja">サポートしていないSMTP認証タイプです。</td><td class="msg-en">Unsupported SMTP authentication type.</td><td class="msg-fr">Type d authentification SMTP non supporte.</td><td class="msg-de">Nicht unterstuetzter SMTP-Authentifizierungstyp.</td><td class="msg-es">Tipo de autenticacion SMTP no soportado.</td><td class="msg-it">Tipo di autenticazione SMTP non supportato.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0140</td><td class="msg-ja">*SYSTEM証明書ストアをDCMで確認してください</td><td class="msg-en">Verify that *SYSTEM certificate store is created in DCM.</td><td class="msg-fr">Verifiez que le magasin de certificats *SYSTEM est cree dans DCM.</td><td class="msg-de">Pruefen Sie ob *SYSTEM-Zertifikatspeicher in DCM erstellt wurde.</td><td class="msg-es">Verifique que el almacen de certificados *SYSTEM este creado en DCM.</td><td class="msg-it">Verificare che l archivio certificati *SYSTEM sia creato in DCM.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0150</td><td class="msg-ja">ライセンス・ファイル(LICKEY)がオープンできません</td><td class="msg-en">Cannot open license file (LICKEY).</td><td class="msg-fr">Impossible d ouvrir le fichier licence (LICKEY).</td><td class="msg-de">Lizenzdatei (LICKEY) kann nicht geoeffnet werden.</td><td class="msg-es">No se puede abrir el archivo de licencia (LICKEY).</td><td class="msg-it">Impossibile aprire il file di licenza (LICKEY).</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0160</td><td class="msg-ja">ライセンス・ファイル(LICKEY)のレコード件数が0件です</td><td class="msg-en">License file (LICKEY) has no records.</td><td class="msg-fr">Le fichier licence (LICKEY) ne contient pas d enregistrements.</td><td class="msg-de">Lizenzdatei (LICKEY) hat keine Datensaetze.</td><td class="msg-es">El archivo de licencia (LICKEY) no tiene registros.</td><td class="msg-it">Il file di licenza (LICKEY) non contiene record.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0170</td><td class="msg-ja">メールサーバーが稼動状況でない</td><td class="msg-en">Mail server is not running.</td><td class="msg-fr">Le serveur de messagerie ne fonctionne pas.</td><td class="msg-de">Mail-Server laeuft nicht.</td><td class="msg-es">El servidor de correo no esta en ejecucion.</td><td class="msg-it">Il server di posta non e in esecuzione.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0200</td><td class="msg-ja">DCM APPID=&amp;1 登録エラー</td><td class="msg-en">DCM APPID=&amp;1 registration error.</td><td class="msg-fr">Erreur enregistrement DCM APPID=&amp;1.</td><td class="msg-de">DCM APPID=&amp;1 Registrierungsfehler.</td><td class="msg-es">Error de registro DCM APPID=&amp;1.</td><td class="msg-it">Errore registrazione DCM APPID=&amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0210</td><td class="msg-ja">DCM APPID=&amp;1 は既に登録済です</td><td class="msg-en">DCM APPID=&amp;1 is already registered.</td><td class="msg-fr">DCM APPID=&amp;1 deja enregistre.</td><td class="msg-de">DCM APPID=&amp;1 ist bereits registriert.</td><td class="msg-es">DCM APPID=&amp;1 ya registrado.</td><td class="msg-it">DCM APPID=&amp;1 gia registrato.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0220</td><td class="msg-ja">DCM APPID=&amp;1 を新規登録しました</td><td class="msg-en">DCM APPID=&amp;1 newly registered.</td><td class="msg-fr">DCM APPID=&amp;1 nouvellement enregistre.</td><td class="msg-de">DCM APPID=&amp;1 neu registriert.</td><td class="msg-es">DCM APPID=&amp;1 registrado nuevamente.</td><td class="msg-it">DCM APPID=&amp;1 registrato nuovamente.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0230</td><td class="msg-ja">SSL PORT=&amp;1 で実行します</td><td class="msg-en">Running with SSL PORT=&amp;1.</td><td class="msg-fr">Execution avec SSL PORT=&amp;1.</td><td class="msg-de">Ausfuehrung mit SSL PORT=&amp;1.</td><td class="msg-es">Ejecutando con SSL PUERTO=&amp;1.</td><td class="msg-it">Esecuzione con SSL PORTA=&amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0240</td><td class="msg-ja">SMTPS(STARTTLS) PORT=&amp;1 で実行します</td><td class="msg-en">Running with SMTPS(STARTTLS) PORT=&amp;1.</td><td class="msg-fr">Execution avec SMTPS(STARTTLS) PORT=&amp;1.</td><td class="msg-de">Ausfuehrung mit SMTPS(STARTTLS) PORT=&amp;1.</td><td class="msg-es">Ejecutando con SMTPS(STARTTLS) PUERTO=&amp;1.</td><td class="msg-it">Esecuzione con SMTPS(STARTTLS) PORTA=&amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0250</td><td class="msg-ja">添付ファイルが開けません。&amp;1</td><td class="msg-en">Cannot open attachment file: &amp;1.</td><td class="msg-fr">Impossible d ouvrir le fichier joint : &amp;1.</td><td class="msg-de">Anhangsdatei kann nicht geoeffnet werden: &amp;1.</td><td class="msg-es">No se puede abrir el archivo adjunto: &amp;1.</td><td class="msg-it">Impossibile aprire il file allegato: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0260</td><td class="msg-ja">ソケット作成エラー &amp;1</td><td class="msg-en">Socket creation error: &amp;1.</td><td class="msg-fr">Erreur creation socket : &amp;1.</td><td class="msg-de">Socket-Erstellungsfehler: &amp;1.</td><td class="msg-es">Error al crear socket: &amp;1.</td><td class="msg-it">Errore creazione socket: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0270</td><td class="msg-ja">setsockopt() TCP_NODELAY 失敗 &amp;1</td><td class="msg-en">setsockopt() TCP_NODELAY failed: &amp;1.</td><td class="msg-fr">setsockopt() TCP_NODELAY echoue : &amp;1.</td><td class="msg-de">setsockopt() TCP_NODELAY fehlgeschlagen: &amp;1.</td><td class="msg-es">setsockopt() TCP_NODELAY fallido: &amp;1.</td><td class="msg-it">setsockopt() TCP_NODELAY fallito: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0280</td><td class="msg-ja">Socket を NONBLOCK に設定できない &amp;1</td><td class="msg-en">Cannot set socket to NONBLOCK: &amp;1.</td><td class="msg-fr">Impossible de definir socket en NONBLOCK : &amp;1.</td><td class="msg-de">Socket kann nicht auf NONBLOCK gesetzt werden: &amp;1.</td><td class="msg-es">No se puede configurar socket como NONBLOCK: &amp;1.</td><td class="msg-it">Impossibile impostare socket come NONBLOCK: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0290</td><td class="msg-ja">select エラー &amp;1</td><td class="msg-en">select() error: &amp;1.</td><td class="msg-fr">Erreur select() : &amp;1.</td><td class="msg-de">select()-Fehler: &amp;1.</td><td class="msg-es">Error en select(): &amp;1.</td><td class="msg-it">Errore in select(): &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0300</td><td class="msg-ja">connect タイムアウト &amp;1</td><td class="msg-en">connect() timeout: &amp;1.</td><td class="msg-fr">Delai connect() depasse : &amp;1.</td><td class="msg-de">connect()-Zeitlimit: &amp;1.</td><td class="msg-es">Tiempo de espera de connect() agotado: &amp;1.</td><td class="msg-it">Timeout di connect(): &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0310</td><td class="msg-ja">connect エラー &amp;1</td><td class="msg-en">connect() error: &amp;1.</td><td class="msg-fr">Erreur connect() : &amp;1.</td><td class="msg-de">connect()-Fehler: &amp;1.</td><td class="msg-es">Error en connect(): &amp;1.</td><td class="msg-it">Errore in connect(): &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0320</td><td class="msg-ja">シリアル番号合致 &amp;1 : &amp;2</td><td class="msg-en">Serial number matched &amp;1 : &amp;2.</td><td class="msg-fr">Numero de serie correspond &amp;1 : &amp;2.</td><td class="msg-de">Seriennummer stimmt ueberein &amp;1 : &amp;2.</td><td class="msg-es">Numero de serie coincide &amp;1 : &amp;2.</td><td class="msg-it">Numero di serie corrisponde &amp;1 : &amp;2.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0330</td><td class="msg-ja">MAI/400 ライセンス有効期限切れです &amp;1</td><td class="msg-en">MAI/400 license has expired: &amp;1.</td><td class="msg-fr">Licence MAI/400 expiree : &amp;1.</td><td class="msg-de">MAI/400-Lizenz abgelaufen: &amp;1.</td><td class="msg-es">Licencia MAI/400 caducada: &amp;1.</td><td class="msg-it">Licenza MAI/400 scaduta: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0340</td><td class="msg-ja">シリアル番号違い &amp;1 : &amp;2</td><td class="msg-en">Serial number mismatch &amp;1 : &amp;2.</td><td class="msg-fr">Numero de serie ne correspond pas &amp;1 : &amp;2.</td><td class="msg-de">Seriennummer stimmt nicht ueberein &amp;1 : &amp;2.</td><td class="msg-es">Numero de serie no coincide &amp;1 : &amp;2.</td><td class="msg-it">Numero di serie non corrisponde &amp;1 : &amp;2.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0350</td><td class="msg-ja">TRIAL SERIAL No=&amp;1 有効期限=&amp;2</td><td class="msg-en">TRIAL SERIAL No=&amp;1 expires=&amp;2.</td><td class="msg-fr">VERSION ESSAI NO SERIE=&amp;1 expiration=&amp;2.</td><td class="msg-de">TESTVERSION SERIEN-NR=&amp;1 laeuft ab=&amp;2.</td><td class="msg-es">VERSION PRUEBA NRO SERIE=&amp;1 expira=&amp;2.</td><td class="msg-it">VERSIONE DI PROVA N.SERIE=&amp;1 scade=&amp;2.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0360</td><td class="msg-ja">GSK エラー &amp;1</td><td class="msg-en">GSK error &amp;1</td><td class="msg-fr">Erreur GSK &amp;1</td><td class="msg-de">GSK-Fehler &amp;1</td><td class="msg-es">Error GSK &amp;1</td><td class="msg-it">Errore GSK &amp;1</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0370</td><td class="msg-ja">EncryptData ERROR: &amp;1</td><td class="msg-en">EncryptData ERROR: &amp;1</td><td class="msg-fr">ERREUR EncryptData : &amp;1</td><td class="msg-de">EncryptData FEHLER: &amp;1</td><td class="msg-es">ERROR EncryptData: &amp;1</td><td class="msg-it">ERRORE EncryptData: &amp;1</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0380</td><td class="msg-ja">DecryptData ERROR: &amp;1</td><td class="msg-en">DecryptData ERROR: &amp;1</td><td class="msg-fr">ERREUR DecryptData : &amp;1</td><td class="msg-de">DecryptData FEHLER: &amp;1</td><td class="msg-es">ERROR DecryptData: &amp;1</td><td class="msg-it">ERRORE DecryptData: &amp;1</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI0390</td><td class="msg-ja">DCM APPID エラー &amp;1</td><td class="msg-en">DCM APPID error: &amp;1.</td><td class="msg-fr">Erreur DCM APPID : &amp;1.</td><td class="msg-de">DCM APPID-Fehler: &amp;1.</td><td class="msg-es">Error DCM APPID: &amp;1.</td><td class="msg-it">Errore DCM APPID: &amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI9897</td><td class="msg-ja">&amp;1</td><td class="msg-en">&amp;1</td><td class="msg-fr">&amp;1</td><td class="msg-de">&amp;1</td><td class="msg-es">&amp;1</td><td class="msg-it">&amp;1</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI9898</td><td class="msg-ja">&amp;1</td><td class="msg-en">&amp;1.</td><td class="msg-fr">&amp;1.</td><td class="msg-de">&amp;1.</td><td class="msg-es">&amp;1.</td><td class="msg-it">&amp;1.</td></tr>
+      <tr data-grp="MAI"><td class="msgid">MAI9899</td><td class="msg-ja">コマンドの処理中にエラーが起こった。</td><td class="msg-en">Error occurred during processing of command.</td><td class="msg-fr">Une erreur s est produite lors du traitement de la commande.</td><td class="msg-de">Bei der Verarbeitung ist ein Fehler aufgetreten.</td><td class="msg-es">Se produjo un error al procesar el comando.</td><td class="msg-it">Si e verificato un errore durante l elaborazione del comando.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - PDF系
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">PDF</span>
+    SPLTOPDF コマンドプロンプト
+    <span class="group-desc">— PDF0000〜PDF1015 (20件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-pdf">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="PDF"><td class="msgid">PDF0000</td><td class="msg-ja">スプールPDF変換</td><td class="msg-en">Spool to PDF Conversion</td><td class="msg-fr">Convertir Spool en PDF</td><td class="msg-de">Spool-Datei in PDF konvertieren</td><td class="msg-es">Convertir Spool a PDF</td><td class="msg-it">Converti Spool in PDF</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0010</td><td class="msg-ja">スプール・ファイル名:</td><td class="msg-en">Spool file name:</td><td class="msg-fr">Nom fichier spool :</td><td class="msg-de">Spool-Dateiname:</td><td class="msg-es">Nombre archivo spool:</td><td class="msg-it">Nome file spool:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0020</td><td class="msg-ja">ジョブ名:</td><td class="msg-en">Job name:</td><td class="msg-fr">Nom travail :</td><td class="msg-de">Jobname:</td><td class="msg-es">Nombre trabajo:</td><td class="msg-it">Nome lavoro:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0030</td><td class="msg-ja">スプール・ファイル番号:</td><td class="msg-en">Spool file number:</td><td class="msg-fr">Numero fichier spool :</td><td class="msg-de">Spool-Dateinummer:</td><td class="msg-es">Numero archivo spool:</td><td class="msg-it">Numero file spool:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0040</td><td class="msg-ja">出力フォルダー(IFSパス):</td><td class="msg-en">Output folder (IFS path):</td><td class="msg-fr">Dossier sortie (chemin IFS) :</td><td class="msg-de">Ausgabeordner (IFS-Pfad):</td><td class="msg-es">Carpeta de salida (ruta IFS):</td><td class="msg-it">Cartella di output (percorso IFS):</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0050</td><td class="msg-ja">PDFファイル名:</td><td class="msg-en">PDF file name:</td><td class="msg-fr">Nom fichier PDF :</td><td class="msg-de">PDF-Dateiname:</td><td class="msg-es">Nombre archivo PDF:</td><td class="msg-it">Nome file PDF:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0060</td><td class="msg-ja">TTFフォント(IFSパス):</td><td class="msg-en">TTF font (IFS path):</td><td class="msg-fr">Police TTF (chemin IFS) :</td><td class="msg-de">TTF-Schrift (IFS-Pfad):</td><td class="msg-es">Fuente TTF (ruta IFS):</td><td class="msg-it">Carattere TTF (percorso IFS):</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0070</td><td class="msg-ja">入力CCSID:</td><td class="msg-en">Input CCSID:</td><td class="msg-fr">CCSID entree :</td><td class="msg-de">Eingabe-CCSID:</td><td class="msg-es">CCSID de entrada:</td><td class="msg-it">CCSID di input:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0075</td><td class="msg-ja">重複ファイル時のアクション:</td><td class="msg-en">Duplicate file action:</td><td class="msg-fr">Action si fichier duplique :</td><td class="msg-de">Aktion bei doppelter Datei:</td><td class="msg-es">Accion con archivo duplicado:</td><td class="msg-it">Azione per file duplicato:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0080</td><td class="msg-ja">ユーザー:</td><td class="msg-en">User:</td><td class="msg-fr">Utilisateur :</td><td class="msg-de">Benutzer:</td><td class="msg-es">Usuario:</td><td class="msg-it">Utente:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF0090</td><td class="msg-ja">番号:</td><td class="msg-en">Number:</td><td class="msg-fr">Numero :</td><td class="msg-de">Nummer:</td><td class="msg-es">Numero:</td><td class="msg-it">Numero:</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1001</td><td class="msg-ja">フォントファイルがオープンできません: &amp;1</td><td class="msg-en">Cannot open font file: &amp;1 errno=&amp;2</td><td class="msg-fr">Impossible d ouvrir le fichier police : &amp;1 errno=&amp;2</td><td class="msg-de">Schriftdatei kann nicht geoeffnet werden: &amp;1 errno=&amp;2</td><td class="msg-es">No se puede abrir el archivo de fuente: &amp;1 errno=&amp;2</td><td class="msg-it">Impossibile aprire il file del carattere: &amp;1 errno=&amp;2</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1002</td><td class="msg-ja">フォントファイルの読み込みに失敗しました</td><td class="msg-en">Failed to read font file</td><td class="msg-fr">Echec lecture fichier police</td><td class="msg-de">Schriftdatei konnte nicht gelesen werden</td><td class="msg-es">Fallo al leer el archivo de fuente</td><td class="msg-it">Lettura del file del carattere non riuscita</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1003</td><td class="msg-ja">入力ファイルがオープンできません: &amp;1</td><td class="msg-en">Cannot open input file: &amp;1 errno=&amp;2</td><td class="msg-fr">Impossible d ouvrir le fichier entree : &amp;1 errno=&amp;2</td><td class="msg-de">Eingabedatei kann nicht geoeffnet werden: &amp;1 errno=&amp;2</td><td class="msg-es">No se puede abrir el archivo de entrada: &amp;1 errno=&amp;2</td><td class="msg-it">Impossibile aprire il file di input: &amp;1 errno=&amp;2</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1004</td><td class="msg-ja">出力ファイルが作成できません: &amp;1</td><td class="msg-en">Cannot create output file: &amp;1 errno=&amp;2</td><td class="msg-fr">Impossible de creer le fichier sortie : &amp;1 errno=&amp;2</td><td class="msg-de">Ausgabedatei kann nicht erstellt werden: &amp;1 errno=&amp;2</td><td class="msg-es">No se puede crear el archivo de salida: &amp;1 errno=&amp;2</td><td class="msg-it">Impossibile creare il file di output: &amp;1 errno=&amp;2</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1005</td><td class="msg-ja">メモリーの確保に失敗しました</td><td class="msg-en">Memory allocation failed</td><td class="msg-fr">Echec allocation memoire</td><td class="msg-de">Speicherzuweisung fehlgeschlagen</td><td class="msg-es">Fallo en la asignacion de memoria</td><td class="msg-it">Allocazione memoria non riuscita</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1006</td><td class="msg-ja">文字変換(QtqIconvOpen)に失敗しました: CCSID=&amp;1</td><td class="msg-en">Character conversion (QtqIconvOpen) failed: CCSID=&amp;1</td><td class="msg-fr">Echec conversion caracteres : CCSID=&amp;1</td><td class="msg-de">Zeichenkonvertierung fehlgeschlagen: CCSID=&amp;1</td><td class="msg-es">Fallo en la conversion de caracteres: CCSID=&amp;1</td><td class="msg-it">Conversione caratteri non riuscita: CCSID=&amp;1</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1007</td><td class="msg-ja">TTFサブセット化: &amp;1/&amp;2 グリフ使用</td><td class="msg-en">TTF subset: &amp;1/&amp;2 glyphs used</td><td class="msg-fr">Sous-ensemble TTF : &amp;1/&amp;2 glyphes utilises</td><td class="msg-de">TTF-Subset: &amp;1/&amp;2 Glyphen verwendet</td><td class="msg-es">Subconjunto TTF: &amp;1/&amp;2 glifos utilizados</td><td class="msg-it">Subset TTF: &amp;1/&amp;2 glifi utilizzati</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1008</td><td class="msg-ja">TTFサブセット化に失敗しました。フルTTFを使用します</td><td class="msg-en">TTF subsetting failed. Using full TTF.</td><td class="msg-fr">Echec sous-ensemblage TTF. TTF complet utilise.</td><td class="msg-de">TTF-Subsetting fehlgeschlagen. Vollstaendige TTF wird verwendet.</td><td class="msg-es">Fallo en el subconjunto TTF. Se usa TTF completo.</td><td class="msg-it">Subsetting TTF non riuscito. TTF completo utilizzato.</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1010</td><td class="msg-ja">TXTTOPDF: in=&amp;1 out=&amp;2 ccsid=&amp;3</td><td class="msg-en">TXTTOPDF: in=&amp;1 out=&amp;2 ccsid=&amp;3</td><td class="msg-fr">TXTTOPDF : entree=&amp;1 sortie=&amp;2 ccsid=&amp;3</td><td class="msg-de">TXTTOPDF: ein=&amp;1 aus=&amp;2 ccsid=&amp;3</td><td class="msg-es">TXTTOPDF: entrada=&amp;1 salida=&amp;2 ccsid=&amp;3</td><td class="msg-it">TXTTOPDF: input=&amp;1 output=&amp;2 ccsid=&amp;3</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1011</td><td class="msg-ja">TXTTOPDF: フォント=&amp;1 (&amp;2 バイト)</td><td class="msg-en">TXTTOPDF: font=&amp;1 (&amp;2 bytes)</td><td class="msg-fr">TXTTOPDF : police=&amp;1 (&amp;2 octets)</td><td class="msg-de">TXTTOPDF: Schrift=&amp;1 (&amp;2 Bytes)</td><td class="msg-es">TXTTOPDF: fuente=&amp;1 (&amp;2 bytes)</td><td class="msg-it">TXTTOPDF: carattere=&amp;1 (&amp;2 byte)</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1012</td><td class="msg-ja">TXTTOPDF: 総行数=&amp;1</td><td class="msg-en">TXTTOPDF: total lines=&amp;1</td><td class="msg-fr">TXTTOPDF : total lignes=&amp;1</td><td class="msg-de">TXTTOPDF: Zeilen gesamt=&amp;1</td><td class="msg-es">TXTTOPDF: total lineas=&amp;1</td><td class="msg-it">TXTTOPDF: totale righe=&amp;1</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1013</td><td class="msg-ja">TXTTOPDF: 総ページ数=&amp;1 (1ページ&amp;2行)</td><td class="msg-en">TXTTOPDF: total pages=&amp;1 (&amp;2 lines/page)</td><td class="msg-fr">TXTTOPDF : total pages=&amp;1 (&amp;2 lignes/page)</td><td class="msg-de">TXTTOPDF: Seiten gesamt=&amp;1 (&amp;2 Zeilen/Seite)</td><td class="msg-es">TXTTOPDF: total paginas=&amp;1 (&amp;2 lineas/pagina)</td><td class="msg-it">TXTTOPDF: totale pagine=&amp;1 (&amp;2 righe/pagina)</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1014</td><td class="msg-ja">TXTTOPDF: 完了: &amp;1</td><td class="msg-en">TXTTOPDF: complete: &amp;1</td><td class="msg-fr">TXTTOPDF : termine : &amp;1</td><td class="msg-de">TXTTOPDF: abgeschlossen: &amp;1</td><td class="msg-es">TXTTOPDF: completado: &amp;1</td><td class="msg-it">TXTTOPDF: completato: &amp;1</td></tr>
+      <tr data-grp="PDF"><td class="msgid">PDF1015</td><td class="msg-ja">&amp;1 を作成しました</td><td class="msg-en">&amp;1 created successfully</td><td class="msg-fr">&amp;1 cree avec succes</td><td class="msg-de">&amp;1 wurde erfolgreich erstellt</td><td class="msg-es">&amp;1 creado correctamente</td><td class="msg-it">&amp;1 creato correttamente</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - SPL系
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">SPL</span>
+    SPLTOMAIL コマンドプロンプト
+    <span class="group-desc">— SPL0000〜SPL0240 (25件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-spl">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="SPL"><td class="msgid">SPL0000</td><td class="msg-ja">スプール・メール送信</td><td class="msg-en">Spool Mail Send</td><td class="msg-fr">Envoyer Spool par messagerie</td><td class="msg-de">Spool-Datei als Mail senden</td><td class="msg-es">Enviar Spool por correo</td><td class="msg-it">Invia Spool per posta</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0010</td><td class="msg-ja">宛先:</td><td class="msg-en">To:</td><td class="msg-fr">A :</td><td class="msg-de">An:</td><td class="msg-es">Para:</td><td class="msg-it">A:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0020</td><td class="msg-ja">発信元:</td><td class="msg-en">From:</td><td class="msg-fr">De :</td><td class="msg-de">Von:</td><td class="msg-es">De:</td><td class="msg-it">Da:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0030</td><td class="msg-ja">件名:</td><td class="msg-en">Subject:</td><td class="msg-fr">Objet :</td><td class="msg-de">Betreff:</td><td class="msg-es">Asunto:</td><td class="msg-it">Oggetto:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0040</td><td class="msg-ja">メールサーバー:</td><td class="msg-en">Mail server:</td><td class="msg-fr">Serveur messagerie :</td><td class="msg-de">Mail-Server:</td><td class="msg-es">Servidor de correo:</td><td class="msg-it">Server di posta:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0050</td><td class="msg-ja">ポート番号:</td><td class="msg-en">Port number:</td><td class="msg-fr">Numero de port :</td><td class="msg-de">Portnummer:</td><td class="msg-es">Numero de puerto:</td><td class="msg-it">Numero di porta:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0060</td><td class="msg-ja">SMTPユーザー名:</td><td class="msg-en">SMTP user name:</td><td class="msg-fr">Utilisateur SMTP :</td><td class="msg-de">SMTP-Benutzername:</td><td class="msg-es">Usuario SMTP:</td><td class="msg-it">Utente SMTP:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0070</td><td class="msg-ja">SMTPパスワード:</td><td class="msg-en">SMTP password:</td><td class="msg-fr">Mot de passe SMTP :</td><td class="msg-de">SMTP-Kennwort:</td><td class="msg-es">Contrasena SMTP:</td><td class="msg-it">Password SMTP:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0080</td><td class="msg-ja">SSL/TLS使用:</td><td class="msg-en">Use SSL/TLS:</td><td class="msg-fr">Utiliser SSL/TLS :</td><td class="msg-de">SSL/TLS verwenden:</td><td class="msg-es">Usar SSL/TLS:</td><td class="msg-it">Usa SSL/TLS:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0090</td><td class="msg-ja">GSKアプリケーションID:</td><td class="msg-en">GSK application ID:</td><td class="msg-fr">ID application GSKit :</td><td class="msg-de">GSKit-Anwendungs-ID:</td><td class="msg-es">ID aplicacion GSKit:</td><td class="msg-it">ID applicazione GSKit:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0100</td><td class="msg-ja">スプールファイル名:</td><td class="msg-en">Spool file name:</td><td class="msg-fr">Nom fichier spool :</td><td class="msg-de">Spool-Dateiname:</td><td class="msg-es">Nombre archivo spool:</td><td class="msg-it">Nome file spool:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0110</td><td class="msg-ja">ジョブ名:</td><td class="msg-en">Job name:</td><td class="msg-fr">Nom travail :</td><td class="msg-de">Jobname:</td><td class="msg-es">Nombre trabajo:</td><td class="msg-it">Nome lavoro:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0120</td><td class="msg-ja">番号:</td><td class="msg-en">Number:</td><td class="msg-fr">Numero :</td><td class="msg-de">Nummer:</td><td class="msg-es">Numero:</td><td class="msg-it">Numero:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0130</td><td class="msg-ja">スプールファイルCCSID:</td><td class="msg-en">Spool file CCSID:</td><td class="msg-fr">CCSID fichier spool :</td><td class="msg-de">Spool-Datei-CCSID:</td><td class="msg-es">CCSID archivo spool:</td><td class="msg-it">CCSID file spool:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0135</td><td class="msg-ja">送信先CCSID:</td><td class="msg-en">Destination CCSID:</td><td class="msg-fr">CCSID destination :</td><td class="msg-de">Ziel-CCSID:</td><td class="msg-es">CCSID destino:</td><td class="msg-it">CCSID destinazione:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0140</td><td class="msg-ja">添付ファイルで送信:</td><td class="msg-en">Send as attachment:</td><td class="msg-fr">Envoyer comme piece jointe :</td><td class="msg-de">Als Anhang senden:</td><td class="msg-es">Enviar como adjunto:</td><td class="msg-it">Invia come allegato:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0150</td><td class="msg-ja">添付ファイル名:</td><td class="msg-en">Attachment file name:</td><td class="msg-fr">Nom du fichier joint :</td><td class="msg-de">Dateiname des Anhangs:</td><td class="msg-es">Nombre archivo adjunto:</td><td class="msg-it">Nome file allegato:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0160</td><td class="msg-ja">カタカナの処理</td><td class="msg-en">Katakana handling</td><td class="msg-fr">Traitement Katakana</td><td class="msg-de">Katakana-Behandlung</td><td class="msg-es">Tratamiento Katakana</td><td class="msg-it">Gestione Katakana</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0170</td><td class="msg-ja">シフト文字のブランク置換</td><td class="msg-en">Replace shift chars with blank</td><td class="msg-fr">Remplacer car. shift par blanc</td><td class="msg-de">Shift-Zeichen durch Leerzeichen ersetzen</td><td class="msg-es">Sustituir car. shift por blanco</td><td class="msg-it">Sostituire car. shift con spazio</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0180</td><td class="msg-ja">デバッグモードで実行</td><td class="msg-en">Run in debug mode</td><td class="msg-fr">Executer en mode debogage</td><td class="msg-de">Debug-Modus ausfuehren</td><td class="msg-es">Ejecutar en modo depuracion</td><td class="msg-it">Esegui in modalita debug</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0190</td><td class="msg-ja">ヘッダー漢字エンコードなし</td><td class="msg-en">No header Kanji encoding</td><td class="msg-fr">Sans encodage Kanji en-tete</td><td class="msg-de">Kein Kanji-Kodierung im Header</td><td class="msg-es">Sin codificacion Kanji en cabecera</td><td class="msg-it">Senza codifica Kanji nell intestazione</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0200</td><td class="msg-ja">CC:</td><td class="msg-en">CC:</td><td class="msg-fr">CC :</td><td class="msg-de">CC:</td><td class="msg-es">CC:</td><td class="msg-it">CC:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0210</td><td class="msg-ja">BCC:</td><td class="msg-en">BCC:</td><td class="msg-fr">CCI :</td><td class="msg-de">BCC:</td><td class="msg-es">CCO:</td><td class="msg-it">CCN:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0220</td><td class="msg-ja">Reply-To:</td><td class="msg-en">Reply-To:</td><td class="msg-fr">Repondre a :</td><td class="msg-de">Antwort an:</td><td class="msg-es">Responder a:</td><td class="msg-it">Rispondi a:</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0230</td><td class="msg-ja">ユーザー</td><td class="msg-en">User</td><td class="msg-fr">Utilisateur</td><td class="msg-de">Benutzer</td><td class="msg-es">Usuario</td><td class="msg-it">Utente</td></tr>
+      <tr data-grp="SPL"><td class="msgid">SPL0240</td><td class="msg-ja">番号</td><td class="msg-en">Number</td><td class="msg-fr">Numero</td><td class="msg-de">Nummer</td><td class="msg-es">Numero</td><td class="msg-it">Numero</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - STM系
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">STM</span>
+    SRCTOMAIL コマンドプロンプト・実行メッセージ
+    <span class="group-desc">— STM0000〜STM1060 (30件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-stm">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="STM"><td class="msgid">STM0000</td><td class="msg-ja">メール送信V3</td><td class="msg-en">Send Mail V3</td><td class="msg-fr">Envoyer courrier V3</td><td class="msg-de">Mail senden V3</td><td class="msg-es">Enviar correo V3</td><td class="msg-it">Invia posta V3</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0010</td><td class="msg-ja">宛先:</td><td class="msg-en">To:</td><td class="msg-fr">A :</td><td class="msg-de">An:</td><td class="msg-es">Para:</td><td class="msg-it">A:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0020</td><td class="msg-ja">件名:</td><td class="msg-en">Subject:</td><td class="msg-fr">Objet :</td><td class="msg-de">Betreff:</td><td class="msg-es">Asunto:</td><td class="msg-it">Oggetto:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0030</td><td class="msg-ja">ソース・ファイル:</td><td class="msg-en">Source file:</td><td class="msg-fr">Fichier source :</td><td class="msg-de">Quelldatei:</td><td class="msg-es">Archivo fuente:</td><td class="msg-it">File sorgente:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0040</td><td class="msg-ja">メンバー:</td><td class="msg-en">Member:</td><td class="msg-fr">Membre :</td><td class="msg-de">Element:</td><td class="msg-es">Miembro:</td><td class="msg-it">Membro:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0050</td><td class="msg-ja">ファイルCCSID:</td><td class="msg-en">File CCSID:</td><td class="msg-fr">CCSID fichier :</td><td class="msg-de">Datei-CCSID:</td><td class="msg-es">CCSID archivo:</td><td class="msg-it">CCSID file:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0060</td><td class="msg-ja">メール本文CCSID:</td><td class="msg-en">Mail body CCSID:</td><td class="msg-fr">CCSID corps message :</td><td class="msg-de">Mail-Text-CCSID:</td><td class="msg-es">CCSID cuerpo mensaje:</td><td class="msg-it">CCSID corpo messaggio:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0070</td><td class="msg-ja">カタカナの処理</td><td class="msg-en">Katakana handling</td><td class="msg-fr">Traitement Katakana</td><td class="msg-de">Katakana-Behandlung</td><td class="msg-es">Tratamiento Katakana</td><td class="msg-it">Gestione Katakana</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0080</td><td class="msg-ja">シフト文字のブランク置換</td><td class="msg-en">Replace shift chars with blank</td><td class="msg-fr">Remplacer car. shift par blanc</td><td class="msg-de">Shift-Zeichen durch Leerzeichen ersetzen</td><td class="msg-es">Sustituir car. shift por blanco</td><td class="msg-it">Sostituire car. shift con spazio</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0090</td><td class="msg-ja">ヘッダー漢字エンコードなし</td><td class="msg-en">No header Kanji encoding</td><td class="msg-fr">Sans encodage Kanji en-tete</td><td class="msg-de">Kein Kanji-Kodierung im Header</td><td class="msg-es">Sin codificacion Kanji en cabecera</td><td class="msg-it">Senza codifica Kanji nell intestazione</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0100</td><td class="msg-ja">デバッグモードで実行</td><td class="msg-en">Run in debug mode</td><td class="msg-fr">Executer en mode debogage</td><td class="msg-de">Debug-Modus ausfuehren</td><td class="msg-es">Ejecutar en modo depuracion</td><td class="msg-it">Esegui in modalita debug</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0110</td><td class="msg-ja">発信元:</td><td class="msg-en">From:</td><td class="msg-fr">De :</td><td class="msg-de">Von:</td><td class="msg-es">De:</td><td class="msg-it">Da:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0120</td><td class="msg-ja">メールサーバー:</td><td class="msg-en">Mail server:</td><td class="msg-fr">Serveur messagerie :</td><td class="msg-de">Mail-Server:</td><td class="msg-es">Servidor de correo:</td><td class="msg-it">Server di posta:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0130</td><td class="msg-ja">ポート番号:</td><td class="msg-en">Port number:</td><td class="msg-fr">Numero de port :</td><td class="msg-de">Portnummer:</td><td class="msg-es">Numero de puerto:</td><td class="msg-it">Numero di porta:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0140</td><td class="msg-ja">SMTPユーザー名:</td><td class="msg-en">SMTP user name:</td><td class="msg-fr">Utilisateur SMTP :</td><td class="msg-de">SMTP-Benutzername:</td><td class="msg-es">Usuario SMTP:</td><td class="msg-it">Utente SMTP:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0150</td><td class="msg-ja">SMTPパスワード:</td><td class="msg-en">SMTP password:</td><td class="msg-fr">Mot de passe SMTP :</td><td class="msg-de">SMTP-Kennwort:</td><td class="msg-es">Contrasena SMTP:</td><td class="msg-it">Password SMTP:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0160</td><td class="msg-ja">SSL/TLS使用:</td><td class="msg-en">Use SSL/TLS:</td><td class="msg-fr">Utiliser SSL/TLS :</td><td class="msg-de">SSL/TLS verwenden:</td><td class="msg-es">Usar SSL/TLS:</td><td class="msg-it">Usa SSL/TLS:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0170</td><td class="msg-ja">DCM APPL ID:</td><td class="msg-en">DCM APPL ID:</td><td class="msg-fr">ID appli. DCM :</td><td class="msg-de">DCM-Anwendungs-ID:</td><td class="msg-es">ID aplic. DCM:</td><td class="msg-it">ID appl. DCM:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0180</td><td class="msg-ja">添付ファイル</td><td class="msg-en">Attachment</td><td class="msg-fr">Piece jointe</td><td class="msg-de">Anhang</td><td class="msg-es">Archivo adjunto</td><td class="msg-it">Allegato</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0190</td><td class="msg-ja">CC:</td><td class="msg-en">CC:</td><td class="msg-fr">CC :</td><td class="msg-de">CC:</td><td class="msg-es">CC:</td><td class="msg-it">CC:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0200</td><td class="msg-ja">BCC:</td><td class="msg-en">BCC:</td><td class="msg-fr">CCI :</td><td class="msg-de">BCC:</td><td class="msg-es">CCO:</td><td class="msg-it">CCN:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0210</td><td class="msg-ja">Reply-To:</td><td class="msg-en">Reply-To:</td><td class="msg-fr">Repondre a :</td><td class="msg-de">Antwort an:</td><td class="msg-es">Responder a:</td><td class="msg-it">Rispondi a:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM0220</td><td class="msg-ja">ライブラリー:</td><td class="msg-en">Library:</td><td class="msg-fr">Bibliotheque :</td><td class="msg-de">Bibliothek:</td><td class="msg-es">Biblioteca:</td><td class="msg-it">Libreria:</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1000</td><td class="msg-ja">DCM APPID=&amp;1 登録に失敗しました</td><td class="msg-en">Failed to register DCM APPID=&amp;1</td><td class="msg-fr">Echec enregistrement DCM APPID=&amp;1</td><td class="msg-de">DCM APPID=&amp;1 konnte nicht registriert werden</td><td class="msg-es">Error al registrar DCM APPID=&amp;1</td><td class="msg-it">Errore registrazione DCM APPID=&amp;1</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1010</td><td class="msg-ja">入力ファイルがオープンできません</td><td class="msg-en">Cannot open input file</td><td class="msg-fr">Impossible d ouvrir le fichier entree</td><td class="msg-de">Eingabedatei kann nicht geoeffnet werden</td><td class="msg-es">No se puede abrir el archivo de entrada</td><td class="msg-it">Impossibile aprire il file di input</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1020</td><td class="msg-ja">レコード件数が0件です</td><td class="msg-en">No records found</td><td class="msg-fr">Aucun enregistrement trouve</td><td class="msg-de">Keine Datensaetze gefunden</td><td class="msg-es">No se encontraron registros</td><td class="msg-it">Nessun record trovato</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1030</td><td class="msg-ja">送信できないアドレスです。&amp;1</td><td class="msg-en">Invalid address: &amp;1</td><td class="msg-fr">Adresse invalide : &amp;1</td><td class="msg-de">Ungueltige Adresse: &amp;1</td><td class="msg-es">Direccion no valida: &amp;1</td><td class="msg-it">Indirizzo non valido: &amp;1</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1040</td><td class="msg-ja">送信予定は&amp;1レコード長&amp;2件です</td><td class="msg-en">Ready to send: record length &amp;1, &amp;2 records</td><td class="msg-fr">Pret a envoyer : longueur enreg. &amp;1, &amp;2 enreg.</td><td class="msg-de">Bereit zum Senden: Satzlaenge &amp;1, &amp;2 Saetze</td><td class="msg-es">Listo para enviar: long. reg. &amp;1, &amp;2 registros</td><td class="msg-it">Pronto per invio: lung. rec. &amp;1, &amp;2 record</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1050</td><td class="msg-ja">添付ファイル名がブランクです</td><td class="msg-en">Attachment file name is blank</td><td class="msg-fr">Nom du fichier joint est vide</td><td class="msg-de">Dateiname des Anhangs ist leer</td><td class="msg-es">El nombre del archivo adjunto esta vacio</td><td class="msg-it">Il nome del file allegato e vuoto</td></tr>
+      <tr data-grp="STM"><td class="msgid">STM1060</td><td class="msg-ja">添付ファイルエラー</td><td class="msg-en">Attachment file error</td><td class="msg-fr">Erreur fichier joint</td><td class="msg-de">Fehler bei der Anhangsdatei</td><td class="msg-es">Error en el archivo adjunto</td><td class="msg-it">Errore nel file allegato</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ============================================================
+       MAIMSG - TXT系
+       ============================================================ -->
+  <div class="section-title">
+    <span class="group-badge">TXT</span>
+    SPLTOTXT コマンドプロンプト
+    <span class="group-desc">— TXT0000〜TXT1015 (12件)</span>
+  </div>
+  <div class="tbl-wrap">
+  <table id="tbl-txt">
+    <thead>
+      <tr>
+        <th style="width:80px">MSG ID</th>
+        <th class="lang-ja">&#127991; 日本語 (MAI)</th>
+        <th class="lang-en">&#127468;&#127463; English (MAI2924)</th>
+        <th class="lang-fr">&#127467;&#127479; Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">&#127465;&#127466; Deutsch (MAI2929)</th>
+        <th class="lang-es">&#127466;&#127480; Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">&#127470;&#127481; Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-grp="TXT"><td class="msgid">TXT0000</td><td class="msg-ja">スプールTXT変換</td><td class="msg-en">Spool to Text Conversion</td><td class="msg-fr">Conversion Spool en texte</td><td class="msg-de">Spool in Text konvertieren</td><td class="msg-es">Convertir Spool a texto</td><td class="msg-it">Converti Spool in testo</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0010</td><td class="msg-ja">スプール・ファイル名:</td><td class="msg-en">Spool file name:</td><td class="msg-fr">Nom fichier spool :</td><td class="msg-de">Spool-Dateiname:</td><td class="msg-es">Nombre archivo spool:</td><td class="msg-it">Nome file spool:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0020</td><td class="msg-ja">ジョブ名:</td><td class="msg-en">Job name:</td><td class="msg-fr">Nom travail :</td><td class="msg-de">Jobname:</td><td class="msg-es">Nombre trabajo:</td><td class="msg-it">Nome lavoro:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0030</td><td class="msg-ja">スプール・ファイル番号:</td><td class="msg-en">Spool file number:</td><td class="msg-fr">Numero fichier spool :</td><td class="msg-de">Spool-Dateinummer:</td><td class="msg-es">Numero archivo spool:</td><td class="msg-it">Numero file spool:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0040</td><td class="msg-ja">出力フォルダー(IFSパス):</td><td class="msg-en">Output folder (IFS path):</td><td class="msg-fr">Dossier sortie (chemin IFS) :</td><td class="msg-de">Ausgabeordner (IFS-Pfad):</td><td class="msg-es">Carpeta de salida (ruta IFS):</td><td class="msg-it">Cartella di output (percorso IFS):</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0050</td><td class="msg-ja">テキストファイル名:</td><td class="msg-en">Text file name:</td><td class="msg-fr">Nom fichier texte :</td><td class="msg-de">Textdateiname:</td><td class="msg-es">Nombre archivo texto:</td><td class="msg-it">Nome file testo:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0060</td><td class="msg-ja">入力CCSID:</td><td class="msg-en">Input CCSID:</td><td class="msg-fr">CCSID entree :</td><td class="msg-de">Eingabe-CCSID:</td><td class="msg-es">CCSID de entrada:</td><td class="msg-it">CCSID di input:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0065</td><td class="msg-ja">重複ファイル時のアクション:</td><td class="msg-en">Duplicate file action:</td><td class="msg-fr">Action si fichier duplique :</td><td class="msg-de">Aktion bei doppelter Datei:</td><td class="msg-es">Accion con archivo duplicado:</td><td class="msg-it">Azione per file duplicato:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0067</td><td class="msg-ja">出力CCSID:</td><td class="msg-en">Output CCSID:</td><td class="msg-fr">CCSID sortie :</td><td class="msg-de">Ausgabe-CCSID:</td><td class="msg-es">CCSID de salida:</td><td class="msg-it">CCSID di output:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0070</td><td class="msg-ja">ユーザー:</td><td class="msg-en">User:</td><td class="msg-fr">Utilisateur :</td><td class="msg-de">Benutzer:</td><td class="msg-es">Usuario:</td><td class="msg-it">Utente:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT0080</td><td class="msg-ja">番号:</td><td class="msg-en">Number:</td><td class="msg-fr">Numero :</td><td class="msg-de">Nummer:</td><td class="msg-es">Numero:</td><td class="msg-it">Numero:</td></tr>
+      <tr data-grp="TXT"><td class="msgid">TXT1015</td><td class="msg-ja">&amp;1 を作成しました</td><td class="msg-en">&amp;1 created successfully</td><td class="msg-fr">&amp;1 cree avec succes</td><td class="msg-de">&amp;1 wurde erfolgreich erstellt</td><td class="msg-es">&amp;1 creado correctamente</td><td class="msg-it">&amp;1 creato correttamente</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+</div><!-- /content -->
+
+<footer>
+  MAI/400 NLS メッセージ一覧 &mdash; IBM i QSYS2.MESSAGE_FILE_DATA より自動生成 2026-09-27
+</footer>
+
+<script>
+  let currentGroup = 'ALL';
+
+  function filterGroup(grp, btn) {
+    currentGroup = grp;
+    document.querySelectorAll('.grp-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterRows();
+  }
+
+  function filterRows() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    let vis = 0;
+    document.querySelectorAll('tbody tr').forEach(tr => {
+      const grp = tr.dataset.grp || '';
+      const txt = tr.textContent.toLowerCase();
+      const grpOk = (currentGroup === 'ALL' || grp === currentGroup);
+      const txtOk = (!q || txt.includes(q));
+      const show = grpOk && txtOk;
+      tr.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    document.getElementById('visCount').textContent = vis;
+  }
+</script>
+</body>
+</html>
