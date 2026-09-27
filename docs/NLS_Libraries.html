@@ -204,14 +204,14 @@
      ============================================================= -->
 <div class="doc-header">
   <h1>MAI/400 NLS対応ライブラリ一覧</h1>
-  <div class="subtitle">National Language Support (NLS) — 多言語対応プロダクションライブラリ構成</div>
+  <div class="subtitle">National Language Support (NLS) &mdash; 多言語対応プロダクションライブラリ構成</div>
 </div>
 
 <div class="meta-bar">
   <dl><dt>プロダクト</dt><dd>MAI/400</dd></dl>
   <dl><dt>対応言語数</dt><dd>5 言語</dd></dl>
   <dl><dt>ベースライブラリ</dt><dd>MAI</dd></dl>
-  <dl><dt>更新日</dt><dd>2026-09-26</dd></dl>
+  <dl><dt>更新日</dt><dd>2026-09-27</dd></dl>
 </div>
 
 <div class="content">
@@ -246,7 +246,8 @@
         <th>タイプ</th>
         <th>言語</th>
         <th>CCSID (参考)</th>
-        <th>収録オブジェクト</th>
+        <th>最終変更</th>
+        <th>収録オブジェクト数</th>
       </tr>
     </thead>
     <tbody>
@@ -255,35 +256,40 @@
         <td>PROD</td>
         <td class="lang-en">English</td>
         <td>37 / 285</td>
-        <td>*CMD x5, *PNLGRP x4, *MSGF x2, *FILE x6, *PGM x1</td>
+        <td>2026-09-27</td>
+        <td>*CMD x5, *PNLGRP x5, *MSGF x2, *FILE x4, *PGM x2</td>
       </tr>
       <tr>
         <td>MAI2928</td>
         <td>PROD</td>
         <td class="lang-fr">Fran&ccedil;ais (French)</td>
         <td>297 / 500</td>
-        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+        <td>2026-09-27</td>
+        <td>*CMD x4, *PNLGRP x4, *MSGF x1, *FILE x3</td>
       </tr>
       <tr>
         <td>MAI2929</td>
         <td>PROD</td>
         <td class="lang-de">Deutsch (German)</td>
         <td>273 / 500</td>
-        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+        <td>2026-09-27</td>
+        <td>*CMD x4, *PNLGRP x4, *MSGF x1, *FILE x3</td>
       </tr>
       <tr>
         <td>MAI2931</td>
         <td>PROD</td>
         <td class="lang-es">Espa&ntilde;ol (Spanish)</td>
         <td>284 / 500</td>
-        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+        <td>2026-09-27</td>
+        <td>*CMD x4, *PNLGRP x4, *MSGF x1, *FILE x3</td>
       </tr>
       <tr>
         <td>MAI2932</td>
         <td>PROD</td>
         <td class="lang-it">Italiano (Italian)</td>
         <td>280 / 500</td>
-        <td>*CMD x5, *PNLGRP x3, *MSGF x1, *FILE x1</td>
+        <td>2026-09-27</td>
+        <td>*CMD x6, *PNLGRP x4, *MSGF x1, *FILE x3</td>
       </tr>
     </tbody>
   </table>
@@ -315,10 +321,8 @@
 
   <h3>ライブラリリスト設定例</h3>
   <p>ドイツ語ユーザー向けのジョブ初期化例 (CL):</p>
-  <pre style="font-family:var(--mono);font-size:12px;background:#eef2f8;padding:12px 16px;border-radius:6px;line-height:1.8;margin-bottom:12px;">
-/* ドイツ語ライブラリを MAI より前に追加 */
-ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
-</pre>
+  <pre style="font-family:var(--mono);font-size:12px;background:#eef2f8;padding:12px 16px;border-radius:6px;line-height:1.8;margin-bottom:12px;">/* ドイツ語ライブラリを MAI より前に追加 */
+ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)</pre>
 
   <!-- =========================================================
        4. 各言語ライブラリ詳細
@@ -335,26 +339,27 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
     <div class="lang-card-body">
       <table>
         <thead>
-          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th><th>最終変更</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBTOMAIL</td><td>*CMD</td><td>DB to SMTP Mail Attach CSV (English)</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOPDF</td><td>*CMD</td><td>—</td><td>2026-08-31</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
-          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files command</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - English</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>—</td><td>2026-08-30</td></tr>
-          <tr><td>SPLTOPDF</td><td>*PNLGRP</td><td>SPLTOPDF command help - English</td><td>2026-08-31</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>—</td><td>2026-08-30</td></tr>
-          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-25</td></tr>
-          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td></tr>
-          <tr><td>MAIPMT</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td></tr>
-          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>MAI/400 CMD SOURCE - ENGLISH</td><td>2026-08-30</td></tr>
-          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>MAI/400 PNLGRP SOURCE - ENGLISH</td><td>2026-08-30</td></tr>
-          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-25</td></tr>
-          <tr><td>QRPGLESRC</td><td>*FILE (PF)</td><td>ILE RPG Source</td><td>2026-09-25</td></tr>
-          <tr><td>WRKMSPLF</td><td>*PGM (RPGLE)</td><td>Work with My Spooled Files - main program</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>DB to SMTP Mail Attach CSV (English)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (English)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>SPLTOPDF</td><td>*CMD</td><td>—</td><td>2026-08-31</td><td>2026-08-31</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (English)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files - English</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>MAI/400 CMD SOURCE - ENGLISH</td><td>2026-08-30</td><td>2026-09-25</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>MAI/400 PNLGRP SOURCE - ENGLISH</td><td>2026-08-30</td><td>2026-09-25</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>QRPGLESRC</td><td>*FILE (PF)</td><td>ILE RPG Source</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td><td>2026-09-26</td></tr>
+          <tr><td>MAIPMT</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td><td>2026-09-02</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - English</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
+          <tr><td>SPLTOPDF</td><td>*PNLGRP</td><td>SPLTOPDF command help - English</td><td>2026-08-31</td><td>2026-08-31</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PGM (RPGLE)</td><td>Work with My Spooled Files - main program</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLFX</td><td>*PGM (RPGLE)</td><td>WRKMSPLF UIM Action List Exit Program</td><td>2026-09-27</td><td>2026-09-27</td></tr>
         </tbody>
       </table>
     </div>
@@ -370,49 +375,52 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
     <div class="lang-card-body">
       <table>
         <thead>
-          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th><th>最終変更</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (French)</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (French)</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (French)</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - French</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - French</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - French</td><td>2026-09-25</td></tr>
-          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - French</td><td>2026-09-25</td></tr>
-          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - French</td><td>2026-09-25</td></tr>
-          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - French</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files - French</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - French</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - French</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - French</td><td>2026-09-27</td><td>2026-09-27</td></tr>
         </tbody>
       </table>
-      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <h3>MAIMSG 翻訳抜粋 (DBT系コマンドプロンプト)</h3>
       <table>
         <thead>
-          <tr><th>メッセージID</th><th>フランス語テキスト</th><th>英語テキスト (参考)</th></tr>
+          <tr><th>メッセージID</th><th>フランス語テキスト</th><th>日本語/英語 (参考)</th></tr>
         </thead>
         <tbody>
           <tr><td>DBT0000</td><td>Envoyer DB en CSV par messagerie</td><td>DB to CSV Mail</td></tr>
-          <tr><td>DBT0010</td><td>A :</td><td>To:</td></tr>
-          <tr><td>DBT0020</td><td>De :</td><td>From:</td></tr>
-          <tr><td>DBT0030</td><td>Serveur SMTP :</td><td>SMTP server:</td></tr>
-          <tr><td>DBT0040</td><td>Objet :</td><td>Subject:</td></tr>
-          <tr><td>DBT0050</td><td>Fichier source :</td><td>Source file:</td></tr>
-          <tr><td>DBT0060</td><td>Membre :</td><td>Member:</td></tr>
-          <tr><td>DBT0070</td><td>Nom du fichier joint :</td><td>Attachment file name:</td></tr>
-          <tr><td>STM0110</td><td>De :</td><td>From:</td></tr>
-          <tr><td>STM0120</td><td>Serveur messagerie :</td><td>Mail server:</td></tr>
-          <tr><td>STM0130</td><td>Numero de port :</td><td>Port number:</td></tr>
-          <tr><td>STM0140</td><td>Utilisateur SMTP :</td><td>SMTP user name:</td></tr>
-          <tr><td>STM0150</td><td>Mot de passe SMTP :</td><td>SMTP password:</td></tr>
-          <tr><td>STM0160</td><td>Utiliser SSL/TLS :</td><td>Use SSL/TLS:</td></tr>
-          <tr><td>STM0170</td><td>ID appli. DCM :</td><td>DCM APPL ID:</td></tr>
-          <tr><td>STM0200</td><td>CCI :</td><td>BCC:</td></tr>
-          <tr><td>STM0210</td><td>Repondre a :</td><td>Reply-To:</td></tr>
-          <tr><td>STM0220</td><td>Bibliotheque :</td><td>Library:</td></tr>
-          <tr><td>STM1010</td><td>Impossible d ouvrir le fichier entree</td><td>Cannot open input file</td></tr>
-          <tr><td>STM1020</td><td>Aucun enregistrement trouve</td><td>No records found</td></tr>
-          <tr><td>STM1030</td><td>Adresse invalide : &amp;1</td><td>Invalid address: &amp;1</td></tr>
-          <tr><td>STM1050</td><td>Nom du fichier joint est vide</td><td>Attachment file name is blank</td></tr>
-          <tr><td>STM1060</td><td>Erreur fichier joint</td><td>Attachment file error</td></tr>
+          <tr><td>DBT0010</td><td>A :</td><td>宛先 (To:)</td></tr>
+          <tr><td>DBT0020</td><td>De :</td><td>差出人 (From:)</td></tr>
+          <tr><td>DBT0030</td><td>Serveur SMTP :</td><td>SMTPサーバー</td></tr>
+          <tr><td>DBT0040</td><td>Objet :</td><td>件名 (Subject:)</td></tr>
+          <tr><td>DBT0050</td><td>Fichier source :</td><td>ソースファイル</td></tr>
+          <tr><td>DBT0060</td><td>Membre :</td><td>メンバー</td></tr>
+          <tr><td>DBT0070</td><td>Nom du fichier joint :</td><td>添付ファイル名</td></tr>
+          <tr><td>DBT0080</td><td>CCSID source :</td><td>ソース CCSID</td></tr>
+          <tr><td>DBT0090</td><td>CCSID CSV :</td><td>CSV CCSID</td></tr>
+          <tr><td>DBT0100</td><td>Trace de debogage :</td><td>デバッグトレース</td></tr>
+          <tr><td>DBT0110</td><td>Limite enregistrements :</td><td>レコード上限</td></tr>
+          <tr><td>DBT0120</td><td>Port SMTP :</td><td>SMTPポート</td></tr>
+          <tr><td>DBT0130</td><td>Utilisateur SMTP :</td><td>SMTPユーザー名</td></tr>
+          <tr><td>DBT0140</td><td>Mot de passe SMTP :</td><td>SMTPパスワード</td></tr>
+          <tr><td>DBT0150</td><td>SSL/TLS :</td><td>SSL/TLS</td></tr>
+          <tr><td>DBT0160</td><td>ID application GSKit :</td><td>GSKit アプリ ID</td></tr>
+          <tr><td>DBT0170</td><td>Sans conversion CCSID :</td><td>CCSID変換なし</td></tr>
+          <tr><td>DBT0180</td><td>CC :</td><td>CC</td></tr>
+          <tr><td>DBT0190</td><td>CCI :</td><td>BCC</td></tr>
+          <tr><td>DBT0200</td><td>Repondre a :</td><td>Reply-To</td></tr>
+          <tr><td>DBT0210</td><td>Bibliotheque :</td><td>ライブラリ</td></tr>
+          <tr><td>MAI9899</td><td>Une erreur s est produite lors du traitement de la commande.</td><td>コマンド処理中にエラーが発生しました。</td></tr>
         </tbody>
       </table>
     </div>
@@ -428,49 +436,51 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
     <div class="lang-card-body">
       <table>
         <thead>
-          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th><th>最終変更</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (German)</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (German)</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (German)</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - German</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - German</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - German</td><td>2026-09-25</td></tr>
-          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - German</td><td>2026-09-25</td></tr>
-          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - German</td><td>2026-09-25</td></tr>
-          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - German</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files - German</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - German</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - German</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - German</td><td>2026-09-27</td><td>2026-09-27</td></tr>
         </tbody>
       </table>
-      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <h3>MAIMSG 翻訳抜粋 (DBT系コマンドプロンプト)</h3>
       <table>
         <thead>
-          <tr><th>メッセージID</th><th>ドイツ語テキスト</th><th>英語テキスト (参考)</th></tr>
+          <tr><th>メッセージID</th><th>ドイツ語テキスト</th><th>日本語/英語 (参考)</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBT0000</td><td>DB-Datei als CSV-Mail senden</td><td>DB to CSV Mail</td></tr>
-          <tr><td>DBT0010</td><td>An:</td><td>To:</td></tr>
-          <tr><td>DBT0020</td><td>Von:</td><td>From:</td></tr>
-          <tr><td>DBT0030</td><td>SMTP-Server:</td><td>SMTP server:</td></tr>
-          <tr><td>DBT0040</td><td>Betreff:</td><td>Subject:</td></tr>
-          <tr><td>DBT0050</td><td>Quelldatei:</td><td>Source file:</td></tr>
-          <tr><td>DBT0060</td><td>Element:</td><td>Member:</td></tr>
-          <tr><td>DBT0070</td><td>Dateiname des Anhangs:</td><td>Attachment file name:</td></tr>
-          <tr><td>STM0110</td><td>Von:</td><td>From:</td></tr>
-          <tr><td>STM0120</td><td>Mail-Server:</td><td>Mail server:</td></tr>
-          <tr><td>STM0130</td><td>Portnummer:</td><td>Port number:</td></tr>
-          <tr><td>STM0140</td><td>SMTP-Benutzername:</td><td>SMTP user name:</td></tr>
-          <tr><td>STM0150</td><td>SMTP-Kennwort:</td><td>SMTP password:</td></tr>
-          <tr><td>STM0160</td><td>SSL/TLS verwenden:</td><td>Use SSL/TLS:</td></tr>
-          <tr><td>STM0170</td><td>DCM-Anwendungs-ID:</td><td>DCM APPL ID:</td></tr>
-          <tr><td>STM0200</td><td>BCC:</td><td>BCC:</td></tr>
-          <tr><td>STM0210</td><td>Antwort an:</td><td>Reply-To:</td></tr>
-          <tr><td>STM0220</td><td>Bibliothek:</td><td>Library:</td></tr>
-          <tr><td>STM1010</td><td>Eingabedatei kann nicht geoeffnet werden</td><td>Cannot open input file</td></tr>
-          <tr><td>STM1020</td><td>Keine Datensaetze gefunden</td><td>No records found</td></tr>
-          <tr><td>STM1030</td><td>Ungueltige Adresse: &amp;1</td><td>Invalid address: &amp;1</td></tr>
-          <tr><td>STM1050</td><td>Dateiname des Anhangs ist leer</td><td>Attachment file name is blank</td></tr>
-          <tr><td>STM1060</td><td>Fehler bei der Anhangsdatei</td><td>Attachment file error</td></tr>
+          <tr><td>DBT0010</td><td>An:</td><td>宛先 (To:)</td></tr>
+          <tr><td>DBT0020</td><td>Von:</td><td>差出人 (From:)</td></tr>
+          <tr><td>DBT0030</td><td>SMTP-Server:</td><td>SMTPサーバー</td></tr>
+          <tr><td>DBT0040</td><td>Betreff:</td><td>件名 (Subject:)</td></tr>
+          <tr><td>DBT0050</td><td>Quelldatei:</td><td>ソースファイル</td></tr>
+          <tr><td>DBT0060</td><td>Element:</td><td>メンバー</td></tr>
+          <tr><td>DBT0070</td><td>Dateiname des Anhangs:</td><td>添付ファイル名</td></tr>
+          <tr><td>DBT0080</td><td>Quell-CCSID:</td><td>ソース CCSID</td></tr>
+          <tr><td>DBT0090</td><td>CSV-CCSID:</td><td>CSV CCSID</td></tr>
+          <tr><td>DBT0100</td><td>Debug-Protokoll:</td><td>デバッグトレース</td></tr>
+          <tr><td>DBT0110</td><td>Datensatzlimit:</td><td>レコード上限</td></tr>
+          <tr><td>DBT0120</td><td>SMTP-Port:</td><td>SMTPポート</td></tr>
+          <tr><td>DBT0130</td><td>SMTP-Benutzername:</td><td>SMTPユーザー名</td></tr>
+          <tr><td>DBT0140</td><td>SMTP-Kennwort:</td><td>SMTPパスワード</td></tr>
+          <tr><td>DBT0150</td><td>SSL/TLS:</td><td>SSL/TLS</td></tr>
+          <tr><td>DBT0160</td><td>GSKit-Anwendungs-ID:</td><td>GSKit アプリ ID</td></tr>
+          <tr><td>DBT0170</td><td>Keine CCSID-Konvertierung:</td><td>CCSID変換なし</td></tr>
+          <tr><td>DBT0180</td><td>CC:</td><td>CC</td></tr>
+          <tr><td>DBT0190</td><td>BCC:</td><td>BCC</td></tr>
+          <tr><td>DBT0200</td><td>Antwort an:</td><td>Reply-To</td></tr>
+          <tr><td>DBT0210</td><td>Bibliothek:</td><td>ライブラリ</td></tr>
+          <tr><td>MAI9899</td><td>Bei der Verarbeitung ist ein Fehler aufgetreten.</td><td>コマンド処理中にエラーが発生しました。</td></tr>
         </tbody>
       </table>
     </div>
@@ -486,49 +496,51 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
     <div class="lang-card-body">
       <table>
         <thead>
-          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th><th>最終変更</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (Spanish)</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (Spanish)</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
-          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - Spanish</td><td>2026-09-25</td></tr>
-          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - Spanish</td><td>2026-09-25</td></tr>
-          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files - Spanish</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - Spanish</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Spanish</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - Spanish</td><td>2026-09-27</td><td>2026-09-27</td></tr>
         </tbody>
       </table>
-      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <h3>MAIMSG 翻訳抜粋 (DBT系コマンドプロンプト)</h3>
       <table>
         <thead>
-          <tr><th>メッセージID</th><th>スペイン語テキスト</th><th>英語テキスト (参考)</th></tr>
+          <tr><th>メッセージID</th><th>スペイン語テキスト</th><th>日本語/英語 (参考)</th></tr>
         </thead>
         <tbody>
           <tr><td>DBT0000</td><td>Enviar BD como CSV por correo</td><td>DB to CSV Mail</td></tr>
-          <tr><td>DBT0010</td><td>Para:</td><td>To:</td></tr>
-          <tr><td>DBT0020</td><td>De:</td><td>From:</td></tr>
-          <tr><td>DBT0030</td><td>Servidor SMTP:</td><td>SMTP server:</td></tr>
-          <tr><td>DBT0040</td><td>Asunto:</td><td>Subject:</td></tr>
-          <tr><td>DBT0050</td><td>Archivo fuente:</td><td>Source file:</td></tr>
-          <tr><td>DBT0060</td><td>Miembro:</td><td>Member:</td></tr>
-          <tr><td>DBT0070</td><td>Nombre archivo adjunto:</td><td>Attachment file name:</td></tr>
-          <tr><td>STM0110</td><td>De:</td><td>From:</td></tr>
-          <tr><td>STM0120</td><td>Servidor de correo:</td><td>Mail server:</td></tr>
-          <tr><td>STM0130</td><td>Numero de puerto:</td><td>Port number:</td></tr>
-          <tr><td>STM0140</td><td>Usuario SMTP:</td><td>SMTP user name:</td></tr>
-          <tr><td>STM0150</td><td>Contrasena SMTP:</td><td>SMTP password:</td></tr>
-          <tr><td>STM0160</td><td>Usar SSL/TLS:</td><td>Use SSL/TLS:</td></tr>
-          <tr><td>STM0170</td><td>ID aplic. DCM:</td><td>DCM APPL ID:</td></tr>
-          <tr><td>STM0200</td><td>CCO:</td><td>BCC:</td></tr>
-          <tr><td>STM0210</td><td>Responder a:</td><td>Reply-To:</td></tr>
-          <tr><td>STM0220</td><td>Biblioteca:</td><td>Library:</td></tr>
-          <tr><td>STM1010</td><td>No se puede abrir el archivo de entrada</td><td>Cannot open input file</td></tr>
-          <tr><td>STM1020</td><td>No se encontraron registros</td><td>No records found</td></tr>
-          <tr><td>STM1030</td><td>Direccion no valida: &amp;1</td><td>Invalid address: &amp;1</td></tr>
-          <tr><td>STM1050</td><td>El nombre del archivo adjunto esta vacio</td><td>Attachment file name is blank</td></tr>
-          <tr><td>STM1060</td><td>Error en el archivo adjunto</td><td>Attachment file error</td></tr>
+          <tr><td>DBT0010</td><td>Para:</td><td>宛先 (To:)</td></tr>
+          <tr><td>DBT0020</td><td>De:</td><td>差出人 (From:)</td></tr>
+          <tr><td>DBT0030</td><td>Servidor SMTP:</td><td>SMTPサーバー</td></tr>
+          <tr><td>DBT0040</td><td>Asunto:</td><td>件名 (Subject:)</td></tr>
+          <tr><td>DBT0050</td><td>Archivo fuente:</td><td>ソースファイル</td></tr>
+          <tr><td>DBT0060</td><td>Miembro:</td><td>メンバー</td></tr>
+          <tr><td>DBT0070</td><td>Nombre archivo adjunto:</td><td>添付ファイル名</td></tr>
+          <tr><td>DBT0080</td><td>CCSID fuente:</td><td>ソース CCSID</td></tr>
+          <tr><td>DBT0090</td><td>CCSID CSV:</td><td>CSV CCSID</td></tr>
+          <tr><td>DBT0100</td><td>Rastreo de depuracion:</td><td>デバッグトレース</td></tr>
+          <tr><td>DBT0110</td><td>Limite de registros:</td><td>レコード上限</td></tr>
+          <tr><td>DBT0120</td><td>Puerto SMTP:</td><td>SMTPポート</td></tr>
+          <tr><td>DBT0130</td><td>Usuario SMTP:</td><td>SMTPユーザー名</td></tr>
+          <tr><td>DBT0140</td><td>Contrasena SMTP:</td><td>SMTPパスワード</td></tr>
+          <tr><td>DBT0150</td><td>SSL/TLS:</td><td>SSL/TLS</td></tr>
+          <tr><td>DBT0160</td><td>ID aplicacion GSKit:</td><td>GSKit アプリ ID</td></tr>
+          <tr><td>DBT0170</td><td>Sin conversion CCSID:</td><td>CCSID変換なし</td></tr>
+          <tr><td>DBT0180</td><td>CC:</td><td>CC</td></tr>
+          <tr><td>DBT0190</td><td>CCO:</td><td>BCC</td></tr>
+          <tr><td>DBT0200</td><td>Responder a:</td><td>Reply-To</td></tr>
+          <tr><td>DBT0210</td><td>Biblioteca:</td><td>ライブラリ</td></tr>
         </tbody>
       </table>
     </div>
@@ -544,50 +556,53 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
     <div class="lang-card-body">
       <table>
         <thead>
-          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th><th>最終変更</th></tr>
         </thead>
         <tbody>
-          <tr><td>DBTOCSV</td><td>*CMD</td><td>COPY TO CSV FILE</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*CMD</td><td>DB TO SMTP MAIL ATTACH CSV</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>SPLF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td></tr>
-          <tr><td>SPLTOPDF</td><td>*CMD</td><td>SPLF TO PDF</td><td>2026-09-25</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>SRCF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td></tr>
-          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
-          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
-          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
-          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 Messaggi Italiani</td><td>2026-09-25</td></tr>
-          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Italian</td><td>2026-09-26</td></tr>
+          <tr><td>DBTOCSV</td><td>*CMD</td><td>COPY TO CSV FILE</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>SPLTOPDF</td><td>*CMD</td><td>SPLF TO PDF</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Italian</td><td>2026-09-26</td><td>2026-09-27</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 Messaggi Italiani</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
         </tbody>
       </table>
-      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <h3>MAIMSG 翻訳抜粋 (DBT系コマンドプロンプト)</h3>
       <table>
         <thead>
-          <tr><th>メッセージID</th><th>イタリア語テキスト</th><th>英語テキスト (参考)</th></tr>
+          <tr><th>メッセージID</th><th>イタリア語テキスト</th><th>日本語/英語 (参考)</th></tr>
         </thead>
         <tbody>
           <tr><td>DBT0000</td><td>Invia DB come CSV per posta</td><td>DB to CSV Mail</td></tr>
-          <tr><td>DBT0010</td><td>A:</td><td>To:</td></tr>
-          <tr><td>DBT0020</td><td>Da:</td><td>From:</td></tr>
-          <tr><td>DBT0030</td><td>Server SMTP:</td><td>SMTP server:</td></tr>
-          <tr><td>DBT0040</td><td>Oggetto:</td><td>Subject:</td></tr>
-          <tr><td>DBT0050</td><td>File sorgente:</td><td>Source file:</td></tr>
-          <tr><td>DBT0060</td><td>Membro:</td><td>Member:</td></tr>
-          <tr><td>DBT0070</td><td>Nome file allegato:</td><td>Attachment file name:</td></tr>
-          <tr><td>STM0110</td><td>Da:</td><td>From:</td></tr>
-          <tr><td>STM0120</td><td>Server di posta:</td><td>Mail server:</td></tr>
-          <tr><td>STM0130</td><td>Numero di porta:</td><td>Port number:</td></tr>
-          <tr><td>STM0140</td><td>Utente SMTP:</td><td>SMTP user name:</td></tr>
-          <tr><td>STM0150</td><td>Password SMTP:</td><td>SMTP password:</td></tr>
-          <tr><td>STM0160</td><td>Usa SSL/TLS:</td><td>Use SSL/TLS:</td></tr>
-          <tr><td>STM0170</td><td>ID appl. DCM:</td><td>DCM APPL ID:</td></tr>
-          <tr><td>STM0200</td><td>CCN:</td><td>BCC:</td></tr>
-          <tr><td>STM0210</td><td>Rispondi a:</td><td>Reply-To:</td></tr>
-          <tr><td>STM0220</td><td>Libreria:</td><td>Library:</td></tr>
-          <tr><td>STM1010</td><td>Impossibile aprire il file di input</td><td>Cannot open input file</td></tr>
-          <tr><td>STM1020</td><td>Nessun record trovato</td><td>No records found</td></tr>
-          <tr><td>STM1030</td><td>Indirizzo non valido: &amp;1</td><td>Invalid address: &amp;1</td></tr>
-          <tr><td>STM1050</td><td>Il nome del file allegato e vuoto</td><td>Attachment file name is blank</td></tr>
-          <tr><td>STM1060</td><td>Errore nel file allegato</td><td>Attachment file error</td></tr>
+          <tr><td>DBT0010</td><td>A:</td><td>宛先 (To:)</td></tr>
+          <tr><td>DBT0020</td><td>Da:</td><td>差出人 (From:)</td></tr>
+          <tr><td>DBT0030</td><td>Server SMTP:</td><td>SMTPサーバー</td></tr>
+          <tr><td>DBT0040</td><td>Oggetto:</td><td>件名 (Subject:)</td></tr>
+          <tr><td>DBT0050</td><td>File sorgente:</td><td>ソースファイル</td></tr>
+          <tr><td>DBT0060</td><td>Membro:</td><td>メンバー</td></tr>
+          <tr><td>DBT0070</td><td>Nome file allegato:</td><td>添付ファイル名</td></tr>
+          <tr><td>DBT0080</td><td>CCSID sorgente:</td><td>ソース CCSID</td></tr>
+          <tr><td>DBT0090</td><td>CCSID CSV:</td><td>CSV CCSID</td></tr>
+          <tr><td>DBT0100</td><td>Traccia di debug:</td><td>デバッグトレース</td></tr>
+          <tr><td>DBT0110</td><td>Limite record:</td><td>レコード上限</td></tr>
+          <tr><td>DBT0120</td><td>Porta SMTP:</td><td>SMTPポート</td></tr>
+          <tr><td>DBT0130</td><td>Utente SMTP:</td><td>SMTPユーザー名</td></tr>
+          <tr><td>DBT0140</td><td>Password SMTP:</td><td>SMTPパスワード</td></tr>
+          <tr><td>DBT0150</td><td>SSL/TLS:</td><td>SSL/TLS</td></tr>
+          <tr><td>DBT0160</td><td>ID applicazione GSKit:</td><td>GSKit アプリ ID</td></tr>
+          <tr><td>DBT0170</td><td>Senza conversione CCSID:</td><td>CCSID変換なし</td></tr>
+          <tr><td>DBT0180</td><td>CC:</td><td>CC</td></tr>
+          <tr><td>DBT0190</td><td>CCN:</td><td>BCC</td></tr>
+          <tr><td>DBT0200</td><td>Rispondi a:</td><td>Reply-To</td></tr>
+          <tr><td>DBT0210</td><td>Libreria:</td><td>ライブラリ</td></tr>
         </tbody>
       </table>
     </div>
@@ -609,102 +624,22 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>DBT0010 (To:)</td>
-        <td>To:</td>
-        <td>A :</td>
-        <td>An:</td>
-        <td>Para:</td>
-        <td>A:</td>
-      </tr>
-      <tr>
-        <td>DBT0020 (From:)</td>
-        <td>From:</td>
-        <td>De :</td>
-        <td>Von:</td>
-        <td>De:</td>
-        <td>Da:</td>
-      </tr>
-      <tr>
-        <td>DBT0030 (SMTP server:)</td>
-        <td>SMTP server:</td>
-        <td>Serveur SMTP :</td>
-        <td>SMTP-Server:</td>
-        <td>Servidor SMTP:</td>
-        <td>Server SMTP:</td>
-      </tr>
-      <tr>
-        <td>DBT0040 (Subject:)</td>
-        <td>Subject:</td>
-        <td>Objet :</td>
-        <td>Betreff:</td>
-        <td>Asunto:</td>
-        <td>Oggetto:</td>
-      </tr>
-      <tr>
-        <td>DBT0060 (Member:)</td>
-        <td>Member:</td>
-        <td>Membre :</td>
-        <td>Element:</td>
-        <td>Miembro:</td>
-        <td>Membro:</td>
-      </tr>
-      <tr>
-        <td>STM0140 (SMTP user:)</td>
-        <td>SMTP user name:</td>
-        <td>Utilisateur SMTP :</td>
-        <td>SMTP-Benutzername:</td>
-        <td>Usuario SMTP:</td>
-        <td>Utente SMTP:</td>
-      </tr>
-      <tr>
-        <td>STM0150 (SMTP passwd:)</td>
-        <td>SMTP password:</td>
-        <td>Mot de passe SMTP :</td>
-        <td>SMTP-Kennwort:</td>
-        <td>Contrasena SMTP:</td>
-        <td>Password SMTP:</td>
-      </tr>
-      <tr>
-        <td>STM0160 (SSL/TLS:)</td>
-        <td>Use SSL/TLS:</td>
-        <td>Utiliser SSL/TLS :</td>
-        <td>SSL/TLS verwenden:</td>
-        <td>Usar SSL/TLS:</td>
-        <td>Usa SSL/TLS:</td>
-      </tr>
-      <tr>
-        <td>STM0200 (BCC:)</td>
-        <td>BCC:</td>
-        <td>CCI :</td>
-        <td>BCC:</td>
-        <td>CCO:</td>
-        <td>CCN:</td>
-      </tr>
-      <tr>
-        <td>STM0220 (Library:)</td>
-        <td>Library:</td>
-        <td>Bibliotheque :</td>
-        <td>Bibliothek:</td>
-        <td>Biblioteca:</td>
-        <td>Libreria:</td>
-      </tr>
-      <tr>
-        <td>STM1010 (open error)</td>
-        <td>Cannot open input file</td>
-        <td>Impossible d ouvrir le fichier entree</td>
-        <td>Eingabedatei kann nicht geoeffnet werden</td>
-        <td>No se puede abrir el archivo de entrada</td>
-        <td>Impossibile aprire il file di input</td>
-      </tr>
-      <tr>
-        <td>STM1020 (no records)</td>
-        <td>No records found</td>
-        <td>Aucun enregistrement trouve</td>
-        <td>Keine Datensaetze gefunden</td>
-        <td>No se encontraron registros</td>
-        <td>Nessun record trovato</td>
-      </tr>
+      <tr><td>DBT0010 (To:)</td><td>To:</td><td>A :</td><td>An:</td><td>Para:</td><td>A:</td></tr>
+      <tr><td>DBT0020 (From:)</td><td>From:</td><td>De :</td><td>Von:</td><td>De:</td><td>Da:</td></tr>
+      <tr><td>DBT0030 (SMTP server)</td><td>SMTP server:</td><td>Serveur SMTP :</td><td>SMTP-Server:</td><td>Servidor SMTP:</td><td>Server SMTP:</td></tr>
+      <tr><td>DBT0040 (Subject)</td><td>Subject:</td><td>Objet :</td><td>Betreff:</td><td>Asunto:</td><td>Oggetto:</td></tr>
+      <tr><td>DBT0050 (Source file)</td><td>Source file:</td><td>Fichier source :</td><td>Quelldatei:</td><td>Archivo fuente:</td><td>File sorgente:</td></tr>
+      <tr><td>DBT0060 (Member)</td><td>Member:</td><td>Membre :</td><td>Element:</td><td>Miembro:</td><td>Membro:</td></tr>
+      <tr><td>DBT0070 (Attachment)</td><td>Attachment file name:</td><td>Nom du fichier joint :</td><td>Dateiname des Anhangs:</td><td>Nombre archivo adjunto:</td><td>Nome file allegato:</td></tr>
+      <tr><td>DBT0080 (Src CCSID)</td><td>Source CCSID:</td><td>CCSID source :</td><td>Quell-CCSID:</td><td>CCSID fuente:</td><td>CCSID sorgente:</td></tr>
+      <tr><td>DBT0120 (SMTP port)</td><td>SMTP port:</td><td>Port SMTP :</td><td>SMTP-Port:</td><td>Puerto SMTP:</td><td>Porta SMTP:</td></tr>
+      <tr><td>DBT0130 (SMTP user)</td><td>SMTP user name:</td><td>Utilisateur SMTP :</td><td>SMTP-Benutzername:</td><td>Usuario SMTP:</td><td>Utente SMTP:</td></tr>
+      <tr><td>DBT0140 (SMTP passwd)</td><td>SMTP password:</td><td>Mot de passe SMTP :</td><td>SMTP-Kennwort:</td><td>Contrasena SMTP:</td><td>Password SMTP:</td></tr>
+      <tr><td>DBT0150 (SSL/TLS)</td><td>SSL/TLS:</td><td>SSL/TLS :</td><td>SSL/TLS:</td><td>SSL/TLS:</td><td>SSL/TLS:</td></tr>
+      <tr><td>DBT0160 (GSKit ID)</td><td>GSKit APPL ID:</td><td>ID application GSKit :</td><td>GSKit-Anwendungs-ID:</td><td>ID aplicacion GSKit:</td><td>ID applicazione GSKit:</td></tr>
+      <tr><td>DBT0190 (BCC)</td><td>BCC:</td><td>CCI :</td><td>BCC:</td><td>CCO:</td><td>CCN:</td></tr>
+      <tr><td>DBT0200 (Reply-To)</td><td>Reply-To:</td><td>Repondre a :</td><td>Antwort an:</td><td>Responder a:</td><td>Rispondi a:</td></tr>
+      <tr><td>DBT0210 (Library)</td><td>Library:</td><td>Bibliotheque :</td><td>Bibliothek:</td><td>Biblioteca:</td><td>Libreria:</td></tr>
     </tbody>
   </table>
 
@@ -714,33 +649,39 @@ ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
   <h2>6. 備考・注意事項</h2>
   <ul>
     <li>
-      <strong>MAI2924 (English)</strong> は他言語ライブラリより多くのオブジェクトを含む
-      (<code>SPLTOPDF</code>, <code>WRKMSPLF</code>, <code>MAIPMT</code> など)。
-      英語以外のライブラリに存在しないオブジェクトは <code>MAI</code> のオブジェクトが使用される。
+      <strong>MAI2924 (English)</strong> は他言語ライブラリより多くのオブジェクトを含む。
+      <code>SPLTOPDF</code> コマンド・パネルグループ、<code>WRKMSPLFX</code> プログラム、
+      <code>QPNLSRC</code> / <code>QRPGLESRC</code> ソースファイル、<code>MAIPMT</code> メッセージファイル
+      は MAI2924 固有オブジェクト。他言語ライブラリに存在しない場合は <code>MAI</code> が使用される。
     </li>
     <li>
-      <strong>MAI2932 (Italian)</strong> には <code>DBTOCSV</code> コマンドが含まれており、
-      他言語ライブラリには存在しない。
+      <strong>MAI2932 (Italian)</strong> には <code>DBTOCSV</code> と <code>SPLTOPDF</code> コマンドが含まれており、
+      他言語ライブラリ (MAI2928/29/31) には存在しない。
     </li>
     <li>
-      <strong>MAI2931 (Spanish)</strong> の <code>SRCTOMAIL *CMD</code> は OBJTEXT が未設定 (null)。
-      ソース確認を推奨する。
+      <strong>WRKMSPLF コマンド・パネルグループ</strong> は今回 (2026-09-27) に全 NLS ライブラリへ追加された。
     </li>
     <li>
-      各ライブラリの <code>MAIMSG</code> メッセージファイルに含まれる特殊文字
-      (フランス語のアクセント文字、スペイン語の n tilde 等) は CCSID 65535 で格納されており、
-      ジョブ CCSID に応じて自動変換される。
+      <strong>QPNLSRC ソースファイル</strong> は全 NLS ライブラリに追加済み (MAI2928〜MAI2932 は 2026-09-27 追加)。
     </li>
     <li>
-      ライブラリ名の数字部分は IBM i の NLS 識別番号に対応している
-      (2924=英語, 2928=フランス語, 2929=ドイツ語, 2931=スペイン語, 2932=イタリア語)。
+      各ライブラリの <code>MAIMSG</code> には DBT (DBTOMAIL)、SPL (SPLTOMAIL)、SRC (SRCTOMAIL)、
+      PDF (SPLTOPDF)、MAI (共通エラー) の各メッセージグループが定義されている。
+    </li>
+    <li>
+      ライブラリ名の数字部分は IBM i の NLS 識別番号に対応:
+      2924=英語, 2928=フランス語, 2929=ドイツ語, 2931=スペイン語, 2932=イタリア語。
+    </li>
+    <li>
+      各ライブラリの CCSID: MAI2924=37/285 (英語 EBCDIC)、MAI2928=297/500 (フランス語)、
+      MAI2929=273/500 (ドイツ語)、MAI2931=284/500 (スペイン語)、MAI2932=280/500 (イタリア語)。
     </li>
   </ul>
 
 </div><!-- /content -->
 
 <footer>
-  MAI/400 NLS対応ライブラリ一覧 &mdash; 自動生成 2026-09-26
+  MAI/400 NLS対応ライブラリ一覧 &mdash; 自動生成 2026-09-27 (IBM i QSYS2.OBJECT_STATISTICS より)
 </footer>
 
 </body>
