@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAI/400 NLS対応ライブラリ一覧</title>
+  <style>
+    :root {
+      --primary:   #1a4a7a;
+      --accent:    #2e7fcf;
+      --bg-header: #eef4fb;
+      --bg-table:  #f9fbfd;
+      --border:    #c8d8ea;
+      --text:      #1e2630;
+      --mono:      "Consolas", "Courier New", monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Meiryo UI", "Yu Gothic UI", "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #f5f7fa;
+      padding: 24px;
+    }
+
+    /* Header card */
+    .doc-header {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      padding: 20px 28px 16px;
+    }
+    .doc-header h1 { font-size: 22px; letter-spacing: .04em; }
+    .doc-header .subtitle { font-size: 13px; opacity: .8; margin-top: 4px; }
+
+    /* Meta bar */
+    .meta-bar {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .meta-bar dl {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
+      border-right: 1px solid var(--border);
+      min-width: 140px;
+    }
+    .meta-bar dl:last-child { border-right: none; }
+    .meta-bar dt { font-size: 11px; color: #6a7f96; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-bar dd { font-size: 13px; font-weight: 600; color: var(--primary); margin-top: 2px; }
+
+    /* Content area */
+    .content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 28px 32px 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 28px 0 12px;
+    }
+    h3 {
+      font-size: 14px;
+      color: var(--primary);
+      margin: 18px 0 8px;
+      padding-left: 6px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 4px;
+    }
+    p { line-height: 1.75; margin-bottom: 8px; }
+    ul { padding-left: 20px; line-height: 1.9; }
+    li { margin-bottom: 2px; }
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: #eef2f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #24476b;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) { background: var(--bg-table); }
+    tbody tr:hover { background: #dceeff; }
+    tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody td:first-child { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+
+    /* Language section cards */
+    .lang-card {
+      background: var(--bg-table);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      border-radius: 6px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .lang-card-header {
+      background: var(--bg-header);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .lang-flag {
+      font-size: 28px;
+      line-height: 1;
+    }
+    .lang-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .lang-lib {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--primary);
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-left: auto;
+    }
+    .lang-card-body { padding: 14px 18px; }
+    .lang-card-body table { margin-bottom: 0; }
+    .lang-card-body thead th { background: #3a5870; }
+
+    /* NLS mechanism description */
+    .mech-box {
+      background: var(--bg-header);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .mech-box .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 5px 0;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+      margin-top: 2px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* Summary comparison table */
+    .lang-en { color: #2e7fcf; font-weight: 700; }
+    .lang-fr { color: #0055a4; font-weight: 700; }
+    .lang-de { color: #3d5a8a; font-weight: 700; }
+    .lang-es { color: #c60b1e; font-weight: 700; }
+    .lang-it { color: #009246; font-weight: 700; }
+
+    .note {
+      background: #fff8e1;
+      border-left: 4px solid #f0ad4e;
+      padding: 10px 16px;
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    footer {
+      text-align: right;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+<!-- =============================================================
+     Header
+     ============================================================= -->
+<div class="doc-header">
+  <h1>MAI/400 NLS対応ライブラリ一覧</h1>
+  <div class="subtitle">National Language Support (NLS) — 多言語対応プロダクションライブラリ構成</div>
+</div>
+
+<div class="meta-bar">
+  <dl><dt>プロダクト</dt><dd>MAI/400</dd></dl>
+  <dl><dt>対応言語数</dt><dd>5 言語</dd></dl>
+  <dl><dt>ベースライブラリ</dt><dd>MAI</dd></dl>
+  <dl><dt>更新日</dt><dd>2026-09-26</dd></dl>
+</div>
+
+<div class="content">
+
+  <!-- =========================================================
+       1. 概要
+       ========================================================= -->
+  <h2>1. 概要</h2>
+  <p>
+    MAI/400 は IBM i の <strong>National Language Support (NLS)</strong> 機構を利用して、
+    ユーザーのジョブ CCSID（言語設定）に応じたコマンドプロンプト・ヘルプ・メッセージを
+    自動的に切り替えます。<br>
+    各言語用のプロダクションライブラリに、コマンド (<code>*CMD</code>)、ヘルプパネルグループ
+    (<code>*PNLGRP</code>)、メッセージファイル (<code>*MSGF</code>) が格納されています。
+  </p>
+
+  <div class="note">
+    <strong>ライブラリリストへの組み込み方:</strong>
+    ユーザーの言語に対応するライブラリを <code>*LIBL</code> の先頭（または <code>MAI</code> の前）
+    に追加することで、自動的に各言語のオブジェクトが優先参照されます。
+    例: <code>ADDLIBLE LIB(MAI2928) POSITION(*FIRST)</code>（フランス語ユーザーの場合）
+  </div>
+
+  <!-- =========================================================
+       2. NLS ライブラリ一覧
+       ========================================================= -->
+  <h2>2. NLS ライブラリ一覧</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ライブラリ名</th>
+        <th>タイプ</th>
+        <th>言語</th>
+        <th>CCSID (参考)</th>
+        <th>収録オブジェクト</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>MAI2924</td>
+        <td>PROD</td>
+        <td class="lang-en">English</td>
+        <td>37 / 285</td>
+        <td>*CMD x5, *PNLGRP x4, *MSGF x2, *FILE x6, *PGM x1</td>
+      </tr>
+      <tr>
+        <td>MAI2928</td>
+        <td>PROD</td>
+        <td class="lang-fr">Fran&ccedil;ais (French)</td>
+        <td>297 / 500</td>
+        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+      </tr>
+      <tr>
+        <td>MAI2929</td>
+        <td>PROD</td>
+        <td class="lang-de">Deutsch (German)</td>
+        <td>273 / 500</td>
+        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+      </tr>
+      <tr>
+        <td>MAI2931</td>
+        <td>PROD</td>
+        <td class="lang-es">Espa&ntilde;ol (Spanish)</td>
+        <td>284 / 500</td>
+        <td>*CMD x3, *PNLGRP x3, *MSGF x1, *FILE x2</td>
+      </tr>
+      <tr>
+        <td>MAI2932</td>
+        <td>PROD</td>
+        <td class="lang-it">Italiano (Italian)</td>
+        <td>280 / 500</td>
+        <td>*CMD x5, *PNLGRP x3, *MSGF x1, *FILE x1</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- =========================================================
+       3. IBM i NLS 機構
+       ========================================================= -->
+  <h2>3. IBM i NLS 機構とライブラリリスト</h2>
+  <div class="mech-box">
+    <div class="step">
+      <span class="badge">1. ジョブ言語</span>
+      <span>ジョブの <code>LANGID</code> / <code>CCSID</code> がユーザーの言語環境を決定する。</span>
+    </div>
+    <div class="step">
+      <span class="badge">2. ライブラリリスト</span>
+      <span>該当言語のライブラリ（例: <code>MAI2929</code>）をライブラリリストの <code>MAI</code> より前に追加する。</span>
+    </div>
+    <div class="step">
+      <span class="badge">3. 自動選択</span>
+      <span>コマンド呼び出し時、IBM i は <code>*LIBL</code> を先頭から検索し、最初に見つかった
+      <code>*CMD</code> / <code>*PNLGRP</code> / <code>*MSGF</code> を使用する。</span>
+    </div>
+    <div class="step">
+      <span class="badge">4. フォールバック</span>
+      <span>言語ライブラリにオブジェクトが存在しない場合は、<code>MAI</code>（日本語ベース）の
+      オブジェクトが使用される。</span>
+    </div>
+  </div>
+
+  <h3>ライブラリリスト設定例</h3>
+  <p>ドイツ語ユーザー向けのジョブ初期化例 (CL):</p>
+  <pre style="font-family:var(--mono);font-size:12px;background:#eef2f8;padding:12px 16px;border-radius:6px;line-height:1.8;margin-bottom:12px;">
+/* ドイツ語ライブラリを MAI より前に追加 */
+ADDLIBLE  LIB(MAI2929) POSITION(*BEFORE MAI)
+</pre>
+
+  <!-- =========================================================
+       4. 各言語ライブラリ詳細
+       ========================================================= -->
+  <h2>4. 各言語ライブラリ詳細</h2>
+
+  <!-- English -->
+  <div class="lang-card">
+    <div class="lang-card-header">
+      <span class="lang-flag">&#127468;&#127463;</span>
+      <span class="lang-title">English</span>
+      <span class="lang-lib">MAI2924</span>
+    </div>
+    <div class="lang-card-body">
+      <table>
+        <thead>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>DB to SMTP Mail Attach CSV (English)</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOPDF</td><td>*CMD</td><td>—</td><td>2026-08-31</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*CMD</td><td>Work with My Spooled Files command</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - English</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>—</td><td>2026-08-30</td></tr>
+          <tr><td>SPLTOPDF</td><td>*PNLGRP</td><td>SPLTOPDF command help - English</td><td>2026-08-31</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>—</td><td>2026-08-30</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PNLGRP</td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-25</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td></tr>
+          <tr><td>MAIPMT</td><td>*MSGF</td><td>MAI/400 PROMPT MASSAGE FILE</td><td>2026-08-24</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>MAI/400 CMD SOURCE - ENGLISH</td><td>2026-08-30</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>MAI/400 PNLGRP SOURCE - ENGLISH</td><td>2026-08-30</td></tr>
+          <tr><td>QPNLSRC</td><td>*FILE (PF)</td><td>UIM Panel Group Source</td><td>2026-09-25</td></tr>
+          <tr><td>QRPGLESRC</td><td>*FILE (PF)</td><td>ILE RPG Source</td><td>2026-09-25</td></tr>
+          <tr><td>WRKMSPLF</td><td>*PGM (RPGLE)</td><td>Work with My Spooled Files - main program</td><td>2026-09-25</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- French -->
+  <div class="lang-card" style="border-left-color:#0055a4;">
+    <div class="lang-card-header">
+      <span class="lang-flag">&#127467;&#127479;</span>
+      <span class="lang-title">Fran&ccedil;ais (French)</span>
+      <span class="lang-lib" style="background:#0055a4;">MAI2928</span>
+    </div>
+    <div class="lang-card-body">
+      <table>
+        <thead>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (French)</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (French)</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (French)</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - French</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - French</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - French</td><td>2026-09-25</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - French</td><td>2026-09-25</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - French</td><td>2026-09-25</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - French</td><td>2026-09-25</td></tr>
+        </tbody>
+      </table>
+      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <table>
+        <thead>
+          <tr><th>メッセージID</th><th>フランス語テキスト</th><th>英語テキスト (参考)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBT0000</td><td>Envoyer DB en CSV par messagerie</td><td>DB to CSV Mail</td></tr>
+          <tr><td>DBT0010</td><td>A :</td><td>To:</td></tr>
+          <tr><td>DBT0020</td><td>De :</td><td>From:</td></tr>
+          <tr><td>DBT0030</td><td>Serveur SMTP :</td><td>SMTP server:</td></tr>
+          <tr><td>DBT0040</td><td>Objet :</td><td>Subject:</td></tr>
+          <tr><td>DBT0050</td><td>Fichier source :</td><td>Source file:</td></tr>
+          <tr><td>DBT0060</td><td>Membre :</td><td>Member:</td></tr>
+          <tr><td>DBT0070</td><td>Nom du fichier joint :</td><td>Attachment file name:</td></tr>
+          <tr><td>STM0110</td><td>De :</td><td>From:</td></tr>
+          <tr><td>STM0120</td><td>Serveur messagerie :</td><td>Mail server:</td></tr>
+          <tr><td>STM0130</td><td>Numero de port :</td><td>Port number:</td></tr>
+          <tr><td>STM0140</td><td>Utilisateur SMTP :</td><td>SMTP user name:</td></tr>
+          <tr><td>STM0150</td><td>Mot de passe SMTP :</td><td>SMTP password:</td></tr>
+          <tr><td>STM0160</td><td>Utiliser SSL/TLS :</td><td>Use SSL/TLS:</td></tr>
+          <tr><td>STM0170</td><td>ID appli. DCM :</td><td>DCM APPL ID:</td></tr>
+          <tr><td>STM0200</td><td>CCI :</td><td>BCC:</td></tr>
+          <tr><td>STM0210</td><td>Repondre a :</td><td>Reply-To:</td></tr>
+          <tr><td>STM0220</td><td>Bibliotheque :</td><td>Library:</td></tr>
+          <tr><td>STM1010</td><td>Impossible d ouvrir le fichier entree</td><td>Cannot open input file</td></tr>
+          <tr><td>STM1020</td><td>Aucun enregistrement trouve</td><td>No records found</td></tr>
+          <tr><td>STM1030</td><td>Adresse invalide : &amp;1</td><td>Invalid address: &amp;1</td></tr>
+          <tr><td>STM1050</td><td>Nom du fichier joint est vide</td><td>Attachment file name is blank</td></tr>
+          <tr><td>STM1060</td><td>Erreur fichier joint</td><td>Attachment file error</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- German -->
+  <div class="lang-card" style="border-left-color:#3d5a8a;">
+    <div class="lang-card-header">
+      <span class="lang-flag">&#127465;&#127466;</span>
+      <span class="lang-title">Deutsch (German)</span>
+      <span class="lang-lib" style="background:#3d5a8a;">MAI2929</span>
+    </div>
+    <div class="lang-card-body">
+      <table>
+        <thead>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (German)</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (German)</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>Send Source as Mail (German)</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - German</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - German</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - German</td><td>2026-09-25</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - German</td><td>2026-09-25</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - German</td><td>2026-09-25</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - German</td><td>2026-09-25</td></tr>
+        </tbody>
+      </table>
+      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <table>
+        <thead>
+          <tr><th>メッセージID</th><th>ドイツ語テキスト</th><th>英語テキスト (参考)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBT0000</td><td>DB-Datei als CSV-Mail senden</td><td>DB to CSV Mail</td></tr>
+          <tr><td>DBT0010</td><td>An:</td><td>To:</td></tr>
+          <tr><td>DBT0020</td><td>Von:</td><td>From:</td></tr>
+          <tr><td>DBT0030</td><td>SMTP-Server:</td><td>SMTP server:</td></tr>
+          <tr><td>DBT0040</td><td>Betreff:</td><td>Subject:</td></tr>
+          <tr><td>DBT0050</td><td>Quelldatei:</td><td>Source file:</td></tr>
+          <tr><td>DBT0060</td><td>Element:</td><td>Member:</td></tr>
+          <tr><td>DBT0070</td><td>Dateiname des Anhangs:</td><td>Attachment file name:</td></tr>
+          <tr><td>STM0110</td><td>Von:</td><td>From:</td></tr>
+          <tr><td>STM0120</td><td>Mail-Server:</td><td>Mail server:</td></tr>
+          <tr><td>STM0130</td><td>Portnummer:</td><td>Port number:</td></tr>
+          <tr><td>STM0140</td><td>SMTP-Benutzername:</td><td>SMTP user name:</td></tr>
+          <tr><td>STM0150</td><td>SMTP-Kennwort:</td><td>SMTP password:</td></tr>
+          <tr><td>STM0160</td><td>SSL/TLS verwenden:</td><td>Use SSL/TLS:</td></tr>
+          <tr><td>STM0170</td><td>DCM-Anwendungs-ID:</td><td>DCM APPL ID:</td></tr>
+          <tr><td>STM0200</td><td>BCC:</td><td>BCC:</td></tr>
+          <tr><td>STM0210</td><td>Antwort an:</td><td>Reply-To:</td></tr>
+          <tr><td>STM0220</td><td>Bibliothek:</td><td>Library:</td></tr>
+          <tr><td>STM1010</td><td>Eingabedatei kann nicht geoeffnet werden</td><td>Cannot open input file</td></tr>
+          <tr><td>STM1020</td><td>Keine Datensaetze gefunden</td><td>No records found</td></tr>
+          <tr><td>STM1030</td><td>Ungueltige Adresse: &amp;1</td><td>Invalid address: &amp;1</td></tr>
+          <tr><td>STM1050</td><td>Dateiname des Anhangs ist leer</td><td>Attachment file name is blank</td></tr>
+          <tr><td>STM1060</td><td>Fehler bei der Anhangsdatei</td><td>Attachment file error</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spanish -->
+  <div class="lang-card" style="border-left-color:#c60b1e;">
+    <div class="lang-card-header">
+      <span class="lang-flag">&#127466;&#127480;</span>
+      <span class="lang-title">Espa&ntilde;ol (Spanish)</span>
+      <span class="lang-lib" style="background:#c60b1e;">MAI2931</span>
+    </div>
+    <div class="lang-card-body">
+      <table>
+        <thead>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>Send DB as CSV Mail (Spanish)</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>Send Spool as Mail (Spanish)</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>—</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 messages - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>QCMDSRC</td><td>*FILE (PF)</td><td>Command source - Spanish</td><td>2026-09-25</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Spanish</td><td>2026-09-25</td></tr>
+        </tbody>
+      </table>
+      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <table>
+        <thead>
+          <tr><th>メッセージID</th><th>スペイン語テキスト</th><th>英語テキスト (参考)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBT0000</td><td>Enviar BD como CSV por correo</td><td>DB to CSV Mail</td></tr>
+          <tr><td>DBT0010</td><td>Para:</td><td>To:</td></tr>
+          <tr><td>DBT0020</td><td>De:</td><td>From:</td></tr>
+          <tr><td>DBT0030</td><td>Servidor SMTP:</td><td>SMTP server:</td></tr>
+          <tr><td>DBT0040</td><td>Asunto:</td><td>Subject:</td></tr>
+          <tr><td>DBT0050</td><td>Archivo fuente:</td><td>Source file:</td></tr>
+          <tr><td>DBT0060</td><td>Miembro:</td><td>Member:</td></tr>
+          <tr><td>DBT0070</td><td>Nombre archivo adjunto:</td><td>Attachment file name:</td></tr>
+          <tr><td>STM0110</td><td>De:</td><td>From:</td></tr>
+          <tr><td>STM0120</td><td>Servidor de correo:</td><td>Mail server:</td></tr>
+          <tr><td>STM0130</td><td>Numero de puerto:</td><td>Port number:</td></tr>
+          <tr><td>STM0140</td><td>Usuario SMTP:</td><td>SMTP user name:</td></tr>
+          <tr><td>STM0150</td><td>Contrasena SMTP:</td><td>SMTP password:</td></tr>
+          <tr><td>STM0160</td><td>Usar SSL/TLS:</td><td>Use SSL/TLS:</td></tr>
+          <tr><td>STM0170</td><td>ID aplic. DCM:</td><td>DCM APPL ID:</td></tr>
+          <tr><td>STM0200</td><td>CCO:</td><td>BCC:</td></tr>
+          <tr><td>STM0210</td><td>Responder a:</td><td>Reply-To:</td></tr>
+          <tr><td>STM0220</td><td>Biblioteca:</td><td>Library:</td></tr>
+          <tr><td>STM1010</td><td>No se puede abrir el archivo de entrada</td><td>Cannot open input file</td></tr>
+          <tr><td>STM1020</td><td>No se encontraron registros</td><td>No records found</td></tr>
+          <tr><td>STM1030</td><td>Direccion no valida: &amp;1</td><td>Invalid address: &amp;1</td></tr>
+          <tr><td>STM1050</td><td>El nombre del archivo adjunto esta vacio</td><td>Attachment file name is blank</td></tr>
+          <tr><td>STM1060</td><td>Error en el archivo adjunto</td><td>Attachment file error</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Italian -->
+  <div class="lang-card" style="border-left-color:#009246;">
+    <div class="lang-card-header">
+      <span class="lang-flag">&#127470;&#127481;</span>
+      <span class="lang-title">Italiano (Italian)</span>
+      <span class="lang-lib" style="background:#009246;">MAI2932</span>
+    </div>
+    <div class="lang-card-body">
+      <table>
+        <thead>
+          <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト (OBJTEXT)</th><th>作成日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBTOCSV</td><td>*CMD</td><td>COPY TO CSV FILE</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*CMD</td><td>DB TO SMTP MAIL ATTACH CSV</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*CMD</td><td>SPLF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td></tr>
+          <tr><td>SPLTOPDF</td><td>*CMD</td><td>SPLF TO PDF</td><td>2026-09-25</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*CMD</td><td>SRCF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td></tr>
+          <tr><td>DBTOMAIL</td><td>*PNLGRP</td><td>DBTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
+          <tr><td>SPLTOMAIL</td><td>*PNLGRP</td><td>SPLTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
+          <tr><td>SRCTOMAIL</td><td>*PNLGRP</td><td>SRCTOMAIL command help - Italiano</td><td>2026-09-26</td></tr>
+          <tr><td>MAIMSG</td><td>*MSGF</td><td>MAI/400 Messaggi Italiani</td><td>2026-09-25</td></tr>
+          <tr><td>QHLPSRC</td><td>*FILE (PF)</td><td>Help panel group source - Italian</td><td>2026-09-26</td></tr>
+        </tbody>
+      </table>
+      <h3>メッセージファイル翻訳サンプル (MAIMSG)</h3>
+      <table>
+        <thead>
+          <tr><th>メッセージID</th><th>イタリア語テキスト</th><th>英語テキスト (参考)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DBT0000</td><td>Invia DB come CSV per posta</td><td>DB to CSV Mail</td></tr>
+          <tr><td>DBT0010</td><td>A:</td><td>To:</td></tr>
+          <tr><td>DBT0020</td><td>Da:</td><td>From:</td></tr>
+          <tr><td>DBT0030</td><td>Server SMTP:</td><td>SMTP server:</td></tr>
+          <tr><td>DBT0040</td><td>Oggetto:</td><td>Subject:</td></tr>
+          <tr><td>DBT0050</td><td>File sorgente:</td><td>Source file:</td></tr>
+          <tr><td>DBT0060</td><td>Membro:</td><td>Member:</td></tr>
+          <tr><td>DBT0070</td><td>Nome file allegato:</td><td>Attachment file name:</td></tr>
+          <tr><td>STM0110</td><td>Da:</td><td>From:</td></tr>
+          <tr><td>STM0120</td><td>Server di posta:</td><td>Mail server:</td></tr>
+          <tr><td>STM0130</td><td>Numero di porta:</td><td>Port number:</td></tr>
+          <tr><td>STM0140</td><td>Utente SMTP:</td><td>SMTP user name:</td></tr>
+          <tr><td>STM0150</td><td>Password SMTP:</td><td>SMTP password:</td></tr>
+          <tr><td>STM0160</td><td>Usa SSL/TLS:</td><td>Use SSL/TLS:</td></tr>
+          <tr><td>STM0170</td><td>ID appl. DCM:</td><td>DCM APPL ID:</td></tr>
+          <tr><td>STM0200</td><td>CCN:</td><td>BCC:</td></tr>
+          <tr><td>STM0210</td><td>Rispondi a:</td><td>Reply-To:</td></tr>
+          <tr><td>STM0220</td><td>Libreria:</td><td>Library:</td></tr>
+          <tr><td>STM1010</td><td>Impossibile aprire il file di input</td><td>Cannot open input file</td></tr>
+          <tr><td>STM1020</td><td>Nessun record trovato</td><td>No records found</td></tr>
+          <tr><td>STM1030</td><td>Indirizzo non valido: &amp;1</td><td>Invalid address: &amp;1</td></tr>
+          <tr><td>STM1050</td><td>Il nome del file allegato e vuoto</td><td>Attachment file name is blank</td></tr>
+          <tr><td>STM1060</td><td>Errore nel file allegato</td><td>Attachment file error</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       5. 多言語翻訳比較表
+       ========================================================= -->
+  <h2>5. 主要メッセージ多言語翻訳比較表</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>メッセージID</th>
+        <th class="lang-en">English (MAI2924)</th>
+        <th class="lang-fr">Fran&ccedil;ais (MAI2928)</th>
+        <th class="lang-de">Deutsch (MAI2929)</th>
+        <th class="lang-es">Espa&ntilde;ol (MAI2931)</th>
+        <th class="lang-it">Italiano (MAI2932)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>DBT0010 (To:)</td>
+        <td>To:</td>
+        <td>A :</td>
+        <td>An:</td>
+        <td>Para:</td>
+        <td>A:</td>
+      </tr>
+      <tr>
+        <td>DBT0020 (From:)</td>
+        <td>From:</td>
+        <td>De :</td>
+        <td>Von:</td>
+        <td>De:</td>
+        <td>Da:</td>
+      </tr>
+      <tr>
+        <td>DBT0030 (SMTP server:)</td>
+        <td>SMTP server:</td>
+        <td>Serveur SMTP :</td>
+        <td>SMTP-Server:</td>
+        <td>Servidor SMTP:</td>
+        <td>Server SMTP:</td>
+      </tr>
+      <tr>
+        <td>DBT0040 (Subject:)</td>
+        <td>Subject:</td>
+        <td>Objet :</td>
+        <td>Betreff:</td>
+        <td>Asunto:</td>
+        <td>Oggetto:</td>
+      </tr>
+      <tr>
+        <td>DBT0060 (Member:)</td>
+        <td>Member:</td>
+        <td>Membre :</td>
+        <td>Element:</td>
+        <td>Miembro:</td>
+        <td>Membro:</td>
+      </tr>
+      <tr>
+        <td>STM0140 (SMTP user:)</td>
+        <td>SMTP user name:</td>
+        <td>Utilisateur SMTP :</td>
+        <td>SMTP-Benutzername:</td>
+        <td>Usuario SMTP:</td>
+        <td>Utente SMTP:</td>
+      </tr>
+      <tr>
+        <td>STM0150 (SMTP passwd:)</td>
+        <td>SMTP password:</td>
+        <td>Mot de passe SMTP :</td>
+        <td>SMTP-Kennwort:</td>
+        <td>Contrasena SMTP:</td>
+        <td>Password SMTP:</td>
+      </tr>
+      <tr>
+        <td>STM0160 (SSL/TLS:)</td>
+        <td>Use SSL/TLS:</td>
+        <td>Utiliser SSL/TLS :</td>
+        <td>SSL/TLS verwenden:</td>
+        <td>Usar SSL/TLS:</td>
+        <td>Usa SSL/TLS:</td>
+      </tr>
+      <tr>
+        <td>STM0200 (BCC:)</td>
+        <td>BCC:</td>
+        <td>CCI :</td>
+        <td>BCC:</td>
+        <td>CCO:</td>
+        <td>CCN:</td>
+      </tr>
+      <tr>
+        <td>STM0220 (Library:)</td>
+        <td>Library:</td>
+        <td>Bibliotheque :</td>
+        <td>Bibliothek:</td>
+        <td>Biblioteca:</td>
+        <td>Libreria:</td>
+      </tr>
+      <tr>
+        <td>STM1010 (open error)</td>
+        <td>Cannot open input file</td>
+        <td>Impossible d ouvrir le fichier entree</td>
+        <td>Eingabedatei kann nicht geoeffnet werden</td>
+        <td>No se puede abrir el archivo de entrada</td>
+        <td>Impossibile aprire il file di input</td>
+      </tr>
+      <tr>
+        <td>STM1020 (no records)</td>
+        <td>No records found</td>
+        <td>Aucun enregistrement trouve</td>
+        <td>Keine Datensaetze gefunden</td>
+        <td>No se encontraron registros</td>
+        <td>Nessun record trovato</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- =========================================================
+       6. 備考・注意事項
+       ========================================================= -->
+  <h2>6. 備考・注意事項</h2>
+  <ul>
+    <li>
+      <strong>MAI2924 (English)</strong> は他言語ライブラリより多くのオブジェクトを含む
+      (<code>SPLTOPDF</code>, <code>WRKMSPLF</code>, <code>MAIPMT</code> など)。
+      英語以外のライブラリに存在しないオブジェクトは <code>MAI</code> のオブジェクトが使用される。
+    </li>
+    <li>
+      <strong>MAI2932 (Italian)</strong> には <code>DBTOCSV</code> コマンドが含まれており、
+      他言語ライブラリには存在しない。
+    </li>
+    <li>
+      <strong>MAI2931 (Spanish)</strong> の <code>SRCTOMAIL *CMD</code> は OBJTEXT が未設定 (null)。
+      ソース確認を推奨する。
+    </li>
+    <li>
+      各ライブラリの <code>MAIMSG</code> メッセージファイルに含まれる特殊文字
+      (フランス語のアクセント文字、スペイン語の n tilde 等) は CCSID 65535 で格納されており、
+      ジョブ CCSID に応じて自動変換される。
+    </li>
+    <li>
+      ライブラリ名の数字部分は IBM i の NLS 識別番号に対応している
+      (2924=英語, 2928=フランス語, 2929=ドイツ語, 2931=スペイン語, 2932=イタリア語)。
+    </li>
+  </ul>
+
+</div><!-- /content -->
+
+<footer>
+  MAI/400 NLS対応ライブラリ一覧 &mdash; 自動生成 2026-09-26
+</footer>
+
+</body>
+</html>
