@@ -111,37 +111,38 @@
       <div class="lib-name">MAI2924</div>
       <div class="lang">&#x1F1EC;&#x1F1E7; 英語 (English)</div>
       <div class="ccsid">CCSID 37 / 285</div>
-      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / MSGF: <span>2</span></div>
+      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / PNLGRP: <span>5</span> / MSGF: <span>2</span></div>
     </div>
     <div class="card">
       <div class="lib-name">MAI2928</div>
       <div class="lang">&#x1F1EB;&#x1F1F7; フランス語 (French)</div>
       <div class="ccsid">CCSID 297 / 500</div>
-      <div class="obj-count">コマンド: <span>4</span> / FILE: <span>3</span><br>MSGF: <span>2</span></div>
+      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / PNLGRP: <span>5</span> / MSGF: <span>2</span></div>
     </div>
     <div class="card">
       <div class="lib-name">MAI2929</div>
       <div class="lang">&#x1F1E9;&#x1F1EA; ドイツ語 (German)</div>
       <div class="ccsid">CCSID 273 / 500</div>
-      <div class="obj-count">コマンド: <span>4</span> / FILE: <span>3</span><br>MSGF: <span>2</span></div>
+      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / PNLGRP: <span>5</span> / MSGF: <span>2</span></div>
     </div>
     <div class="card">
       <div class="lib-name">MAI2931</div>
       <div class="lang">&#x1F1EA;&#x1F1F8; スペイン語 (Spanish)</div>
       <div class="ccsid">CCSID 284 / 500</div>
-      <div class="obj-count">コマンド: <span>4</span> / FILE: <span>3</span><br>MSGF: <span>2</span></div>
+      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / PNLGRP: <span>5</span> / MSGF: <span>2</span></div>
     </div>
     <div class="card">
       <div class="lib-name">MAI2932</div>
       <div class="lang">&#x1F1EE;&#x1F1F9; イタリア語 (Italian)</div>
       <div class="ccsid">CCSID 280 / 500</div>
-      <div class="obj-count">コマンド: <span>6</span> / FILE: <span>3</span><br>MSGF: <span>2</span></div>
+      <div class="obj-count">コマンド: <span>5</span> / PGM: <span>2</span><br>FILE: <span>4</span> / PNLGRP: <span>5</span> / MSGF: <span>2</span></div>
     </div>
   </div>
 
   <p style="font-size:12px;color:#666;margin-bottom:24px;">
     NLS ライブラリはライブラリリストに <code>ADDLIBLE LIB(MAI29xx) POSITION(*BEFORE MAI)</code>
-    の順で追加して使用する。ジョブの LANGID/CNTRYID が一致するライブラリが自動選択される。
+    の順で追加して使用する。ジョブの LANGID/CNTRYID が一致するライブラリが自動選択される。<br>
+    ※全 NLS ライブラリ (MAI2924/2928/2929/2931/2932) は MAI2924 を基準とし、同一の SRCF (4), *CMD (5), *PNLGRP (5), *PGM (2), *MSGF (2) の計 18 オブジェクトで構成が完全に統一されています。
   </p>
 
   <!-- ========== 2. オブジェクト存在マトリックス ========== -->
@@ -168,8 +169,8 @@
           <td>DBTOCSV</td>
           <td><span class="tag tag-CMD">*CMD</span></td>
           <td class="chk">&#10003;</td><td class="dash">-</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="chk">&#10003;</td>
-          <td>MAI本体 + MAI2932 のみ存在</td>
+          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
+          <td>MAI本体のみ（日本語環境専用）</td>
         </tr>
         <tr>
           <td>DBTOMAIL</td>
@@ -188,9 +189,9 @@
         <tr>
           <td>SPLTOPDF</td>
           <td><span class="tag tag-CMD">*CMD</span></td>
-          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="chk">&#10003;</td>
-          <td>MAI2924 / MAI2932 に存在</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>全ライブラリ対応 (2026-10-08 統一)</td>
         </tr>
         <tr>
           <td>SPLTOPF</td>
@@ -218,7 +219,7 @@
           <td><span class="tag tag-CMD">*CMD</span></td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>全ライブラリ対応 (2026-09-27追加)</td>
+          <td>全ライブラリ対応</td>
         </tr>
         <!-- *PNLGRP -->
         <tr>
@@ -238,9 +239,9 @@
         <tr>
           <td>SPLTOPDF</td>
           <td><span class="tag tag-PNLGRP">*PNLGRP</span></td>
-          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
-          <td>MAI / MAI2924 のみ</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>全ライブラリ対応 (2026-10-08 統一)</td>
         </tr>
         <tr>
           <td>SRCTOMAIL</td>
@@ -254,7 +255,7 @@
           <td><span class="tag tag-PNLGRP">*PNLGRP</span></td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>全ライブラリ対応 (2026-09-27追加)</td>
+          <td>全ライブラリ対応 (UIM パネルグループ)</td>
         </tr>
         <!-- *MSGF -->
         <tr>
@@ -269,7 +270,7 @@
           <td><span class="tag tag-MSGF">*MSGF</span></td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>全ライブラリ 19件 揃い (2026-09-27追加)</td>
+          <td>全ライブラリ 19件 揃い</td>
         </tr>
         <!-- *PGM -->
         <tr>
@@ -352,16 +353,16 @@
         <tr>
           <td>WRKMSPLF</td>
           <td><span class="tag tag-PGM">*PGM</span></td>
-          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
-          <td>MAI / MAI2924 (RPGLE)</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>全ライブラリ対応 (SQLRPGLE, 2026-10-08 統一)</td>
         </tr>
         <tr>
           <td>WRKMSPLFX</td>
           <td><span class="tag tag-PGM">*PGM</span></td>
-          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
-          <td>MAI / MAI2924 (RPGLE, 2026-09-27追加)</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>全ライブラリ対応 (RPGLE, 2026-10-08 統一)</td>
         </tr>
         <!-- *SRVPGM -->
         <tr>
@@ -377,28 +378,28 @@
           <td><span class="tag tag-FILE">*FILE</span></td>
           <td class="dash">-</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>コマンドソース (各言語版)</td>
+          <td>コマンドソース (各言語CCSID準拠)</td>
         </tr>
         <tr>
           <td>QHLPSRC</td>
           <td><span class="tag tag-FILE">*FILE</span></td>
           <td class="dash">-</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>ヘルプパネルグループソース (各言語版)</td>
+          <td>ヘルプパネルグループソース (各言語CCSID準拠)</td>
         </tr>
         <tr>
           <td>QPNLSRC</td>
           <td><span class="tag tag-FILE">*FILE</span></td>
           <td class="dash">-</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
-          <td>UIM パネルグループソース (2026-09-27追加)</td>
+          <td>UIM パネルグループソース (各言語CCSID準拠)</td>
         </tr>
         <tr>
           <td>QRPGLESRC</td>
           <td><span class="tag tag-FILE">*FILE</span></td>
-          <td class="dash">-</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
-          <td>ILE RPG ソース (MAI2924 のみ)</td>
+          <td class="dash">-</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>ILE RPG ソース (各言語CCSID準拠, 2026-10-08 統一)</td>
         </tr>
         <tr>
           <td>LICKEY</td>
@@ -449,7 +450,7 @@
   <p style="font-size:12px;color:#666;margin-bottom:24px;">
     MAIMSG のメッセージグループ構成: STM(30) / SPL(25) / DBT(22) / PDF(20) / MAI(33) / CMD(7) / TXT(12) / その他(6) = 計 155 件<br>
     MAIPMT は WRKMSPLF コマンドのプロンプトメッセージ 19 件 (CMD0001〜CMD0019)。
-    MAI2928/2929/2931/2932 の MAIPMT は 2026-09-27 に新規作成。
+    全 NLS ライブラリ (MAI2924/2928/2929/2931/2932) で多言語翻訳・件数が完全一致しています。
   </p>
 
   <!-- ========== 4. 各ライブラリ詳細 ========== -->
@@ -460,69 +461,69 @@
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOCSV</td><td><span class="tag tag-CMD">*CMD</span></td><td>COPY TO CSV FILE</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>DB TO SMTP MAIL ATTACH CSV</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>SPLF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td>SPLF TO PDF</td><td>2026-09-21</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOPF</td><td><span class="tag tag-CMD">*CMD</span></td><td>SPLF TO QTEMP/PRTPF</td><td>2026-09-21</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOTXT</td><td><span class="tag tag-CMD">*CMD</span></td><td>SPLF TO TXT</td><td>2026-09-21</td><td>2026-09-27</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>SRCF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files command</td><td>2026-09-21</td><td>2026-09-27</td></tr>
-        <tr><td>LICKEY</td><td><span class="tag tag-FILE">*FILE</span></td><td>ライセンス・キー</td><td>2026-09-20</td><td>2026-09-23</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 MSGF (155件)</td><td>2026-08-24</td><td>2026-09-25</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 PROMPT MASSAGE FILE (19件)</td><td>2026-08-24</td><td>2026-09-02</td></tr>
-        <tr><td>DBTOCSV</td><td><span class="tag tag-PGM">*PGM</span></td><td>DBTOCSV (CLP)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>DBTOCSVL</td><td><span class="tag tag-PGM">*PGM</span></td><td>CSV LENGTH算出 (RPGLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>DBTOCSVR</td><td><span class="tag tag-PGM">*PGM</span></td><td>CSVファイル作成 (RPGLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>SMTP MAIL RDB TO CSV V3.02 (CLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>SMTP MAIL SPLF TO MAIL V3.07 (CLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-PGM">*PGM</span></td><td>SPLF TO IFS STREAM FILE (PDF) (CLLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SPLTOPF</td><td><span class="tag tag-PGM">*PGM</span></td><td>SPLF TO QTEMP/PRTPF (CLP)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SPLTOPFR</td><td><span class="tag tag-PGM">*PGM</span></td><td>SPLF TO PF (RPG/OPM)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SPLTOTXT</td><td><span class="tag tag-PGM">*PGM</span></td><td>SPLF TO TEXT FILE (CLLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>SMTP MAIL SENDER SRCF =&gt; MAIL V3.00 (CLE)</td><td>2026-09-23</td><td>2026-09-23</td></tr>
-        <tr><td>TXTTOPDF</td><td><span class="tag tag-PGM">*PGM</span></td><td>TEXT TO PDF (CLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>Work with My Spooled Files - main program (RPGLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>WRKMSPLF UIM Action List Exit Program (RPGLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAILコマンドのヘルプ</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAILコマンドのヘルプ</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOPDFコマンドのヘルプ</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAILコマンドのヘルプ</td><td>2026-09-23</td><td>2026-09-23</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-21</td><td>2026-09-21</td></tr>
-        <tr><td>SMTPSRVS</td><td><span class="tag tag-SRVPGM">*SRVPGM</span></td><td>SMTP SERVICE PROGRAM V3.10 (SMTP AUTH/GSKIT)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>DBTOCSV</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>COPY TO CSV FILE</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>DB TO SMTP MAIL ATTACH CSV</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>SPLF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>SPLF TO PDF</td><td>2026-09-21</td><td>2026-09-27</td></tr>
+        <tr><td>SPLTOPF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>SPLF TO QTEMP/PRTPF</td><td>2026-09-21</td><td>2026-09-27</td></tr>
+        <tr><td>SPLTOTXT</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>SPLF TO TXT</td><td>2026-09-21</td><td>2026-09-27</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>SRCF TO SMTP MAIL COMMAND V3</td><td>2026-09-25</td><td>2026-09-27</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Work with My Spooled Files command</td><td>2026-09-21</td><td>2026-09-27</td></tr>
+        <tr><td>LICKEY</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>ライセンス・キー</td><td>2026-09-20</td><td>2026-09-23</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400 MSGF (155件)</td><td>2026-08-24</td><td>2026-09-25</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400 PROMPT MASSAGE FILE (19件)</td><td>2026-08-24</td><td>2026-09-02</td></tr>
+        <tr><td>DBTOCSV</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLP</td><td>DBTOCSV (CLP)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>DBTOCSVL</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>CSV LENGTH算出 (RPGLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>DBTOCSVR</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>CSVファイル作成 (RPGLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLE</td><td>SMTP MAIL RDB TO CSV V3.02 (CLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLE</td><td>SMTP MAIL SPLF TO MAIL V3.07 (CLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLLE</td><td>SPLF TO IFS STREAM FILE (PDF) (CLLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SPLTOPF</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLP</td><td>SPLF TO QTEMP/PRTPF (CLP)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SPLTOPFR</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPG</td><td>SPLF TO PF (RPG/OPM)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SPLTOTXT</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLLE</td><td>SPLF TO TEXT FILE (CLLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLE</td><td>SMTP MAIL SENDER SRCF =&gt; MAIL V3.00 (CLE)</td><td>2026-09-23</td><td>2026-09-23</td></tr>
+        <tr><td>TXTTOPDF</td><td><span class="tag tag-PGM">*PGM</span></td><td>CLE</td><td>TEXT TO PDF (CLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Work with My Spooled Files - main program (RPGLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>WRKMSPLF UIM Action List Exit Program (RPGLE)</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>DBTOMAILコマンドのヘルプ</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SPLTOMAILコマンドのヘルプ</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SPLTOPDFコマンドのヘルプ</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SRCTOMAILコマンドのヘルプ</td><td>2026-09-23</td><td>2026-09-23</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-21</td><td>2026-09-21</td></tr>
+        <tr><td>SMTPSRVS</td><td><span class="tag tag-SRVPGM">*SRVPGM</span></td><td>CLE</td><td>SMTP SERVICE PROGRAM V3.10 (SMTP AUTH/GSKIT)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
       </tbody>
     </table>
   </div>
 
   <!-- MAI2924 -->
-  <h3>MAI2924（英語 / English, CCSID 37/285）</h3>
+  <h3>MAI2924（英語 / English, CCSID 37/285）— 基準ライブラリ</h3>
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>DB to SMTP Mail Attach CSV (English)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Spool as Mail (English)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td>(テキストなし)</td><td>2026-08-31</td><td>2026-08-31</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Source as Mail (English)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files - English</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>MAI/400 CMD SOURCE - ENGLISH</td><td>2026-08-30</td><td>2026-09-25</td></tr>
-        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>MAI/400 PNLGRP SOURCE - ENGLISH</td><td>2026-08-30</td><td>2026-09-25</td></tr>
-        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>UIM Panel Group Source</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>ILE RPG Source</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 PROMPT MASSAGE FILE (155件)</td><td>2026-08-24</td><td>2026-09-27</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 PROMPT MASSAGE FILE (19件)</td><td>2026-08-24</td><td>2026-09-02</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>Work with My Spooled Files - main program (RPGLE)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>WRKMSPLF UIM Action List Exit Program (RPGLE)</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAIL command help - English</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOPDF command help - English</td><td>2026-08-31</td><td>2026-08-31</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>DB to SMTP Mail Attach CSV (English)</td><td>2026-10-01</td><td>2026-10-01</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Send Spool as Mail (English)</td><td>2026-10-01</td><td>2026-10-01</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Spool to PDF Conversion</td><td>2026-10-01</td><td>2026-10-01</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Send Source as Mail (English)</td><td>2026-10-01</td><td>2026-10-01</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Work with My Spooled Files - English</td><td>2026-10-01</td><td>2026-10-01</td></tr>
+        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Command Source - English</td><td>2026-08-30</td><td>2026-10-08</td></tr>
+        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Help Panel Group Source - English</td><td>2026-08-30</td><td>2026-10-08</td></tr>
+        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>UIM Panel Group Source - English</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>ILE RPG Source - English</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400 Messages - English</td><td>2026-10-01</td><td>2026-10-08</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400 Prompt Messages - English</td><td>2026-10-01</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Work with My Spooled Files - main program</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>WRKMSPLF UIM Action List Exit Program</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>DBTOMAIL command help - English</td><td>2026-09-25</td><td>2026-09-25</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SPLTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SPLTOPDF command help - English</td><td>2026-08-31</td><td>2026-08-31</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>SRCTOMAIL command help - English</td><td>2026-08-30</td><td>2026-09-27</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Work with My Spooled Files - UIM panel group</td><td>2026-09-25</td><td>2026-09-25</td></tr>
       </tbody>
     </table>
   </div>
@@ -532,22 +533,27 @@
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send DB as CSV Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Spool as Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Source as Mail (French)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files - French</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Command source - French</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Help panel group source - French</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 messages - French (155件)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 invite commande - Francais (19件)</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAIL command help - French</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - French</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Envoyer fichier BD en CSV par messagerie</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Envoyer fichier spool par messagerie</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Conversion de spool en PDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Envoyer membre source par messagerie</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Gestion de mes fichiers spool</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Source des commandes - Français</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Source groupe d'aide - Français</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Source groupe de panneaux UIM - Français</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Source ILE RPG - Français</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Messages MAI/400 - Français</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Messages d'invite MAI/400 - Français</td><td>2026-09-27</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Gestion de mes fichiers spoule - pgm principal</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Programme de sortie liste d'actions UIM WRKMSPLF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Aide pour la commande DBTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Aide pour la commande SPLTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Aide pour la commande SPLTOPDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Aide pour la commande SRCTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Gestion de mes fichiers spool - UIM</td><td>2026-10-08</td><td>2026-10-08</td></tr>
       </tbody>
     </table>
   </div>
@@ -557,22 +563,27 @@
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send DB as CSV Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Spool as Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Source as Mail (German)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files - German</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Command source - German</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Help panel group source - German</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 messages - German (155件)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 Befehlsaufforderung - Deutsch (19件)</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAIL command help - German</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - German</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Datenbankdatei als CSV-Mail senden</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Spool-Datei als Mail senden</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Spool-Datei in PDF konvertieren</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Quelldatei-Element als Mail senden</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Arbeiten mit eigenen Spool-Dateien</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Befehlsquellendatei - Deutsch</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Hilfebildgruppenquellendatei - Deutsch</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>UIM-Tafelgruppenquellendatei - Deutsch</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>ILE RPG-Quellendatei - Deutsch</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400-Nachrichten - Deutsch</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>MAI/400-Aufforderungsnachrichten - Deutsch</td><td>2026-09-27</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Mit meinen Spool-Dateien arbeiten - Hauptprogramm</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>WRKMSPLF UIM-Aktionslisten-Exitprogramm</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Hilfe zum Befehl DBTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Hilfe zum Befehl SPLTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Hilfe zum Befehl SPLTOPDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Hilfe zum Befehl SRCTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Arbeiten mit eigenen Spool-Dateien - UIM</td><td>2026-10-08</td><td>2026-10-08</td></tr>
       </tbody>
     </table>
   </div>
@@ -582,22 +593,27 @@
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send DB as CSV Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Spool as Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Source as Mail (Spanish)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files - Spanish</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Command source - Spanish</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Help panel group source - Spanish</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 messages - Spanish (155件)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 aviso comando - Espanol (19件)</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAIL command help - Spanish</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - Spanish</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Enviar archivo BD como CSV por correo</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Enviar archivo spool por correo</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Convertir archivo spool a PDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Enviar miembro de archivo fuente</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Trabajar con mis archivos en spool</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Archivo de mandatos fuente - Español</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Archivo de grupos ayuda fuente - Español</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Archivo grupos paneles UIM - Español</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>Archivo fuente ILE RPG - Español</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Mensajes MAI/400 - Español</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Mensajes de solicitud MAI/400 - Español</td><td>2026-09-27</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Trabajar con mis archivos en spool - pgm ppal</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Prog salida lista acciones UIM WRKMSPLF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Ayuda para el mandato DBTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Ayuda para el mandato SPLTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Ayuda para el mandato SPLTOPDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Ayuda para el mandato SRCTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Trabajar con mis archivos en spool - UIM</td><td>2026-10-08</td><td>2026-10-08</td></tr>
       </tbody>
     </table>
   </div>
@@ -607,24 +623,27 @@
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>オブジェクト名</th><th>タイプ</th><th>テキスト</th><th>作成日</th><th>最終変更</th></tr>
+        <tr><th>オブジェクト名</th><th>タイプ</th><th>属性</th><th>テキスト記述</th><th>作成日</th><th>最終変更</th></tr>
       </thead>
       <tbody>
-        <tr><td>DBTOCSV</td><td><span class="tag tag-CMD">*CMD</span></td><td>COPY TO CSV FILE</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send DB as CSV Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Spool as Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td>SPLF TO PDF</td><td>2026-09-25</td><td>2026-09-25</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td>Send Source as Mail (Italian)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td>Work with My Spooled Files - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Command source - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>Help panel group source - Italian</td><td>2026-09-26</td><td>2026-09-27</td></tr>
-        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>UIM Panel Group Source</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 Messaggi Italiani (155件)</td><td>2026-09-25</td><td>2026-09-27</td></tr>
-        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td>MAI/400 prompt comando - Italiano (19件)</td><td>2026-09-27</td><td>2026-09-27</td></tr>
-        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>DBTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
-        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SPLTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
-        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>SRCTOMAIL command help - Italiano</td><td>2026-09-26</td><td>2026-09-26</td></tr>
-        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td>Work with My Spooled Files - Italian</td><td>2026-09-27</td><td>2026-09-27</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Inviare file DB come CSV per posta</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Inviare file spool per posta</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Convertire file spool in PDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Inviare membro sorgente per posta</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-CMD">*CMD</span></td><td></td><td>Gestione dei propri file di spool</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QCMDSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>File origine comandi - Italiano</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QHLPSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>File di origine guida - Italiano</td><td>2026-09-26</td><td>2026-10-08</td></tr>
+        <tr><td>QPNLSRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>File origine gruppo pannelli UIM - Italiano</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>QRPGLESRC</td><td><span class="tag tag-FILE">*FILE</span></td><td>PF</td><td>File di origine ILE RPG - Italiano</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>MAIMSG</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Messaggi MAI/400 - Italiano</td><td>2026-09-25</td><td>2026-10-08</td></tr>
+        <tr><td>MAIPMT</td><td><span class="tag tag-MSGF">*MSGF</span></td><td></td><td>Messaggi di richiesta MAI/400 - Italiano</td><td>2026-09-27</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Gestione dei propri file di spool - pgm princ</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLFX</td><td><span class="tag tag-PGM">*PGM</span></td><td>RPGLE</td><td>Prog uscita elenco azioni UIM WRKMSPLF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>DBTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Guida per il comando DBTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Guida per il comando SPLTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SPLTOPDF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Guida per il comando SPLTOPDF</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>SRCTOMAIL</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Guida per il comando SRCTOMAIL</td><td>2026-10-08</td><td>2026-10-08</td></tr>
+        <tr><td>WRKMSPLF</td><td><span class="tag tag-PNLGRP">*PNLGRP</span></td><td></td><td>Gestione dei miei file spool - UIM</td><td>2026-10-08</td><td>2026-10-08</td></tr>
       </tbody>
     </table>
   </div>
@@ -659,6 +678,12 @@
           <td>全6言語</td>
         </tr>
         <tr>
+          <td><strong>SPLTOPDF</strong></td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
+          <td>全6言語 (2026-10-08 全NLS追加)</td>
+        </tr>
+        <tr>
           <td><strong>SRCTOMAIL</strong></td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
           <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="chk">&#10003;</td>
@@ -671,16 +696,10 @@
           <td>全6言語 (UIM)</td>
         </tr>
         <tr>
-          <td><strong>SPLTOPDF</strong></td>
-          <td class="chk">&#10003;</td><td class="chk">&#10003;</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="chk">&#10003;</td>
-          <td>日/英/伊のみ</td>
-        </tr>
-        <tr>
           <td><strong>DBTOCSV</strong></td>
           <td class="chk">&#10003;</td><td class="dash">-</td><td class="dash">-</td>
-          <td class="dash">-</td><td class="dash">-</td><td class="chk">&#10003;</td>
-          <td>日/伊のみ</td>
+          <td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>
+          <td>日本語のみ（MAI2932の不要コマンド削除）</td>
         </tr>
         <tr>
           <td><strong>SPLTOTXT</strong></td>
@@ -706,6 +725,16 @@
         <tr><th>日付</th><th>変更内容</th><th>対象ライブラリ</th></tr>
       </thead>
       <tbody>
+        <tr>
+          <td>2026-10-08</td>
+          <td>全 NLS ライブラリ構成を基準ライブラリ MAI2924 と完全同期（各 18 オブジェクトで統一）<br>
+              ・全 NLS に QRPGLESRC を新規作成し、各言語固有の CCSID（297/273/284/280/37）を設定<br>
+              ・全 NLS に SPLTOPDF (*CMD / *PNLGRP) を追加・コンパイル<br>
+              ・全 NLS に WRKMSPLF (SQLRPGLE) / WRKMSPLFX (RPGLE) *PGM をコンパイル作成<br>
+              ・MAI2932 に残存していた不要な DBTOCSV *CMD を削除<br>
+              ・全 SRCF / オブジェクト / ライブラリ の TEXT（DESCRIPTION）を多言語文言に更新</td>
+          <td>MAI2924/2928/2929/2931/2932</td>
+        </tr>
         <tr>
           <td>2026-09-27</td>
           <td>WRKMSPLF *CMD / *PNLGRP を全 NLS ライブラリに追加</td>
@@ -766,7 +795,7 @@
   MAI/400 NLS_Libraries.html &mdash;
   IBM i BLUENOTE (V7R5M0) &mdash;
   情報取得: QSYS2.OBJECT_STATISTICS / QSYS2.MESSAGE_FILE_DATA &mdash;
-  最終更新: 2026-09-27
+  最終更新: 2026-10-08
 </footer>
 
 </body>
