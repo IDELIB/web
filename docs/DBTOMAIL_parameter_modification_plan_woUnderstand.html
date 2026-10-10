@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBTOMAIL コマンド パラメータ追加 修正設計書</title>
+    <!-- Mermaid.js for rendering diagrams in browser -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'neutral',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+        });
+    </script>
+    <style>
+        :root {
+            --primary: #0f62fe;
+            --primary-dark: #0043ce;
+            --secondary: #393939;
+            --bg: #f4f7fb;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --text: #161616;
+            --text-muted: #525252;
+            --code-bg: #1e1e1e;
+            --code-text: #f4f4f4;
+            --badge-cmd-bg: #e8daff;
+            --badge-cmd-txt: #6929c4;
+            --badge-c-bg: #d0e2ff;
+            --badge-c-txt: #0043ce;
+            --badge-cl-bg: #d1f7c4;
+            --badge-cl-txt: #0e6027;
+            --badge-rpg-bg: #ffe6ba;
+            --badge-rpg-txt: #8a3800;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        h1.section-title {
+            font-size: 1.45rem;
+            color: var(--text);
+            border-left: 5px solid var(--primary);
+            padding-left: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        h2.subsection-title {
+            font-size: 1.15rem;
+            color: var(--secondary);
+            margin: 1.25rem 0 0.75rem;
+        }
+
+        p {
+            margin-bottom: 0.75rem;
+        }
+
+        /* Diagram Box */
+        .diagram-container {
+            background-color: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.25rem 0;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        tr:hover {
+            background-color: #fbfcfd;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+
+        .badge-cmd { background: var(--badge-cmd-bg); color: var(--badge-cmd-txt); }
+        .badge-c   { background: var(--badge-c-bg); color: var(--badge-c-txt); }
+        .badge-cl  { background: var(--badge-cl-bg); color: var(--badge-cl-txt); }
+        .badge-rpg { background: var(--badge-rpg-bg); color: var(--badge-rpg-txt); }
+        .badge-msg { background: #ffd7d9; color: #a2191f; }
+        .badge-pnl { background: #e0e0e0; color: #393939; }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.85rem;
+            margin: 0.75rem 0 1rem;
+            line-height: 1.45;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            background: #eee;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+            color: #d12771;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .highlight-add {
+            color: #7ee787;
+        }
+
+        .highlight-chg {
+            color: #79c0ff;
+        }
+
+        .alert-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffb300;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .alert-box strong {
+            color: #b78103;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.92rem;
+        }
+
+        li {
+            margin-bottom: 0.35rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- 1. アーキテクチャおよび処理フローの概要 -->
+    <div class="card">
+        <h1 class="section-title">1. アーキテクチャおよび処理フローの概要</h1>
+        <p><code>DBTOMAIL</code> コマンドは、CLコマンド定義を起点にC言語のコマンド処理プログラム（CPP）が起動し、一時IFSストリームファイルの生成・メール送信サービス（<code>SMTPSRVS</code>）との連携を行います。</p>
+        
+        <!-- Mermaid によるグラフィカルなアーキテクチャ図 -->
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart TD
+    CMD["DBTOMAIL.CMD<br/><b>コマンド定義</b>"] -->|"パラメータ受け渡し (argv)"| CPP["DBTOMAIL.C<br/><b>コマンド処理プログラム (CPP)</b>"]
+    
+    subgraph S1 ["1. 拡張子・一時ファイル名決定"]
+        CPP -->|"形式・ATFILE判定"| ATNAME["添付ファイル名決定<br/>(*.csv / *.txt / *.tsv)"]
+    end
+
+    subgraph S2 ["2. データ抽出・形式変換"]
+        CPP -->|"CALL DBTOCSV"| CL["DBTOCSV.CLP<br/><b>変換制御CL</b>"]
+        CL -->|"DSPFFD OUTFILE"| DSPFFD[("DSPFFDF<br/>フィールド定義")]
+        DSPFFD --> CL
+        CL -->|"CALL"| RPG1["DBTOCSVL.RPGLE<br/>レコード長算出"]
+        CL -->|"CRTPF"| TEMPPF[("一時PF<br/>QTEMP/CSVPF")]
+        CL -->|"OVRDBF & CALL"| RPG2["DBTOCSVR.RPGLE<br/>データ変換処理"]
+        RPG2 --> TEMPPF
+        CL -->|"CPYTOSTMF"| STMF[/"一時IFSストリームファイル<br/>/tmp/TMPxxxxxx"/]
+    end
+
+    subgraph S3 ["3. メール送信 & 後処理"]
+        CPP -->|"SMTPMpartAttach"| SMTPSRVS["SMTPSRVS<br/><b>SMTP送信サービス</b>"]
+        STMF -.->|"添付ファイル読込"| SMTPSRVS
+        SMTPSRVS -->|"SMTP送信"| MAIL[("メールサーバー")]
+        CPP -->|"remove()"| DEL["一時IFSファイル削除"]
+    end
+
+    style CMD fill:#e8daff,stroke:#6929c4,stroke-width:2px;
+    style CPP fill:#d0e2ff,stroke:#0043ce,stroke-width:2px;
+    style CL fill:#d1f7c4,stroke:#0e6027,stroke-width:2px;
+    style RPG1 fill:#ffe6ba,stroke:#8a3800,stroke-width:1.5px;
+    style RPG2 fill:#ffe6ba,stroke:#8a3800,stroke-width:1.5px;
+    style STMF fill:#f4f4f4,stroke:#525252,stroke-width:1.5px;
+    style SMTPSRVS fill:#ffd7d9,stroke:#a2191f,stroke-width:2px;
+            </div>
+        </div>
+
+        <p><strong>実行ステップの詳細:</strong></p>
+        <ol>
+            <li><strong>コマンド実行:</strong> ユーザーが <code>DBTOMAIL</code> コマンドを実行し、宛先やファイル、追加されるファイル形式（<code>FMT</code>）などを指定。</li>
+            <li><strong>パラメータ解析:</strong> CPP（<code>DBTOMAIL.C</code>）が <code>argv</code> を解析し、添付ファイル名・一時ストリームファイル名を決定。</li>
+            <li><strong>データ変換:</strong> <code>DBTOCSV.CLP</code> およびRPGプログラムがデータベースファイルから指定形式へデータを変換し一時IFSファイルへ出力。</li>
+            <li><strong>送信と削除:</strong> <code>SMTPSRVS</code> サービスプログラムがIFSファイルをMIME添付してSMTP送信し、送信完了後に一時ファイルを削除。</li>
+        </ol>
+    </div>
+
+    <!-- 2. 修正対象ファイルと必要な変更箇所の洗い出し -->
+    <div class="card">
+        <h1 class="section-title">2. 修正対象ファイルと必要な変更箇所の洗い出し</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>分類</th>
+                    <th>対象ファイル</th>
+                    <th>主な修正内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>コマンド定義</strong></td>
+                    <td><code>MAIV300S/QCMDSRC/DBTOMAIL.CMD</code></td>
+                    <td>ファイル形式用パラメータ（例: <code>FMT</code> または <code>TYPE</code>）の定義追加</td>
+                </tr>
+                <tr>
+                    <td><strong>コマンド処理プログラム (CPP)</strong></td>
+                    <td><code>MAIV300S/QCSRC/DBTOMAIL.C</code></td>
+                    <td>引数（<code>argv</code>）の受取、拡張子自動判定、変換呼出、MIMEタイプ設定の修正</td>
+                </tr>
+                <tr>
+                    <td><strong>変換制御プログラム</strong></td>
+                    <td><code>MAIV300S/QCLSRC/DBTOCSV.CLP</code></td>
+                    <td>ファイル形式に応じた変換処理の分岐・パラメータ受け渡し（または別形式用CLの呼出）</td>
+                </tr>
+                <tr>
+                    <td><strong>変換RPGプログラム</strong></td>
+                    <td><code>MAIV300S/QRPGLESRC/DBTOCSVR.RPGLE</code><br><code>MAIV300S/QRPGLESRC/DBTOCSVL.RPGLE</code></td>
+                    <td>CSV以外の区切り文字（タブ、固定長など）に対応する場合のロジック追加または新規作成</td>
+                </tr>
+                <tr>
+                    <td><strong>メッセージ定義</strong></td>
+                    <td><code>MAIV300S/QMAKESRC/ADBMSG.CLP</code></td>
+                    <td>コマンドプロンプト画面用メッセージID（例: <code>DBT0220</code>）の <code>ADDMSGD</code> 追加</td>
+                </tr>
+                <tr>
+                    <td><strong>ヘルプ・パネルグループ</strong></td>
+                    <td><code>MAIV300S/QHLPSRC/DBTOMAIL.PNLGRP</code></td>
+                    <td>新規パラメータのヘルプ定義（<code>:help name='DBTOMAIL/FMT'.</code>）追加</td>
+                </tr>
+                <tr>
+                    <td><strong>多言語ヘルプ（必要時）</strong></td>
+                    <td><code>MAIV300S/QHLPSRC037/</code> 等</td>
+                    <td>各言語版ヘルプへの追記</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. 詳細な修正内容と設計上の考慮点 -->
+    <div class="card">
+        <h1 class="section-title">3. 詳細な修正内容と設計上の考慮点</h1>
+
+        <h2 class="subsection-title">(1) コマンド定義 (DBTOMAIL.CMD)</h2>
+        <ul>
+            <li><strong>パラメータ定義の追加:</strong>
+                <pre><code><span class="highlight-add">PARM       KWD(FMT) TYPE(*CHAR) LEN(10) RSTD(*YES) DFT(*CSV) +
+             VALUES(*CSV *TXT *TSV) +
+             PROMPT(DBT0220 75)</span></code></pre>
+            </li>
+            <li><strong>パラメータ順序に関する注意:</strong>
+                <div class="alert-box">
+                    <strong>⚠️ 引数順序 (argv) の整合性</strong><br>
+                    IBM i の CL コマンドでは、CPP（Cプログラム）へ渡される <code>argv</code> の順番は <strong><code>CMD</code> ソース内の <code>PARM</code> 定義順</strong> に依存します。<br>
+                    既存の位置に挿入すると、それ以降のすべてのパラメータの <code>argv[n]</code> のインデックスがずれるため、<code>DBTOMAIL.C</code> の <code>memcpy</code> 箇所をすべて合わせて更新する必要があります。末尾（<code>argv[21]</code>）に追加する場合は既存パラメータへの影響を最小限に抑えられます。
+                </div>
+            </li>
+        </ul>
+
+        <h2 class="subsection-title">(2) コマンド処理プログラム (DBTOMAIL.C)</h2>
+        <ul>
+            <li><strong>引数受取と変数宣言:</strong>
+                <p>ファイル形式用変数（例: <code>char PFMT[11]={0};</code>）を追加し、<code>main</code> 関数内で <code>argv</code> から値を取得します。</p>
+            </li>
+            <li><strong>添付ファイル拡張子の動的判定:</strong>
+                <p>現状は <code>PATNAME</code> が <code>*FILE</code> の場合に無条件で <code>.csv</code> を付与していますが、形式パラメータに応じて拡張子を動的に切り替えます。</p>
+                <pre><code>if(PATNAME[0] == '*'){
+    memcpy(wAtname, PFILE, 10);
+    for(i = 0; i &lt; 31; i++){
+        if(wAtname[i] &lt;= ' '){
+<span class="highlight-chg">            if(strncmp(PFMT, "*TXT", 4) == 0){
+                memcpy(&wAtname[i], ".txt", 5);
+            } else if(strncmp(PFMT, "*TSV", 4) == 0){
+                memcpy(&wAtname[i], ".tsv", 5);
+            } else {
+                memcpy(&wAtname[i], ".csv", 5);
+            }</span>
+            break;
+        }
+    }
+}</code></pre>
+            </li>
+            <li><strong>変換呼び出し・分岐:</strong>
+                <p><code>DBTOCSV(...)</code> 呼出に対してパラメータを渡すか、ファイル形式ごとに呼び出すプログラムを分岐させます。</p>
+            </li>
+            <li><strong>MIMEタイプの指定（推奨）:</strong>
+                <p><code>SMTPMpartAttach</code> で、形式に応じた適切な Content-Type（<code>text/csv</code>, <code>text/plain</code>, <code>text/tab-separated-values</code> 等）を設定できるようにします。</p>
+            </li>
+        </ul>
+
+        <h2 class="subsection-title">(3) 変換処理群 (DBTOCSV.CLP, DBTOCSVR.RPGLE)</h2>
+        <ul>
+            <li><strong><code>*TXT</code>（固定長）の場合:</strong> 区切り文字なしでそのままコピー（<code>CPYTOSTMF</code> などの利用）。</li>
+            <li><strong><code>*TSV</code>（タブ区切り）の場合:</strong> 区切り文字をカンマから <code>0x05</code>（EBCDICタブ）または変換時にタブへ切り替え。</li>
+            <li><code>DBTOCSV.CLP</code> のパラメータ追加に伴い、<code>PGM PARM(...)</code> および <code>DBTOCSVL</code>/<code>DBTOCSVR</code> との連携を拡張します。</li>
+        </ul>
+
+        <h2 class="subsection-title">(4) メッセージファイルおよびヘルプ</h2>
+        <ul>
+            <li><strong>ADBMSG.CLP:</strong> プロンプト文言用（例: <code>DBT0220</code> -> <code>'ファイル形式:'</code>）の <code>ADDMSGD</code> コマンドを追加し実行。</li>
+            <li><strong>DBTOMAIL.PNLGRP:</strong> パラメータ <code>FMT</code> のヘルプセクションと有効値の説明を追加。</li>
+        </ul>
+    </div>
+
+    <!-- 4. 実装・テストにおける考慮事項 -->
+    <div class="card">
+        <h1 class="section-title">4. 考慮事項および推奨テスト手順</h1>
+        <ul>
+            <li><strong>CCSID・文字コード変換の整合性:</strong> <code>FROMCCSID</code>（EBCDIC）から <code>TOCCSID</code>（SJIS: 943, UTF-8: 1208等）への変換が各形式で正しく適用されることを確認します。</li>
+            <li><strong>バイナリ/MIMEタイプ:</strong> 現行は <code>application/octet-stream</code> で汎用送信されていますが、必要に応じて <code>text/plain</code> や <code>text/csv</code> への切り替えを検討します。</li>
+            <li><strong>単体テスト項目:</strong>
+                <ol>
+                    <li>形式無指定時のデフォルト（<code>*CSV</code>）動作の既存互換性確認</li>
+                    <li><code>FMT(*TXT)</code> 指定時の固定長テキスト出力および添付名（<code>.txt</code>）確認</li>
+                    <li><code>FMT(*TSV)</code> 指定時のタブ区切り出力確認</li>
+                    <li><code>ATFILE</code> 明示指定時とデフォルト（<code>*FILE</code>）時の拡張子処理確認</li>
+                </ol>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
