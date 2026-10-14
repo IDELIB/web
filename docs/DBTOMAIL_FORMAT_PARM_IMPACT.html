@@ -1,0 +1,120 @@
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>DBTOMAIL ファイル形式パラメーター追加 影響調査レポート</title>
+<style>
+body{font-family:-apple-system,"Segoe UI",system-ui,"Hiragino Sans","Yu Gothic",sans-serif;font-size:14px;line-height:1.6;color:#1f2328;background:#fff;max-width:760px;margin:0 auto;padding:24px}
+h1{font-size:22px;border-bottom:2px solid #3b82d4;padding-bottom:8px}
+h2{font-size:17px;margin-top:32px;border-bottom:1px solid #e5e7eb;padding-bottom:4px}
+h3{font-size:15px;margin-top:20px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #e5e7eb;padding:6px 10px;text-align:left;vertical-align:top}
+th{background:#f7f8fa}
+code{background:#f7f8fa;padding:1px 4px;border-radius:3px;font-size:12.5px}
+.box{background:#f7f8fa;border:1px solid #e5e7eb;padding:10px 14px;margin:12px 0}
+.muted{color:#57606a}
+pre{background:#f7f8fa;border:1px solid #e5e7eb;padding:10px;overflow-x:auto;font-size:12.5px}
+footer{margin-top:40px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#57606a}
+</style>
+</head>
+<body>
+<h1>DBTOMAIL コマンド ファイル形式パラメーター追加 影響調査レポート</h1>
+<p class="muted">対象アプリ: MAI/400 (APP_ID 5) / ソース参照: MAIV300S ライブラリー / Understand 最終スキャン: 2026-10-08 (調査時点で6日前) / 調査日: 2026-10-14</p>
+
+<h2>1. 概要</h2>
+<div class="box">
+<p><strong>リスク評価: 低〜中</strong></p>
+<ul>
+<li>Understand 上の依存は浅く、影響は <code>DBTOMAIL</code> 自身と <code>DBTOCSV</code> 系プログラムにほぼ閉じています。</li>
+<li>5つの言語版 <code>DBTOMAIL</code> コマンドが PGM <code>MAI/DBTOMAIL</code> を共有しています。メッセージ、ヘルプ、ビルド CL の更新箇所が多くなります。</li>
+<li>「ファイル形式」は、添付ファイルの出力形式を選ぶパラメーター(例: <code>FORMAT(*CSV *TSV …)</code>)と解釈しました。形式の候補値と、形式で出力内容が変わる範囲は未確認です。</li>
+</ul>
+</div>
+
+<h2>2. Understand 解析結果</h2>
+<pre>
+CMD  MAI/DBTOMAIL  --CMD_CPP--&gt;  PGM MAI/DBTOMAIL (ILE C)  --BOUND_SRVPGM--&gt; SRVPGM MAI/SMTPSRVS
+CMD  MAI2924/2928/2929/2931/2932 DBTOMAIL  ..CRTCMD で PGM(MAI/DBTOMAIL) を共有..
+PGM  MAI/DBTOMAIL  ..C から DBTOCSV を呼出し(スキャン未検出)..  PGM MAI/DBTOCSV (CLP)
+PGM  MAI/DBTOCSV   --PGM_CALL--&gt; DBTOCSVL (RPGLE) / DBTOCSVR (RPGLE)
+CMD  MAI/DBTOCSV   --CMD_CPP--&gt;  PGM MAI/DBTOCSV
+</pre>
+<table>
+<tr><th>オブジェクト</th><th>結果</th></tr>
+<tr><td>CMD <code>MAI/DBTOMAIL</code></td><td>被依存0件。処理プログラム(CPP)は <code>DBTOMAIL</code>。</td></tr>
+<tr><td>PGM <code>MAI/DBTOMAIL</code></td><td>ILE C。被依存は CMD_CPP の1件。<code>SMTPSRVS</code> をバインド。</td></tr>
+<tr><td>SRVPGM <code>MAI/SMTPSRVS</code></td><td>被バインド3件。エクスポート26個。今回の変更では変更不要。</td></tr>
+<tr><td>他言語版 CMD (MAI2924, MAI2928, MAI2929, MAI2931, MAI2932)</td><td>同名 <code>DBTOMAIL</code> が5つ。Understand 上の依存は0件。</td></tr>
+<tr><td>PGM <code>MAI/DBTOCSV</code> (CLP)</td><td>被依存は CMD_CPP の1件。<code>DBTOCSVL</code>、<code>DBTOCSVR</code> を呼ぶ。</td></tr>
+<tr><td>PGM <code>MAIV300S/MDBTOMAIL</code> (CLP)</td><td>ビルド用 CL。依存の記録なし。</td></tr>
+</table>
+<p>次の関係は Understand に出ないため、ソースで確認しました。</p>
+<ul>
+<li>C から <code>DBTOCSV</code> を呼ぶ処理(<code>#pragma linkage(DBTOCSV,OS)</code>)</li>
+<li>他言語版コマンドが <code>PGM(MAI/DBTOMAIL)</code> を共有していること(<code>CRTCMD</code> 文)</li>
+<li>メッセージ、ヘルプ、ビルド CL の関係</li>
+</ul>
+
+<h2>3. 必要な修正</h2>
+<h3>A. 必須修正</h3>
+<table>
+<tr><th>#</th><th>対象 (MAIV300S)</th><th>修正内容</th></tr>
+<tr><td>1</td><td><code>QCMDSRC/DBTOMAIL.CMD</code></td><td><code>PARM KWD(FORMAT)</code> を追加。例: <code>TYPE(*CHAR) LEN(10) RSTD(*YES) DFT(*CSV) SPCVAL(...) PROMPT(DBT02xx nnn)</code></td></tr>
+<tr><td>2</td><td><code>QCSRC/DBTOMAIL.C</code> (行104〜126)</td><td>FORMAT 用グローバル変数(<code>PFORMAT[11]</code>)を追加し、<code>main</code> に <code>memcpy(PFORMAT, argv[n], 10)</code> を追加。<code>argv</code> は CMD の PARM 定義順。</td></tr>
+<tr><td>3</td><td>同上 (行184付近)</td><td><code>DBTOCSV(...)</code> 呼び出しに形式を渡す(B 参照)。</td></tr>
+<tr><td>4</td><td>同上 (行165〜181、行324〜325)</td><td>添付名の拡張子が <code>".csv"</code> 固定(行170)、Content-Type が <code>"application/octet-stream"</code> 固定。形式に応じて切り替える。</td></tr>
+<tr><td>5</td><td>同上 (行313〜320)</td><td>本文に形式を表示するか判断(任意)。</td></tr>
+<tr><td>6</td><td><code>QCLSRC/CRTMAIMSG.CLP</code> (行414付近)、<code>QMAKESRC/ADBMSG.CLP</code> (行353付近)</td><td>新しい DBT0xxx 番号のプロンプト・メッセージ(日本語)を追加。次の番号が未使用か要確認。</td></tr>
+<tr><td>7</td><td><code>CRTMAI24/28/29/31/32.CLP</code>、<code>QMAKESRC/ADBMSG2.CLP</code></td><td>各言語の <code>MAIMSG</code> に同じメッセージ ID を追加。</td></tr>
+<tr><td>8</td><td><code>QHLPSRC/DBTOMAIL.PNLGRP</code></td><td><code>:help name='DBTOMAIL/FORMAT'.</code> を追加。CMD の定義位置に合わせて挿入。</td></tr>
+<tr><td>9</td><td><code>QHLPSRC037/273/280/284/297</code></td><td>他言語ヘルプを保守している場合は追加。今回の検索では DBTOMAIL* は該当なし。</td></tr>
+</table>
+
+<h3>B. 形式によって出力内容が変わる場合の DBTOCSV 系修正</h3>
+<p>現在 <code>DBTOMAIL.C</code> は <code>DBTOCSV</code> に8個の固定引数(<code>PFILE</code>, <code>*STMF</code>, <code>PMBR</code>, <code>*REPLACE</code>, <code>*YES</code>, <code>wStmf</code>, <code>PFROMCCSID</code>, <code>PTOCCSID</code>)を渡しています。</p>
+<table>
+<tr><th>#</th><th>対象</th><th>修正内容</th></tr>
+<tr><td>10</td><td><code>QCMDSRC/DBTOCSV.CMD</code></td><td>FORMAT 相当の PARM を追加。</td></tr>
+<tr><td>11</td><td><code>QCLSRC/DBTOCSV.CLP</code></td><td><code>PGM PARM(...)</code> と <code>DCL</code> に変数を追加し、<code>DBTOCSVR</code> / <code>DBTOCSVL</code> へ形式を渡す。</td></tr>
+<tr><td>12</td><td><code>QRPGLESRC/DBTOCSVR.RPGLE</code> (行151付近)</td><td>区切り文字 <code>','</code> と引用符 <code>'"'</code> が固定。<code>*ENTRY PLIST</code> が無いので追加が必要(現在は引数なしで呼び出し、入出力は <code>OVRDBF</code>)。</td></tr>
+<tr><td>13</td><td><code>QRPGLESRC/DBTOCSVL.RPGLE</code> (行23付近)</td><td>レコード長の見積り(区切り文字・引用符の加算、エスケープ分2倍)を新形式に合わせて見直す。<code>PLIST</code> は <code>RECLEN</code> の1引数。</td></tr>
+<tr><td>14</td><td><code>QRPGSRC/DBTOCSVR.RPG</code></td><td>OPM 版コピーが残っている。同期するか保守対象外とするか判断。</td></tr>
+</table>
+
+<h3>C. ビルド・配布</h3>
+<table>
+<tr><th>#</th><th>対象</th><th>修正内容</th></tr>
+<tr><td>15</td><td><code>QMAKESRC/MDBTOMAIL.CLP</code></td><td>再ビルド順序: C モジュール → <code>DBTOCSV</code>/<code>DBTOCSVL</code>/<code>DBTOCSVR</code> → <code>CRTPGM</code> → <code>CRTCMD</code>(DBTOCSV と DBTOMAIL)。<code>CRTCMD</code> に <code>REPLACE</code> が無いため既存コマンドがある場合は注意。</td></tr>
+<tr><td>16</td><td><code>CRTMAI24.CLP</code> (行436)、<code>CRTMAI32.CLP</code> (行372)</td><td>各言語ライブラリーの <code>CRTCMD CMD(MAI29xx/DBTOMAIL) ... PGM(MAI/DBTOMAIL)</code> を再実行。PGM を共有しているため全言語版の再作成が必要。</td></tr>
+<tr><td>17</td><td><code>CRTMAI28/29/31.CLP</code></td><td>DBTOMAIL の <code>CRTCMD</code> 行が検索に出なかった。実際の記述を要確認。</td></tr>
+</table>
+
+<h2>4. 設計上の注意点</h2>
+<ol>
+<li><strong>PARM の位置:</strong> <code>DBTOMAIL.C</code> は <code>argv[n]</code> の位置で引数を取得する(行104〜126)。途中に挿入すると以降の <code>argv</code> が全てずれる。末尾(GSKAPPID の後ろ、argv[21])への追加が最小変更。ただし画面表示順も末尾になる。</li>
+<li><strong>既存呼び出し元:</strong> <code>DFT</code> を付ければキーワード指定の既存呼び出しは影響なし。位置指定でも末尾追加なら影響なし。例: <code>QCLSRC/TESTIBMNA3.CLP</code> はキーワード指定。</li>
+<li><strong>TOCCSID の不整合:</strong> <code>DBTOMAIL.C</code> の <code>tccsid = 932;</code> は固定(行195)。画面の <code>*UTF8</code> 指定は <code>DBTOCSV</code> 側(<code>PTOCCSID</code>)にのみ効く。形式と文字コードの組み合わせを仕様化する場合は見直し候補。</li>
+<li><strong>DBTOCSV の引数名:</strong> <code>DBTOCSV.CMD</code> は <code>STMFCCSID</code>、CLP 側の変数は <code>&amp;TCCSID</code>。位置渡しのため動作はするが、引数追加時は順序に注意。</li>
+<li><strong>作業中のソース:</strong> <code>DBTOMAIL2.CMD</code>(「修正中」、BODY01〜10 などを追加)と <code>DBTOMAIL2.C</code> が存在する。追加先をどちらにするか要確認。これらは Understand の依存検索に出てこなかった。</li>
+</ol>
+
+<h2>5. 盲点</h2>
+<ul>
+<li>C 言語からの <code>DBTOCSV</code> 呼び出し(<code>#pragma linkage</code>)はスキャンで検出されない。</li>
+<li>外部(ジョブスケジューラー、メニュー、他ライブラリー)の <code>DBTOMAIL</code> 呼び出しは捕捉できない。スキャン対象は7ライブラリーのみ。</li>
+<li>動的呼び出し・動的 SQL は検出されない。今回の対象は <code>HAS_DYNAMIC_SQL=N</code>。</li>
+<li>スキャンは6日前のスナップショット。</li>
+<li>一部のソース検索は並列実行時に接続エラーとなった。確認できなかった箇所は #17 に記載。</li>
+</ul>
+
+<h2>6. 次のステップ</h2>
+<ol>
+<li>形式の仕様(候補値、拡張子、MIME、区切り文字)を決める。</li>
+<li>追加位置(末尾か途中か)と、修正対象が <code>DBTOMAIL</code> か <code>DBTOMAIL2</code> かを決める。</li>
+<li>仕様確定後、CMD、C、CLP、RPGLE、メッセージ、ヘルプの修正と再ビルドを実施する。</li>
+</ol>
+
+<footer>Made with IBM Bob</footer>
+</body>
+</html>
