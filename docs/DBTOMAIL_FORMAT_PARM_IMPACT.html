@@ -15,6 +15,7 @@ code{background:#f7f8fa;padding:1px 4px;border-radius:3px;font-size:12.5px}
 .box{background:#f7f8fa;border:1px solid #e5e7eb;padding:10px 14px;margin:12px 0}
 .muted{color:#57606a}
 pre{background:#f7f8fa;border:1px solid #e5e7eb;padding:10px;overflow-x:auto;font-size:12.5px}
+pre.mermaid{background:#fff;text-align:center}
 footer{margin-top:40px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#57606a}
 </style>
 </head>
@@ -33,13 +34,20 @@ footer{margin-top:40px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:
 </div>
 
 <h2>2. Understand 解析結果</h2>
-<pre>
-CMD  MAI/DBTOMAIL  --CMD_CPP--&gt;  PGM MAI/DBTOMAIL (ILE C)  --BOUND_SRVPGM--&gt; SRVPGM MAI/SMTPSRVS
-CMD  MAI2924/2928/2929/2931/2932 DBTOMAIL  ..CRTCMD で PGM(MAI/DBTOMAIL) を共有..
-PGM  MAI/DBTOMAIL  ..C から DBTOCSV を呼出し(スキャン未検出)..  PGM MAI/DBTOCSV (CLP)
-PGM  MAI/DBTOCSV   --PGM_CALL--&gt; DBTOCSVL (RPGLE) / DBTOCSVR (RPGLE)
-CMD  MAI/DBTOCSV   --CMD_CPP--&gt;  PGM MAI/DBTOCSV
+<pre class="mermaid">
+graph TD
+    CMD1["CMD MAI/DBTOMAIL"] --&gt;|CMD_CPP| PGM["PGM MAI/DBTOMAIL (ILE C)"]
+    CMD2["CMD MAI2924/2928/2929/2931/2932 DBTOMAIL"] -.-&gt;|"CRTCMDのPGM(MAI/DBTOMAIL)"| PGM
+    PGM --&gt;|BOUND_SRVPGM| SRV["SRVPGM MAI/SMTPSRVS"]
+    PGM -.-&gt;|"C言語から DBTOCSV を呼出し(スキャンでは未検出)"| CSV["PGM MAI/DBTOCSV (CLP)"]
+    CSV --&gt;|PGM_CALL| L["DBTOCSVL (RPGLE) 長さ算出"]
+    CSV --&gt;|PGM_CALL| R["DBTOCSVR (RPGLE) CSV作成"]
+    DCMD["CMD MAI/DBTOCSV"] --&gt;|CMD_CPP| CSV
 </pre>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({ startOnLoad: true, theme: "default" });
+</script>
 <table>
 <tr><th>オブジェクト</th><th>結果</th></tr>
 <tr><td>CMD <code>MAI/DBTOMAIL</code></td><td>被依存0件。処理プログラム(CPP)は <code>DBTOMAIL</code>。</td></tr>
